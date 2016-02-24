@@ -2,6 +2,9 @@ import socket
 import sys
 import select
 from chat_client import ChatClient
+import thread
+
+MAX_RECV_LEN = 1024
 
 class RDTPClient(ChatClient):
     def __init__(self, host, port):
@@ -11,6 +14,14 @@ class RDTPClient(ChatClient):
     def connect(self):
         self.socket.connect((self.host, self.port))
 
+        # fork thread that will print received messages
+        thread.start_new_thread(self.listener, ())
+
+    def listener(self):
+        while 1:
+        	print
+            print self.socket.recv(MAX_RECV_LEN)
+            print '> '
 
     def sendToGroup(self, group_id, message):
         try:
@@ -30,7 +41,7 @@ class RDTPClient(ChatClient):
 
     def fetch(self):
         self.send('fetch')
-        return self.recv(1024)
+        return self.recv(MAX_RECV_LEN)
 
     def close(self):
         self.socket.close()

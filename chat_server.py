@@ -14,7 +14,16 @@ class ChatServer():
     def sendMessageToGroup(self, message, group):
         # Sends message to everyone but the source of the message
         for user in self.getUsersFromGroup(group):
-        	    self.addMessageToQueue(message, user)
+        	    self.sendMessageToUser(message, user)
+
+    def sendMessageToUser(self, message, user):
+        if self.isOnline(user):
+        	print 'Found %s online! Sending message' % user
+        	self.send(message, user)
+        else:
+        	print '%s not online. Queueing message' % user
+        	self.addMessageToQueue(message, user)
+
 
     def createUser(self, username):
         self.amazing_queue[username] = []
@@ -28,7 +37,7 @@ class ChatServer():
     def deliverMessages(self, user):
         print self.amazing_queue[user]
         try:
-            self.sendMessage(user, self.getUserQueuedMessages(user))
+            self.send(self.getUserQueuedMessages(user), user)
             self.amazing_queue[user] = []
         except:
             print "Failed in deliverMessages()"

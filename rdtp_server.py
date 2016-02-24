@@ -79,7 +79,10 @@ class RDTPServer(ChatServer):
         else:
         	print "Action not found."
 
-    def sendMessage(self, user, message):
+    def isOnline(self, user):
+        return user in self.sock_by_user
+
+    def send(self, message, user):
         try:
             sock = self.sock_by_user[user]
             sock.sendall(message)
