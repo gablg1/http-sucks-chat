@@ -12,9 +12,9 @@ class RDTPClient(ChatClient):
         self.socket.connect((self.host, self.port))
 
 
-    def send(self, message):
+    def sendToGroup(self, group_id, message):
         try:
-            self.socket.sendall(message)
+            self.send('send:' + group_id + ':' + message)
         except:
             print "Couldn't send message. Assuming server disconnected."
             self.close()
@@ -25,10 +25,16 @@ class RDTPClient(ChatClient):
         	return 'No new messages.'
         return self.socket.recv(max_len)
 
+    def send(self, message):
+        self.socket.sendall(message)
 
     def fetch(self):
+        self.send('fetch')
         return self.recv(1024)
-
 
     def close(self):
         self.socket.close()
+
+    def login(self, username):
+        self.username = username
+        self.send('login:' + username)

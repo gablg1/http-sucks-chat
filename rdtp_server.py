@@ -1,13 +1,13 @@
 import socket
 import select
+from chat_server import ChatServer
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
 
-class RDTPServer():
+class RDTPServer(ChatServer):
     def __init__(self, host, port):
-        self.host = host
-        self.port = port
+        ChatServer.__init__(self, host, port)
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -22,6 +22,12 @@ class RDTPServer():
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.sockets = [self.socket]
+
+        self.user_by_sock = {}
+        self.sock_by_user = {}
+
+    def userFromSock(self, sock):
+        return self.user_by_sock[sock]
 
     def serve_forever(self):
         # Starts listening
@@ -54,13 +60,29 @@ class RDTPServer():
                     	self.sockets.remove(sock)
 
 
-    def handleMessage(self, src, message):
-        # Sends message to everyone but the source of the message
-        for sock in self.sockets:
-            if sock != src and sock != self.socket:
-                try:
-        		    sock.sendall(message)
-                except:
-                    print 'Failed to send message to client [%s:%s]' % sock.getpeername()
+    def handleMessage(self, sock, message):
+        args = message.split(':')
 
+        assert(len(args) > 0)
+
+        action = args[0]
+
+        if action == "fetch":
+        	self.deliverMessages(self.userFromSock(sock))
+        elif action == "send":
+        	self.sendMessageToGroup(args[2], int(args[1]))
+        elif action == "login":
+            username = args[1]
+            self.createUser(username)
+            self.user_by_sock[sock] = username
+            self.sock_by_user[username] = sock
+        else:
+        	print "Action not found."
+
+    def sendMessage(self, user, message):
+        try:
+            sock = self.sock_by_user[user]
+            sock.sendall(message)
+        except:
+            print 'Failed to send message to client [%s:%s]' % user.getpeername()
 

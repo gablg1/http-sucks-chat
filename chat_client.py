@@ -11,10 +11,11 @@ class ChatClient(cmd.Cmd):
         cmd.Cmd.__init__(self)
 
     def do_login(self, username):
-        print username
+        self.login(username)
 
-    def do_send(self, message):
-        self.send(message)
+    def do_send(self, body):
+        group_id, message = body.split(' ', 1)
+        self.sendToGroup(group_id, message)
 
     def do_fetch(self, useless):
         print self.fetch()
