@@ -9,17 +9,9 @@ data = " ".join(sys.argv[1:])
 
 chat_client = RDTPClient(HOST, PORT)
 
-try:
-    # Connect to server and send data
-    chat_client.connect()
-    while (True):
-        chat_client.send(data + "\n")
-
-        # Receive data from the server and shut down
-        time.sleep(1)
-    received = chat_client.recv(1024)
-finally:
-    chat_client.close()
+# Connect to server and send data
+chat_client.connect()
+chat_client.cmdloop()
 
 print "Sent:     {}".format(data)
 print "Received: {}".format(received)
