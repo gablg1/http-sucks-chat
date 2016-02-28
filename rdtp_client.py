@@ -10,6 +10,8 @@ class RDTPClient(ChatClient):
     def __init__(self, host, port):
         ChatClient.__init__(self, host, port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.username = None
+        self.session_token = None
 
     ##################################
     ### Connectivity
@@ -75,6 +77,11 @@ class RDTPClient(ChatClient):
     def login(self, username, password):
         """Login with given username and password.
         Returns boolean."""
+        # First logout of current account
+        if self.session_token:
+            self.logout
+
+        # Login with new account
         self.send('login:' + username + ':' + password)
         response = self.recv(MAX_RECV_LEN)
         if response == "0":
@@ -84,9 +91,11 @@ class RDTPClient(ChatClient):
             self.session_token = response
             return True
 
-    def logout(self, username):
+    def logout(self):
         """Logout of http-sucks-chat.
         Returns boolean."""
+        if not self.session_token:
+            return False
         self.send_action('logout', self.session_token)
         response = self.recv(MAX_RECV_LEN)
         if response == "0":
@@ -95,6 +104,14 @@ class RDTPClient(ChatClient):
             self.username = None
             self.session_token = None
             return True
+
+    def users_online(self):
+        """Returns list of users logged into http-sucks-chat."""
+        self.send('users_online:')
+        response = self.recv(MAX_RECV_LEN)
+        if response == "0":
+            return []
+        return response.split(':')
 
     def send_user(self, user_id, message):
         self.send_action('send_user', self.session_token, user_id, message)

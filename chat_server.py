@@ -82,6 +82,10 @@ class ChatServer():
         else:
             return False, ''
 
+    def users_online(self):
+        print self.logged_in_users
+        return [self.logged_in_users[user]['username'] for user in self.logged_in_users]
+
     ##################################
     ### Internal helpers
     ##################################

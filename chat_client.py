@@ -57,13 +57,22 @@ class ChatClient(cmd.Cmd):
         else:
             print "Could not log into http-sucks-chat with that username and password."
 
-    def do_logout(self):
+    def do_logout(self, params):
         """logout
         Logout of http-sucks-chat."""
         if self.logout():
             self.loggedIn = False
         else:
             print "Could not log out of http-sucks-chat."
+
+    def do_users_online(self, params):
+        """users_online
+        Get list of users logged in to http-sucks-chat."""
+        users = self.users_online()
+        if len(users) == 0:
+            print "No users are logged in."
+        else:
+            print 'There are {0} users logged in: {1}'.format(len(users), ','.join(users))
 
     ##################################
     ### User Interaction
@@ -82,7 +91,7 @@ class ChatClient(cmd.Cmd):
         self.send_group(group_id, message)
 
     @check_authorization
-    def do_fetch(self, useless):
+    def do_fetch(self, params):
         """Fetch new messages from the server."""
         print self.fetch()
 
@@ -122,6 +131,10 @@ class ChatClient(cmd.Cmd):
     def logout(self):
         """Logout of http-sucks-chat.
         Returns boolean."""
+
+    @abstractmethod
+    def users_online(self):
+        """Returns list of users logged into http-sucks-chat."""
 
     @abstractmethod
     def send_user(self, user_id, message):

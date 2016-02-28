@@ -107,6 +107,13 @@ class RDTPServer(ChatServer):
             else:
                 sock.sendall("0")
 
+        elif action == "users_online":
+            users = self.users_online()
+            if len(users) == 0:
+                sock.sendall('0')
+            else:
+                sock.sendall(':'.join(users))
+
         elif action == "add_to_group_current_user":
             session_token = args[1]
             group_id = args[2]
@@ -173,10 +180,11 @@ class RDTPServer(ChatServer):
             if session_token in self.logged_in_users:
                 try:
                     user = self.logged_in_users[session_token]
-                    user['logged_in'] = False
-                    user['session_token'] = None
                     del self.user_by_sock[sock]
                     del self.sock_by_user[user['username']]
+                    del self.logged_in_users[user['session_token']]
+                    user['logged_in'] = False
+                    user['session_token'] = None
                     sock.sendall("1")
                 except UserKeyError:
                     sock.sendall("2")
