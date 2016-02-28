@@ -1,6 +1,9 @@
 import socket
 import select
 from chat_server import ChatServer
+from chat_server import UserKeyError
+from chat_server import GroupExists
+from chat_server import GroupDoesNotExist
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -67,15 +70,94 @@ class RDTPServer(ChatServer):
 
         action = args[0]
 
-        if action == "fetch":
-        	self.deliverMessages(self.userFromSock(sock))
-        elif action == "send":
-        	self.sendMessageToGroup(args[2], int(args[1]))
+        # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
+        # Would give O(1) command lookup by hashing.
+
+        ################
+        # Public actions
+        ################
+        if action == "username_exists":
+            username = args[1]
+            if self.username_exists(username):
+                sock.sendall("1")
+            else:
+                sock.sendall("0")
+
+        elif action == "create_account":
+            username = args[1]
+            password = args[2]
+            self.create_account(username, password)
+
+        elif action == "create_group":
+            group_id = args[1]
+            try:
+                self.create_group(group_id)
+                sock.sendall("1")
+            except GroupExists:
+                sock.sendall("0")
+
         elif action == "login":
             username = args[1]
-            self.createUser(username)
-            self.user_by_sock[sock] = username
-            self.sock_by_user[username] = sock
+            password = args[2]
+            success, session_token = self.login(username, password)
+            if success:
+                self.user_by_sock[sock] = username
+                self.sock_by_user[username] = sock
+                sock.sendall(session_token)
+            else:
+                sock.sendall("0")
+
+        elif action == "add_to_group":
+            session_token = args[1]
+            group_id = args[2]
+
+            if session_token in self.logged_in_users:
+                try:
+                    user = self.logged_in_users[session_token]
+                    self.addUserToGroup(user["username"], group_id)
+                    sock.sendall("1")
+                except GroupDoesNotExist:
+                    sock.sendall("2")
+            else:
+                sock.sendall("0")
+
+        elif action == "send_user":
+            session_token = args[1]
+            dest_user = args[2]
+            message = args[3]
+
+            if session_token in self.logged_in_users:
+                try:
+                    self.sendMessageToUser(message, dest_user)
+                    sock.sendall("1")
+                except UserKeyError:
+                    sock.sendall("2")
+            else:
+                sock.sendall("0")
+
+        elif action == "send_group":
+            session_token = args[1]
+            dest_group = args[2]
+            message = args[3]
+
+            if session_token in self.logged_in_users:
+                try:
+                    self.sendMessageToGroup(message, dest_group)
+                    sock.sendall("1")
+                except GroupKeyError:
+                    sock.sendall("2")
+            else:
+                sock.sendall("0")
+
+        #################################
+        # Authentication required actions
+        #################################
+        elif action == "fetch":
+            session_token = args[1]
+            user = self.logged_in_users[session_token]
+            self.deliverMessages(user["username"])
+        elif action == "send":
+        	self.sendMessageToGroup(args[2], int(args[1]))
         else:
         	print "Action not found."
 
@@ -88,4 +170,3 @@ class RDTPServer(ChatServer):
             sock.sendall(message)
         except:
             print 'Failed to send message to client [%s:%s]' % user.getpeername()
-
