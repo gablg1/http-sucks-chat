@@ -170,6 +170,14 @@ class RDTPServer(ChatServer):
             else:
                 sock.sendall("0")
 
+        elif action == "get_users_in_group":
+            group = args[1]
+            users = self.getUsersInGroup(group)
+            if len(users) == 0:
+                sock.sendall('0')
+            else:
+                sock.sendall(':'.join(users))
+
         #################################
         # Authentication required actions
         #################################

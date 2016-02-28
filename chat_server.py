@@ -3,6 +3,7 @@ import select
 from sets import Set
 from random import choice
 from string import ascii_uppercase
+import re
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -95,6 +96,13 @@ class ChatServer(object):
     ##################################
     ### Internal helpers
     ##################################
+
+    def getUsersInGroup(self, group):
+        regex = re.compile(group)
+        group_names = [key for key in self.groups if re.match(regex, key)]
+        groups = [self.groups[group_name] for group_name in group_names] # list of list of users
+        usernames = [val["username"] for sublist in groups for val in sublist]
+        return usernames
 
     def addUserToGroup(self, username, group_id):
         if group_id not in self.groups:

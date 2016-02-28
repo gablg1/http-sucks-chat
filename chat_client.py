@@ -77,6 +77,15 @@ class ChatClient(cmd.Cmd):
         else:
             print 'There are {0} users logged in: {1}'.format(len(users), ','.join(users))
 
+    def do_users_in_group(self, group):
+        """users_in_group [group]
+        Get a list of users in some group."""
+        users = self.get_users_in_group(group)
+        if len(users) == 0:
+            print "No users in group " + group + "."
+        else:
+            print "Users in group {0}: {1}.".format(group, ', '.join(users))
+
     ##################################
     ### User Interaction
     ##################################
@@ -138,6 +147,10 @@ class ChatClient(cmd.Cmd):
     @abstractmethod
     def users_online(self):
         """Returns list of users logged into http-sucks-chat."""
+
+    @abstractmethod
+    def get_users_in_group(self, group):
+        """Returns list of users in some group (including possible wildcard characters).""" 
 
     @abstractmethod
     def send_user(self, user_id, message):

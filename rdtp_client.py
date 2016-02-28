@@ -113,6 +113,14 @@ class RDTPClient(ChatClient):
             return []
         return response.split(':')
 
+    def get_users_in_group(self, group):
+        """Returns list of users in some group (including possible wildcard characters).""" 
+        self.send_action('get_users_in_group', group)
+        response = self.recv(MAX_RECV_LEN)
+        if response == '0':
+            return []
+        return response.split(':')
+
     def send_user(self, user_id, message):
         self.send_action('send_user', self.session_token, user_id, message)
         response = self.recv(MAX_RECV_LEN)
