@@ -107,7 +107,7 @@ class RDTPServer(ChatServer):
             else:
                 sock.sendall("0")
 
-        elif action == "add_to_group":
+        elif action == "add_to_group_current_user":
             session_token = args[1]
             group_id = args[2]
 
@@ -119,6 +119,16 @@ class RDTPServer(ChatServer):
                 except GroupDoesNotExist:
                     sock.sendall("2")
             else:
+                sock.sendall("0")
+
+        elif action == "add_to_group":
+            username = args[1]
+            group_id = args[2]
+
+            try:
+                self.addUserToGroup(username, group_id)
+                sock.sendall("1")
+            except GroupDoesNotExist:
                 sock.sendall("0")
 
         elif action == "send_user":
@@ -158,11 +168,25 @@ class RDTPServer(ChatServer):
             self.deliverMessages(user["username"])
         elif action == "send":
         	self.sendMessageToGroup(args[2], int(args[1]))
+        elif action == "logout":
+            session_token = args[1]
+            if session_token in self.logged_in_users:
+                try:
+                    user = self.logged_in_users[session_token]
+                    user['logged_in'] = False
+                    user['session_token'] = None
+                    del self.user_by_sock[sock]
+                    del self.sock_by_user[user['username']]
+                    sock.sendall("1")
+                except UserKeyError:
+                    sock.sendall("2")
+            else:
+                sock.sendall("0")
         else:
         	print "Action not found."
 
     def isOnline(self, user):
-        return user in self.sock_by_user
+        return self.user_info[user]["logged_in"]
 
     def send(self, message, user):
         try:

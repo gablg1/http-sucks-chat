@@ -65,6 +65,13 @@ class RDTPClient(ChatClient):
         if response == "0":
             print "Group {} already exists.".format(group_id)
 
+    def add_user_to_group(self, username, group_id):
+        """Instructs server to add a user to a group."""
+        self.send_action('add_to_group', username, group_id)
+        response = self.recv(MAX_RECV_LEN)
+        if response != "1":
+            print "Could not add user to that group."
+
     def login(self, username, password):
         """Login with given username and password.
         Returns boolean."""
@@ -75,6 +82,18 @@ class RDTPClient(ChatClient):
         else:
             self.username = username
             self.session_token = response
+            return True
+
+    def logout(self, username):
+        """Logout of http-sucks-chat.
+        Returns boolean."""
+        self.send_action('logout', self.session_token)
+        response = self.recv(MAX_RECV_LEN)
+        if response == "0":
+            return False
+        else:
+            self.username = None
+            self.session_token = None
             return True
 
     def send_user(self, user_id, message):

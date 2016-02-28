@@ -41,14 +41,29 @@ class ChatClient(cmd.Cmd):
         Creates a new group."""
         self.create_group(group_id)
 
+    def do_add_user_to_group(self, params):
+        """add_user_to_group [username] [group]
+        Adds a user to a specified group."""
+        username, group_id = params.split()
+        self.add_user_to_group(username, group_id)
+
     def do_login(self, params):
         """login [username] [password]
         Login to http-sucks-chat."""
         username, password = params.split()
         if self.login(username, password):
             self.loggedIn = True
+            self.username = username
         else:
             print "Could not log into http-sucks-chat with that username and password."
+
+    def do_logout(self):
+        """logout
+        Logout of http-sucks-chat."""
+        if self.logout():
+            self.loggedIn = False
+        else:
+            print "Could not log out of http-sucks-chat."
 
     ##################################
     ### User Interaction
@@ -71,6 +86,12 @@ class ChatClient(cmd.Cmd):
         """Fetch new messages from the server."""
         print self.fetch()
 
+    @check_authorization
+    def do_join_group(self, group_id):
+        """Join a group. Must be logged in.
+        join_group [group]"""
+        self.add_user_to_group(self.username, group_id)
+
     ##################################
     ### Abstract Methods
     ##################################
@@ -84,12 +105,22 @@ class ChatClient(cmd.Cmd):
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
 
+    @abstractmethod
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
 
     @abstractmethod
+    def add_user_to_group(self, username, group_id):
+        """Instructs server to add a user to a group."""
+
+    @abstractmethod
     def login(self, username, password):
         """Login with given username and password.
+        Returns boolean."""
+
+    @abstractmethod
+    def logout(self):
+        """Logout of http-sucks-chat.
         Returns boolean."""
 
     @abstractmethod
