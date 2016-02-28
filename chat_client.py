@@ -50,12 +50,15 @@ class ChatClient(cmd.Cmd):
     def do_login(self, params):
         """login [username] [password]
         Login to http-sucks-chat."""
-        username, password = params.split()
-        if self.login(username, password):
-            self.loggedIn = True
-            self.username = username
+        if self.loggedIn:
+            print "You are already logged into http-sucks-chat."
         else:
-            print "Could not log into http-sucks-chat with that username and password."
+            username, password = params.split()
+            if self.login(username, password):
+                self.loggedIn = True
+                self.username = username
+            else:
+                print "Could not log into http-sucks-chat with that username and password."
 
     def do_logout(self, params):
         """logout

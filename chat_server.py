@@ -31,7 +31,7 @@ class GroupDoesNotExist(Exception):
     def __str__(self):
         return "Group {} does not exist.".format(group_id)
 
-class ChatServer():
+class ChatServer(object):
     def __init__(self, host, port):
         self.host = host
         self.port = port
@@ -39,7 +39,7 @@ class ChatServer():
         self.amazing_queue = {} # lookup by username. Each will be a list.
         self.user_info = {} # lookup by username. Each will be a user_info dictionary.
         self.groups = {} # lookup by group id. Each will be a list
-        self.logged_in_users = {} # lookup by session token.
+        self.logged_in_users = {} # lookup by session token. Each will be a user_info dictionary.
 
     ##################################
     ### For server subclasses
@@ -75,6 +75,9 @@ class ChatServer():
             return False, ''
         user = self.user_info[username]
         if user['password'] == password:
+            if self.user_info[username]['logged_in']:
+                # Kickout current user, so this guy can log in.
+                self.kickout_user(username)
             user['logged_in'] = True
             user['session_token'] = ''.join(choice(ascii_uppercase) for i in range(12))
             self.logged_in_users[user['session_token']] = user
@@ -85,6 +88,9 @@ class ChatServer():
     def users_online(self):
         print self.logged_in_users
         return [self.logged_in_users[user]['username'] for user in self.logged_in_users]
+
+    def kickout_user(self, username):
+        """Kickout the current user."""
 
     ##################################
     ### Internal helpers

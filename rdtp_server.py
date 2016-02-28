@@ -26,12 +26,6 @@ class RDTPServer(ChatServer):
 
         self.sockets = [self.socket]
 
-        self.user_by_sock = {}
-        self.sock_by_user = {}
-
-    def userFromSock(self, sock):
-        return self.user_by_sock[sock]
-
     def serve_forever(self):
         # Starts listening
         self.socket.bind((self.host, self.port))
@@ -62,6 +56,16 @@ class RDTPServer(ChatServer):
                     	assert(sock in self.sockets)
                     	self.sockets.remove(sock)
 
+    def create_account(self, username, password, group_id = None):
+        super(RDTPServer, self).create_account(username, password, group_id)
+        self.user_info[username]['sock'] = None
+
+    def kickout_user(self, username):
+        """Kickout the current user."""
+        sock = self.user_info[username]['sock']
+        sock.sendall("You've been kicked, as someoen has logged into your account. You should really be using 2FA.")
+        self.sockets.remove(sock)
+        sock.close()
 
     def handleMessage(self, sock, message):
         args = message.split(':')
@@ -99,10 +103,10 @@ class RDTPServer(ChatServer):
         elif action == "login":
             username = args[1]
             password = args[2]
+
             success, session_token = self.login(username, password)
             if success:
-                self.user_by_sock[sock] = username
-                self.sock_by_user[username] = sock
+                self.user_info[username]['sock'] = sock
                 sock.sendall(session_token)
             else:
                 sock.sendall("0")
@@ -173,18 +177,19 @@ class RDTPServer(ChatServer):
             session_token = args[1]
             user = self.logged_in_users[session_token]
             self.deliverMessages(user["username"])
+
         elif action == "send":
         	self.sendMessageToGroup(args[2], int(args[1]))
+
         elif action == "logout":
             session_token = args[1]
             if session_token in self.logged_in_users:
                 try:
                     user = self.logged_in_users[session_token]
-                    del self.user_by_sock[sock]
-                    del self.sock_by_user[user['username']]
                     del self.logged_in_users[user['session_token']]
                     user['logged_in'] = False
                     user['session_token'] = None
+                    user['sock'] = None
                     sock.sendall("1")
                 except UserKeyError:
                     sock.sendall("2")
@@ -196,9 +201,9 @@ class RDTPServer(ChatServer):
     def isOnline(self, user):
         return self.user_info[user]["logged_in"]
 
-    def send(self, message, user):
+    def send(self, message, username):
+        sock = self.user_info[username]['sock']
         try:
-            sock = self.sock_by_user[user]
             sock.sendall(message)
         except:
-            print 'Failed to send message to client [%s:%s]' % user.getpeername()
+            print 'Failed to send message to client [%s:%s]' % sock.getpeername()

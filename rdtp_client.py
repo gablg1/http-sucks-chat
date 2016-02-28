@@ -127,8 +127,6 @@ class RDTPClient(ChatClient):
         if response == "0":
             print "Your session has expired."
         elif response == "1":
-            print "Group {} does not exist.".format(group_id)
-        elif response == "2":
             print "Could not send message to group " + group_id + "."
 
     def fetch(self):
