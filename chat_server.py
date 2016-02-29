@@ -54,7 +54,7 @@ class ChatServer(object):
         self.user_info[username] = {
             'username': username,
             'password': password,
-            'group_id': group_id, # means you can only be in one group at a time
+            'group_id': [group_id], # means you can only be in one group at a time
             'logged_in': False,
             'session_token': None
         }
@@ -107,15 +107,15 @@ class ChatServer(object):
     def addUserToGroup(self, username, group_id):
         if group_id not in self.groups:
             raise GroupDoesNotExist(group_id)
-        else:
+        elif group_id is not in user['group_id']:
             user = self.user_info[username]
             self.groups[group_id].append(user)
-            user['group_id'] = group_id # means you can only be in one group at a time
+            user['group_id'].append(group_id)
 
     def sendMessageToGroup(self, message, group):
         # Sends message to a particular group
         for user in self.getUsersFromGroup(group):
-                self.sendMessageToUser(message, user)
+            self.sendMessageToUser(message, user)
 
     def sendMessageToUser(self, message, user):
         if self.isOnline(user):
