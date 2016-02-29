@@ -137,5 +137,3 @@ class RESTClient(ChatClient):
             print r['errors']['title']
         else:
             return '\n'.join(r['data']['messages'])
-
-        return self.recv(MAX_RECV_LEN)
