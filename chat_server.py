@@ -69,6 +69,7 @@ class ChatServer(object):
         if group_id in self.groups:
             raise GroupExists(group_id)
         else:
+            print group_id
             self.groups[group_id] = []
 
     def login(self, username, password):
@@ -97,50 +98,56 @@ class ChatServer(object):
     ### Internal helpers
     ##################################
 
-    def getUsersInGroup(self, group):
+    def get_users_in_group(self, group):
         regex = re.compile(group)
         group_names = [key for key in self.groups if re.match(regex, key)]
         groups = [self.groups[group_name] for group_name in group_names] # list of list of users
         usernames = [val["username"] for sublist in groups for val in sublist]
         return usernames
 
-    def addUserToGroup(self, username, group_id):
+    def add_user_to_group(self, username, group_id):
+        print group_id
+        print self.groups
+        print group_id not in self.groups
+
         if group_id not in self.groups:
+            print "not exist"
             raise GroupDoesNotExist(group_id)
-        elif group_id not in user['group_id']:
-            user = self.user_info[username]
+        
+        user = self.user_info[username]
+        if group_id not in user['group_id']:
+            print "wtf"
             self.groups[group_id].append(user)
             user['group_id'].append(group_id)
+        else:
+            print "WTFF!!!"
 
-    def sendMessageToGroup(self, message, group):
+    def send_message_to_group(self, message, group):
         # Sends message to a particular group
-        for user in self.getUsersFromGroup(group):
-            self.sendMessageToUser(message, user)
+        print message, group
+        for user in self.get_users_from_group(group):
+            print user
+            self.send_message_to_user(message, user)
 
-    def sendMessageToUser(self, message, user):
-        if self.isOnline(user):
+    def send_message_to_user(self, message, user):
+        if self.is_online(user):
         	print 'Found %s online! Sending message' % user
         	self.send(message, user)
         else:
         	print '%s not online. Queueing message' % user
-        	self.addMessageToQueue(message, user)
+        	self.add_message_to_queue(message, user)
 
-    def addMessageToQueue(self, message, user):
+    def add_message_to_queue(self, message, user):
         self.amazing_queue[user].append(message)
 
-    def getUserQueuedMessages(self, user):
-        return '\n'.join(self.amazing_queue[user])
+    def get_user_queued_messages(self, user):
+        return self.amazing_queue[user]
 
-    def deliverMessages(self, user):
-        print self.amazing_queue[user]
-        try:
-            self.send(self.getUserQueuedMessages(user), user)
-            self.amazing_queue[user] = []
-        except:
-            print "Failed in deliverMessages()"
+    # Moved self.isOnline to inside rdtp and http servers
+    # in http, we don't want anyone online (at least as of now)
 
-    def getUsers(self):
+    def get_users(self):
         return [user['username'] for user in self.user_info]
 
-    def getUsersFromGroup(self, group_id):
+    def get_users_from_group(self, group_id):
         return [user['username'] for user in self.groups[group_id]]

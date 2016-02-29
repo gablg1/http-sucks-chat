@@ -1,13 +1,22 @@
-import SocketServer
+import socket
+import sys
 from rdtp_server import RDTPServer
+from rest_server import RESTServer
 
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+def usage():
+	print "Usage: python server.py <REST|RDTP>"
+	exit()
 
-    # Create the server, binding to localhost on port 9999
-    server = RDTPServer(HOST, PORT)
+HOST, PORT = "localhost", 9999
 
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
-    server.serve_forever()
+if len(sys.argv) != 2:
+	usage()
 
+if sys.argv[1].upper() == 'REST':
+	chat_server = RESTServer(HOST, PORT)
+elif sys.argv[1].upper() == 'RDTP':
+	chat_server = RDTPServer(HOST, PORT)
+else:
+	usage()
+
+chat_server.serve_forever()

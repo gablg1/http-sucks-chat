@@ -2,16 +2,23 @@ import socket
 import sys
 import time
 from rdtp_client import RDTPClient
+from rest_client import RESTClient
+
+def usage():
+	print "Usage: python client.py <REST|RDTP>"
+	exit()
 
 HOST, PORT = "localhost", 9999
 
-data = " ".join(sys.argv[1:])
+if len(sys.argv) == 1:
+	usage()
 
-chat_client = RDTPClient(HOST, PORT)
+if sys.argv[1].upper() == 'REST':
+	chat_client = RESTClient(HOST, PORT)
+elif sys.argv[1].upper() == 'RDTP':
+	chat_client = RDTPClient(HOST, PORT)
+	chat_client.connect()
+else:
+	usage()
 
-# Connect to server and send data
-chat_client.connect()
 chat_client.cmdloop()
-
-print "Sent:     {}".format(data)
-print "Received: {}".format(received)
