@@ -63,9 +63,10 @@ class RDTPServer(ChatServer):
     def kickout_user(self, username):
         """Kickout the current user."""
         sock = self.user_info[username]['sock']
-        sock.sendall("You've been kicked, as someoen has logged into your account. You should really be using 2FA.")
-        self.sockets.remove(sock)
-        sock.close()
+        sock.sendall('M' + "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
+        if sock in self.sockets:
+            self.sockets.remove(sock)
+            sock.close()
 
     def handleMessage(self, sock, message):
         args = message.split(':')
@@ -83,9 +84,9 @@ class RDTPServer(ChatServer):
         if action == "username_exists":
             username = args[1]
             if self.username_exists(username):
-                sock.sendall("1")
+                sock.sendall("C1")
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "create_account":
             username = args[1]
@@ -96,9 +97,9 @@ class RDTPServer(ChatServer):
             group_id = args[1]
             try:
                 self.create_group(group_id)
-                sock.sendall("1")
+                sock.sendall("C1")
             except GroupExists:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "login":
             username = args[1]
@@ -107,16 +108,16 @@ class RDTPServer(ChatServer):
             success, session_token = self.login(username, password)
             if success:
                 self.user_info[username]['sock'] = sock
-                sock.sendall(session_token)
+                sock.sendall('C' + session_token)
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "users_online":
             users = self.users_online()
             if len(users) == 0:
-                sock.sendall('0')
+                sock.sendall('C0')
             else:
-                sock.sendall(':'.join(users))
+                sock.sendall('C' + ':'.join(users))
 
         elif action == "add_to_group_current_user":
             session_token = args[1]
@@ -126,11 +127,11 @@ class RDTPServer(ChatServer):
                 try:
                     user = self.logged_in_users[session_token]
                     self.addUserToGroup(user["username"], group_id)
-                    sock.sendall("1")
+                    sock.sendall("C1")
                 except GroupDoesNotExist:
-                    sock.sendall("2")
+                    sock.sendall("C2")
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "add_to_group":
             username = args[1]
@@ -138,9 +139,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.addUserToGroup(username, group_id)
-                sock.sendall("1")
+                sock.sendall("C1")
             except GroupDoesNotExist:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "send_user":
             session_token = args[1]
@@ -150,11 +151,11 @@ class RDTPServer(ChatServer):
             if session_token in self.logged_in_users:
                 try:
                     self.sendMessageToUser(message, dest_user)
-                    sock.sendall("1")
+                    sock.sendall("C1")
                 except UserKeyError:
-                    sock.sendall("2")
+                    sock.sendall("C2")
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "send_group":
             session_token = args[1]
@@ -164,19 +165,19 @@ class RDTPServer(ChatServer):
             if session_token in self.logged_in_users:
                 try:
                     self.sendMessageToGroup(message, dest_group)
-                    sock.sendall("1")
+                    sock.sendall("C1")
                 except GroupKeyError:
-                    sock.sendall("2")
+                    sock.sendall("C2")
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
 
         elif action == "get_users_in_group":
             group = args[1]
             users = self.getUsersInGroup(group)
             if len(users) == 0:
-                sock.sendall('0')
+                sock.sendall('C0')
             else:
-                sock.sendall(':'.join(users))
+                sock.sendall('C' + ':'.join(users))
 
         #################################
         # Authentication required actions
@@ -198,11 +199,11 @@ class RDTPServer(ChatServer):
                     user['logged_in'] = False
                     user['session_token'] = None
                     user['sock'] = None
-                    sock.sendall("1")
+                    sock.sendall("C1")
                 except UserKeyError:
-                    sock.sendall("2")
+                    sock.sendall("C2")
             else:
-                sock.sendall("0")
+                sock.sendall("C0")
         else:
         	print "Action not found."
 
@@ -212,6 +213,6 @@ class RDTPServer(ChatServer):
     def send(self, message, username):
         sock = self.user_info[username]['sock']
         try:
-            sock.sendall(message)
+            sock.sendall('M' + message)
         except:
             print 'Failed to send message to client [%s:%s]' % sock.getpeername()

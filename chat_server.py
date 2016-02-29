@@ -107,7 +107,7 @@ class ChatServer(object):
     def addUserToGroup(self, username, group_id):
         if group_id not in self.groups:
             raise GroupDoesNotExist(group_id)
-        elif group_id is not in user['group_id']:
+        elif group_id not in user['group_id']:
             user = self.user_info[username]
             self.groups[group_id].append(user)
             user['group_id'].append(group_id)
