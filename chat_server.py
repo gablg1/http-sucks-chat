@@ -1,6 +1,6 @@
 import socket
 import select
-from sets import Set
+from pymongo import MongoClient
 from random import choice
 from string import ascii_uppercase
 import re
@@ -20,6 +20,12 @@ class UserKeyError(Exception):
     def __str__(self):
         return "User {} does not exist.".format(user_id)
 
+class UserNotLoggedInError(Exception):
+    def __init__(self, session_token):
+        sefl.username = session_token
+    def __str__(self):
+        return "User {} is not logged in.".format(session_token)
+
 class GroupExists(Exception):
     def __init__(self, group_id):
         self.group_id = group_id
@@ -36,113 +42,215 @@ class ChatServer(object):
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        # assuming 3 users here, who cares
-        self.amazing_queue = {} # lookup by username. Each will be a list.
-        self.user_info = {} # lookup by username. Each will be a user_info dictionary.
-        self.groups = {} # lookup by group id. Each will be a list
-        self.logged_in_users = {} # lookup by session token. Each will be a user_info dictionary.
+
+        # Database logic
+        client = MongoClient()
+        db = client.chat_server
+        self.userCollection = db.users
+        self.groupCollection = db.groups
 
     ##################################
     ### For server subclasses
     ##################################
 
     def username_exists(self, username):
-        return username in self.amazing_queue
+        """Returns user, or None if does not exist."""
+        return self.userCollection.find_one({'username' : username})
 
-    def create_account(self, username, password, group_id = None):
-        # !# THIS NEEDS TO CHECK IF USERNAME IS TAKEN
+    def create_account(self, username, password):
+        """Create an account with given username and password.
+        NOTE: You should check if a username_exists before calling this method."""
 
-        self.amazing_queue[username] = []
-        self.user_info[username] = {
-            'username': username,
-            'password': password,
-            'group_id': [group_id],
-            'logged_in': False,
-            'session_token': None
-        }
-        if group_id:
-            if group_id not in self.groups:
-                raise GroupKeyError(group_id)
-            else:
-                self.groups[group_id].add(username)
-            self.groups[group_id]
+        self.userCollection.insert_one(
+            {
+                'username': username,
+                'password': password,
+                'groups': [],
+                'logged_in': False,
+                'session_token': None,
+                'messageQ': []
+            }
+        )
 
-    def create_group(self, group_id):
-        if group_id in self.groups:
-            raise GroupExists(group_id)
-        else:
-            print group_id
-            self.groups[group_id] = []
+    def create_group(self, group_name):
+        if self.groupCollection.find_one({'name': group_name}):
+            raise GroupExists(group_name)
+
+        self.groupCollection.insert_one(
+            {
+                'name': group_name,
+                'users': []
+            }
+        )
 
     def login(self, username, password):
-        if username not in self.user_info:
+        user = self.userCollection.find_one({'username': username})
+        if not user:
             return False, ''
-        user = self.user_info[username]
         if user['password'] == password:
-            if self.user_info[username]['logged_in']:
+            if user['logged_in']:
                 # Kickout current user, so this guy can log in.
                 self.kickout_user(username)
-            user['logged_in'] = True
-            user['session_token'] = ''.join(choice(ascii_uppercase) for i in range(12))
-            self.logged_in_users[user['session_token']] = user
-            return True, user['session_token']
+            session_token = ''.join(choice(ascii_uppercase) for i in range(12))
+            self.userCollection.update_one(
+                {"_id": user["_id"]},
+                {
+                    "$set": {
+                        "logged_in": True,
+                        "session_token": session_token
+                    }
+                }
+            )
+            return True, session_token
         else:
             return False, ''
 
+    def logout(self, username):
+        """Tell MongoDB that a user has been logged out."""
+        user = self.userCollection.find_one({'username': username})
+        if not user:
+            raise UserKeyError(username)
+
+        self.userCollection.update_one(
+            {"_id": user["_id"]},
+            {
+                "$set": {
+                    "logged_in": False,
+                    "session_token": None
+                }
+            }
+        )
+
     def users_online(self):
-        return [self.logged_in_users[user]['username'] for user in self.logged_in_users]
+        """Return usernames of users who are logged in."""
+        users = self.userCollection.find({"logged_in": True})
+        return [user["username"] for user in users]
 
     def kickout_user(self, username):
-        """Kickout the current user."""
+        """Kickout the current user. Implementation specific."""
 
     ##################################
     ### Internal helpers
     ##################################
 
-    def get_users_in_group(self, group):
-        regex = re.compile(group)
-        group_names = [key for key in self.groups if re.match(regex, key)]
-        groups = [self.groups[group_name] for group_name in group_names] # list of list of users
-        usernames = [val["username"] for sublist in groups for val in sublist]
+    def get_users_in_group(self, group_name):
+        """Return usernames of users who are in this group."""
+        regex = re.compile(group_name)
+
+        # fetch all matching groups
+        groups = self.groupCollection.find({"name": regex})
+
+        # create an array of group ids
+        group_ids = [group["_id"] for group in groups]
+
+        # fetch all users with that group id
+        users = self.userCollection.find({"groups._id": {"$in": group_ids} })
+
+        # generate usernames
+        usernames = [user["username"] for user in users]
         return usernames
 
-    def add_user_to_group(self, username, group_id):
-        if group_id not in self.groups:
-            raise GroupDoesNotExist(group_id)
-        
-        user = self.user_info[username]
-        if group_id not in user['group_id']:
-            self.groups[group_id].append(user)
-            user['group_id'].append(group_id)
+    def add_user_to_group(self, username, group_name):
+        group = self.groupCollection.find_one({'name': group_name})
+        if not group:
+            raise GroupDoesNotExist(group_name)
 
-    def send_message_to_group(self, message, group):
-        # !# THIS NEEDS TO CHECK IF GROUP EXISTS
-        for user in self.get_users_from_group(group):
-            self.send_message_to_user(message, user)
+        user = self.userCollection.find_one({"username": username})
+        if not user:
+            raise UserKeyError(username)
 
-    def send_message_to_user(self, message, user):
-        # !# THIS NEEDS TO CHECK IF USER EXISTS
-        if self.is_online(user):
-        	print 'Found %s online! Sending message' % user
-        	self.send(message, user)
+        if group_name not in user['groups']:
+            self.userCollection.update_one(
+                {"_id": user["_id"]},
+                {
+                    "$push": {
+                        "groups": group["_id"]
+                    }
+                }
+            )
+
+            self.groupCollection.update_one(
+                {"_id": group["_id"]},
+                {
+                    "$push": {
+                        "users": user["_id"]
+                    }
+                })
+
+    def send_message_to_group(self, message, group_name):
+        """Send message a group with this group_name."""
+        group = self.groupCollection.find_one({'name': group_name})
+        if not group:
+            raise GroupDoesNotExist(group_name)
+
+        for user_id in group['users']:
+            user = self.userCollection.find_one({'_id': user_id})
+            if user:
+                self.send_message_to_user(message, user["username"])
+            else:
+                print "Tried sending message to non-existant user with id {0} in group {1}.".format(user_id, group_name)
+
+    def send_message_to_user(self, message, username):
+        """send message to a user with this username."""
+        user = self.userCollection.find_one({'username': username})
+        if not user:
+            raise UserKeyError(username)
+
+        if self.is_online(username):
+            print 'Found {} online! Sending message.'.format(username)
+            self.send(message, username)
         else:
-        	print '%s not online. Queueing message' % user
-        	self.add_message_to_queue(message, user)
+            print '{} not online. Queuening message.'.format(username)
+            self.userCollection.update_one(
+                {"_id": user["_id"]},
+                {
+                    "$push": {
+                        "messageQ": message
+                    }
+                }
+            )
 
-    def add_message_to_queue(self, message, user):
-        # !# THIS NEEDS TO CHECK IF USER EXISTS
-        self.amazing_queue[user].append(message)
+    def is_online(self, username):
+        """Check if a user is online. 
+        Should be overriden in some server implementations if "logged in"
+        scheme is senseless."""
+        user = self.userCollection.find_one({'username': username})
+        if not user:
+            raise UserKeyError(username)
 
-    def get_user_queued_messages(self, user):
-        # !# THIS NEEDS TO CHECK IF USER EXISTS
-        return self.amazing_queue[user]
+        return user['logged_in'] 
 
-    # Moved self.isOnline to inside rdtp and http servers
-    # in http, we don't want anyone online (at least as of now)
+    def get_user_queued_messages(self, username):
+        """Get all messages queued for some user."""
+        user = self.userCollection.find_one({'username': username})
+        if not user:
+            raise UserKeyError(username)
 
-    def get_users(self):
-        return [user['username'] for user in self.user_info]
+        return user["messageQ"]
 
-    def get_users_from_group(self, group_id):
-        # !# THIS NEEDS TO CHECK IF GROUP EXISTS
-        return [user['username'] for user in self.groups[group_id]]
+    def clear_user_message_queue(self, username):
+        """Clear all messages queued for some user."""
+        user = self.userCollection.find_one({'username': username})
+        if not user:
+            raise UserKeyError(username)
+
+        self.userCollection.update_one(
+            {"_id": user["_id"]},
+            {
+                "$set": {
+                    "messageQ": []
+                }
+            }
+        )
+
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        regex = re.compile(query)
+        users = self.userCollection.find({"username": regex})
+        return [user['username'] for user in users]
+
+    def username_for_session_token(self, session_token):
+        user = self.userCollection.find_one({'session_token': session_token})
+        if not user:
+            raise UserNotLoggedInError(session_token)
+        return user['username']

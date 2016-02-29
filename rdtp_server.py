@@ -1,9 +1,12 @@
 import socket
 import select
 from chat_server import ChatServer
+from chat_server import GroupKeyError
 from chat_server import UserKeyError
+from chat_server import UserNotLoggedInError
 from chat_server import GroupExists
 from chat_server import GroupDoesNotExist
+
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -25,6 +28,7 @@ class RDTPServer(ChatServer):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.sockets = [self.socket]
+        self.sockets_by_user = {}
 
     def serve_forever(self):
         # Starts listening
@@ -56,17 +60,20 @@ class RDTPServer(ChatServer):
                     	assert(sock in self.sockets)
                     	self.sockets.remove(sock)
 
-    def create_account(self, username, password, group_id = None):
-        super(RDTPServer, self).create_account(username, password, group_id)
-        self.user_info[username]['sock'] = None
+    def create_account(self, username, password):
+        super(RDTPServer, self).create_account(username, password)
+        self.sockets_by_user[username] = None
 
     def kickout_user(self, username):
         """Kickout the current user."""
-        sock = self.user_info[username]['sock']
-        sock.sendall('M' + "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
-        if sock in self.sockets:
-            self.sockets.remove(sock)
-            sock.close()
+        try:
+            sock = self.sockets_by_user[username]
+            sock.sendall('M' + "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
+            if sock in self.sockets:
+                self.sockets.remove(sock)
+                sock.close()
+        except KeyError:
+            print "Could not kickout the previous user, probably because he/she is leftover from a previous instantation of the server."
 
     def handle_message(self, sock, message):
         args = message.split(':')
@@ -107,7 +114,7 @@ class RDTPServer(ChatServer):
 
             success, session_token = self.login(username, password)
             if success:
-                self.user_info[username]['sock'] = sock
+                self.sockets_by_user[username] = sock
                 sock.sendall('C' + session_token)
             else:
                 sock.sendall("C0")
@@ -121,24 +128,23 @@ class RDTPServer(ChatServer):
 
         elif action == "add_to_group_current_user":
             session_token = args[1]
-            group_id = args[2]
+            group_name = args[2]
 
-            if session_token in self.logged_in_users:
-                try:
-                    user = self.logged_in_users[session_token]
-                    self.add_user_to_group(user["username"], group_id)
-                    sock.sendall("C1")
-                except GroupDoesNotExist:
-                    sock.sendall("C2")
-            else:
+            try:
+                username = self.username_for_session_token(session_token)
+                self.add_user_to_group(username, group_name)
+                sock.sendall("C1")
+            except UserNotLoggedInError:
                 sock.sendall("C0")
+            except GroupDoesNotExist:
+                sock.sendall("C2")
 
         elif action == "add_to_group":
             username = args[1]
-            group_id = args[2]
+            group_name = args[2]
 
             try:
-                self.add_user_to_group(username, group_id)
+                self.add_user_to_group(username, group_name)
                 sock.sendall("C1")
             except GroupDoesNotExist:
                 sock.sendall("C0")
@@ -148,28 +154,28 @@ class RDTPServer(ChatServer):
             dest_user = args[2]
             message = args[3]
 
-            if session_token in self.logged_in_users:
-                try:
-                    self.send_message_to_user(message, dest_user)
-                    sock.sendall("C1")
-                except UserKeyError:
-                    sock.sendall("C2")
-            else:
-                sock.sendall("C0")
+            try:
+                self.send_message_to_user(message, dest_user)
+                sock.sendall("C1")
+            except UserKeyError:
+                sock.sendall("C2")
+
+            # TODO: Send C0 if user is not logged in.
+            # Will do this after we implement keeping track of sender username.
 
         elif action == "send_group":
             session_token = args[1]
             dest_group = args[2]
             message = args[3]
 
-            if session_token in self.logged_in_users:
-                try:
-                    self.send_message_to_group(message, dest_group)
-                    sock.sendall("C1")
-                except GroupKeyError:
-                    sock.sendall("C2")
-            else:
-                sock.sendall("C0")
+            try:
+                self.send_message_to_group(message, dest_group)
+                sock.sendall("C1")
+            except GroupKeyError:
+                sock.sendall("C2")
+
+            # TODO: Send C0 if user is not logged in.
+            # Will do this after we implement keeping track of sender username.           
 
         elif action == "get_users_in_group":
             group = args[1]
@@ -184,42 +190,38 @@ class RDTPServer(ChatServer):
         #################################
         elif action == "fetch":
             session_token = args[1]
-            user = self.logged_in_users[session_token]
-            self.deliver_messages(user["username"])
+            try:
+                username = self.username_for_session_token(session_token)
+                messages = self.get_user_queued_messages(username)
+                if len(messages) == 0:
+                    sock.sendall('C' + "Your inbox is empty.")
+                else:
+                    messageString = '\n'.join(messages)
+                    sock.sendall('C' + messageString)
+                    self.clear_user_message_queue(username)
+            except UserNotLoggedInError:
+                print "Could not deliver messages to client with session_token {} because this client is not logged in.".format(session_token)
 
         elif action == "send":
         	self.send_message_to_group(args[2], int(args[1]))
 
         elif action == "logout":
             session_token = args[1]
-            if session_token in self.logged_in_users:
-                try:
-                    user = self.logged_in_users[session_token]
-                    del self.logged_in_users[user['session_token']]
-                    user['logged_in'] = False
-                    user['session_token'] = None
-                    user['sock'] = None
-                    sock.sendall("C1")
-                except UserKeyError:
-                    sock.sendall("C2")
-            else:
+            try:
+                username = self.username_for_session_token(session_token)
+                self.logout(username)
+                del self.sockets_by_user[username]
+                sock.sendall("C1")
+            except UserKeyError:
+                sock.sendall("C2")
+            except UserNotLoggedInError:
                 sock.sendall("C0")
         else:
         	print "Action not found."
 
-    def deliver_messages(self, user):
-        print self.amazing_queue[user]
-        try:
-            self.send(self.get_user_queued_messages(user), user)
-            self.amazing_queue[user] = []
-        except:
-            print "Failed in deliverMessages()"
-
-    def is_online(self, user):
-        return self.user_info[user]["logged_in"]
         
     def send(self, message, username):
-        sock = self.user_info[username]['sock']
+        sock = self.sockets_by_user[username]
         try:
             sock.sendall('M' + message)
         except:
