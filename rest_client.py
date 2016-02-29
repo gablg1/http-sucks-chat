@@ -76,7 +76,7 @@ class RESTClient(ChatClient):
         
         self.username = username
         self.session.auth = ('TOK', response.json()['session_token'])
-        print "Loged in successfully as %s!".format(self.username)
+        print "Loged in successfully as {}!".format(self.username)
         return True
 
     def logout(self):
@@ -93,7 +93,7 @@ class RESTClient(ChatClient):
             print r['errors']['title']
             return False
  
-        print "See you later, %s!".format(self.username)
+        print "See you later, {}!".format(self.username)
         self.username = None
         self.session_token = None
         return True

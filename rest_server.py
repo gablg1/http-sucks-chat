@@ -94,10 +94,9 @@ class RESTServer(ChatServer):
         try:
             self.add_user_to_group(username, group_id)
         except GroupDoesNotExist:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested group does not exist.'}]}), 404
+            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested group does not exist.'}}), 404
         
         return json.dumps({'data': {'group_id': group_id, 'username': username}}), 201
-        # return json.dumps({'dummy':'yeah'})
 
     def handle_users_online(self):
         return json.dumps({'data': {'users': self.users_online()}})
