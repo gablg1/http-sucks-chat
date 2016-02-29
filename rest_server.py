@@ -1,5 +1,8 @@
 from flask import Flask, request
 from chat_server import ChatServer
+from chat_server import UserKeyError
+from chat_server import GroupExists
+from chat_server import GroupDoesNotExist
 import json
 
 class RESTServer(ChatServer):
@@ -41,35 +44,58 @@ class RESTServer(ChatServer):
 
     def handle_register(self):
         r = request.json
+
+        # !# THIS NEEDS TO BE WITHIN A TRY-CATCH
         self.create_account(r['username'], r['password'])
 
         return json.dumps({'data': {'username': r['username']}}), 201
-        # this needs error handling!!!
 
     def handle_send_user(self, user_id):
-        message = request.json['data']['message']
+        try:
+            message = request.json['data']['message']
+        except ValueError:
+            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+
+        # !# THIS NEEDS TO BE WITHIN A TRY-CATCH
         self.send_message_to_user(message, user_id)
 
         return json.dumps({'data': {'user_id': user_id, 'message': message}}), 201
 
     def handle_send_group(self, group_id):
-        message = request.json['data']['message']
+        try:
+            message = request.json['data']['message']
+        except ValueError:
+            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+
+        # !# THIS NEEDS TO BE WITHIN A TRY-CATCH
         self.send_message_to_group(message, group_id)
 
         return json.dumps({'data': {'group_id': group_id, 'message': message}}), 201
 
     def handle_create_group(self):
-        group_id = request.json['data']['group_id']
-        print group_id
-        self.create_group(group_id)
+        try:
+            group_id = request.json['data']['group_id']
+        except ValueError:
+            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+        
+        try:
+            self.create_group(group_id)
+        except GroupExists:
+            return json.dumps({'errors': {'status_code': 200, 'title': 'Group ID Taken: The ID chosen already exists.'}}), 200
 
-        return json.dumps({'data': {'group_id': group_id}})
+        return json.dumps({'data': {'group_id': group_id}}), 200
 
     def handle_add_user_to_group(self, group_id):
-        username = request.json['data']['username']
-        print username
-        self.add_user_to_group(username, group_id)
-
+        try:
+            username = request.json['data']['username']
+        except ValueError:
+            return json.dumps({'errors': {'status_code': 400, 'title': 'Bad Request: Cannot process JSON'}}), 400
+        
+        try:
+            self.add_user_to_group(username, group_id)
+        except GroupDoesNotExist:
+            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested group does not exist.'}]}), 404
+        
         return json.dumps({'data': {'group_id': group_id, 'username': username}}), 201
         # return json.dumps({'dummy':'yeah'})
 
@@ -77,16 +103,10 @@ class RESTServer(ChatServer):
         return json.dumps({'data': {'users': self.users_online()}})
 
     def handle_fetch(self, user_id):
-        print user_id
-        print self.get_user_queued_messages(user_id)
         return json.dumps({'data': {'messages': self.get_user_queued_messages(user_id)}})
 
     def is_online(self, user_id):
         return False
 
     def serve_forever(self):
-        self.app.run(port=self.port)
-
-
-
-
+        self.app.run(port = self.port)

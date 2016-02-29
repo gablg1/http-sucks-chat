@@ -50,11 +50,13 @@ class ChatServer(object):
         return username in self.amazing_queue
 
     def create_account(self, username, password, group_id = None):
+        # !# THIS NEEDS TO CHECK IF USERNAME IS TAKEN
+
         self.amazing_queue[username] = []
         self.user_info[username] = {
             'username': username,
             'password': password,
-            'group_id': [group_id], # means you can only be in one group at a time
+            'group_id': [group_id],
             'logged_in': False,
             'session_token': None
         }
@@ -88,7 +90,6 @@ class ChatServer(object):
             return False, ''
 
     def users_online(self):
-        print self.logged_in_users
         return [self.logged_in_users[user]['username'] for user in self.logged_in_users]
 
     def kickout_user(self, username):
@@ -106,30 +107,21 @@ class ChatServer(object):
         return usernames
 
     def add_user_to_group(self, username, group_id):
-        print group_id
-        print self.groups
-        print group_id not in self.groups
-
         if group_id not in self.groups:
-            print "not exist"
             raise GroupDoesNotExist(group_id)
         
         user = self.user_info[username]
         if group_id not in user['group_id']:
-            print "wtf"
             self.groups[group_id].append(user)
             user['group_id'].append(group_id)
-        else:
-            print "WTFF!!!"
 
     def send_message_to_group(self, message, group):
-        # Sends message to a particular group
-        print message, group
+        # !# THIS NEEDS TO CHECK IF GROUP EXISTS
         for user in self.get_users_from_group(group):
-            print user
             self.send_message_to_user(message, user)
 
     def send_message_to_user(self, message, user):
+        # !# THIS NEEDS TO CHECK IF USER EXISTS
         if self.is_online(user):
         	print 'Found %s online! Sending message' % user
         	self.send(message, user)
@@ -138,9 +130,11 @@ class ChatServer(object):
         	self.add_message_to_queue(message, user)
 
     def add_message_to_queue(self, message, user):
+        # !# THIS NEEDS TO CHECK IF USER EXISTS
         self.amazing_queue[user].append(message)
 
     def get_user_queued_messages(self, user):
+        # !# THIS NEEDS TO CHECK IF USER EXISTS
         return self.amazing_queue[user]
 
     # Moved self.isOnline to inside rdtp and http servers
@@ -150,4 +144,5 @@ class ChatServer(object):
         return [user['username'] for user in self.user_info]
 
     def get_users_from_group(self, group_id):
+        # !# THIS NEEDS TO CHECK IF GROUP EXISTS
         return [user['username'] for user in self.groups[group_id]]
