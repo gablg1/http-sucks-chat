@@ -41,11 +41,12 @@ class RDTPClient(ChatClient):
     # Right now, the client only supports two types of actions. 'C' or 'M'
     def listener(self):
         while 1: # listen forever
-            action, message = rdtp_common.recv(self.socket)
+            action, status, args = rdtp_common.recv(self.socket)
             if action:
                 if action == "R": # Response
-                    self.response_queue.put(message)
+                    self.response_queue.put((status, args))
                 elif action == "M": # Message
+                    message = args[0]
                     sys.stdout.write("\n" + message + "\n")
                 else:
                     raise BadMessageFormat(message)
@@ -64,35 +65,35 @@ class RDTPClient(ChatClient):
     ##################################
 
     def send(self, action_name, *args):
-        rdtp_common.send(self.socket, action_name, *args)
+        rdtp_common.send(self.socket, action_name, 0, *args)
 
     def username_exists(self, username):
         """Check if username already exists.
         Returns boolean."""
 
         self.send('username_exists',  username)
-        response = self.getNextMessage()
+        status, response = self.getNextMessage()
 
-        return response == '0'
+        return status == 0
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
         self.send('create_account', username, password)
-        response = self.getNextMessage()
-        return response[0] == '0'
+        status, response = self.getNextMessage()
+        return status == 0
 
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
         self.send('create_group', group_id)
-        response = self.getNextMessage()
-        return response[0] == '0'
+        status, response = self.getNextMessage()
+        return status == 0
 
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
         self.send('add_to_group', username, group_id)
-        response = self.getNextMessage()
-        return response[0] == '0'
+        status, response = self.getNextMessage()
+        return status == 0
 
     def login(self, username, password):
         """Login with given username and password.
@@ -104,12 +105,12 @@ class RDTPClient(ChatClient):
         # Login with new account
         # This logic should be moved to chat_client
         self.send('login', username, password)
-        response = self.getNextMessage()
-        if response[0] == "1":
+        status, response = self.getNextMessage()
+        if status == 1:
             return False
-        elif response[0] == "0":
+        elif status == 0:
             self.username = username
-            self.session_token = response[1]
+            self.session_token = response[0]
             return True
 
     def logout(self):
@@ -118,8 +119,8 @@ class RDTPClient(ChatClient):
         if not self.session_token:
             return False
         self.send('logout', self.session_token)
-        response = self.getNextMessage()
-        if response[0] == "0":
+        status, response = self.getNextMessage()
+        if status == 0:
             return False
         else:
             self.username = None
@@ -129,44 +130,34 @@ class RDTPClient(ChatClient):
     def users_online(self):
         """Returns list of users logged into http-sucks-chat."""
         self.send('users_online')
-        response = self.getNextMessage()
-        if response[0] == "1":
-            return []
-        return response[1:]
+        status, response = self.getNextMessage()
+        assert(status == 0)
+        return response
 
     def get_users_in_group(self, group):
         """Returns list of users in some group (including possible wildcard characters)."""
         self.send('get_users_in_group', group)
-        response = self.recv()
-        if response[0] == '1':
-            return []
-        return response[1:]
+        status, response = self.getNextMessage()
+        assert(status == 0)
+        return response
 
     def send_user(self, user_id, message):
-        print self.session_token
         self.send('send_user', self.session_token, user_id, message)
-        response = self.getNextMessage()
-        if response[0] == "1":
+        status, response = self.getNextMessage()
+        if status == 1:
             print "Your session has expired."
-        elif response[0] == "2":
-            print "Could not send message to " + response[1] + "." 
+        elif status == 2:
+            print "Could not send message to " + response[0] + "." 
 
     def send_group(self, group_id, message):
         self.send('send_group', self.session_token, group_id, message)
-        response = self.recv()
-        if response[0] == "0":
+        status, response = self.getNextMessage()
+        if status == 1:
             print "Your session has expired."
-        elif response[0] == "1":
+        elif status == 2:
             print "Could not send message to group " + group_id + "."
 
     def fetch(self):
         """Fetch new messages from the server."""
         self.send('fetch', self.session_token)
         return self.recv()
-
-    def sendToGroup(self, group_id, message):
-        try:
-            self.send('send:' + group_id + ':' + message)
-        except:
-            print "Couldn't send message. Assuming server disconnected."
-            self.close()

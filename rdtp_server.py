@@ -51,10 +51,11 @@ class RDTPServer(ChatServer):
                 # Old client wrote us something. It must be
                 # a message!
                 else:
-                    action, message = rdtp_common.recv(sock)
+                    # Here we ignore the status
+                    action, status, args = rdtp_common.recv(sock)
                     if action:
-                        print 'Client action: %s,  Client message: %s' % (action, message)
-                        self.handle_message(sock, action, message)
+                        print 'Client action: %s' % (action)
+                        self.handle_request(sock, action, args)
                     else:
                         print 'Client [%s:%s] is offline. Bye bye.' % (sock.getpeername())
                         assert(sock in self.sockets)
@@ -75,8 +76,8 @@ class RDTPServer(ChatServer):
         except KeyError:
             print "Could not kickout the previous user, probably because he/she is leftover from a previous instantation of the server."
 
-    def handle_message(self, sock, action, message):
-        args = message.split(':')
+    def handle_request(self, sock, action, args):
+        print "Handling request. Action: {0}, args: {1}".format(action, args)
         assert(len(args) > 0)
         # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
         # Would give O(1) command lookup by hashing.
@@ -85,7 +86,7 @@ class RDTPServer(ChatServer):
         # Public actions
         ################
         if action == "username_exists":
-            username = message
+            username = args[0]
             if not self.username_exists(username):
                 self.send(sock, "R", 0)
             else:
@@ -220,11 +221,11 @@ class RDTPServer(ChatServer):
 
     def send_user(self, message, from_username, username):
         user_sock = self.sockets_by_user[username]
-        rdtp_message = "M{0} >>> {1}".format(from_username, message)
-        self.send(user_sock, rdtp_message)
+        rdtp_message = "{0} >>> {1}".format(from_username, message)
+        self.send(user_sock, "M", 0, rdtp_message)
 
-    def send(self, sock, action, *args):
+    def send(self, sock, action, status, *args):
         try:
-            rdtp_common.send(sock, action, *args)
+            rdtp_common.send(sock, action, status, *args)
         except:
             print 'Failed to send message to client.'

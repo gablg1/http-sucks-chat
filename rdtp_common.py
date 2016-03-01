@@ -26,7 +26,7 @@ def recv_message(sock):
     message = recv_nbytes(sock, ord(msg_len))
     status_code = ord(status)
 
-    return action, status, message
+    return action, status_code, message
 
 def recv(sock):
     action, status, message = recv_message(sock)
