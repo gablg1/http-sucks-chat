@@ -10,6 +10,7 @@ import select
 RDTP_HEADER_LENGTH = 4
 RDTP_MAGIC = 0x42
 RDTP_VERSION = 1
+MSG_LEN_MAX = 256
 
 def recv(sock):
     # get the first 3 bytes which are supposed to be part of the preamble
@@ -30,8 +31,8 @@ def send(sock, action, message):
     	print 'Message too long'
     	return False
 
-    if type(action) is not char:
-    	print 'Action should be a character'
+    if len(action) > 1:
+    	print 'Action should be a single character'
     	return False
 
     # Constructs RDTP message

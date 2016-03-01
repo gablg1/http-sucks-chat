@@ -5,6 +5,7 @@ from chat_client import ChatClient
 import thread
 from Queue import Queue
 import sys
+from rdtp_common import *
 
 MAX_RECV_LEN = 1024
 
@@ -33,6 +34,7 @@ class RDTPClient(ChatClient):
         # fork thread that will print received messages
         #thread.start_new_thread(self.listener, ())
 
+    # Right now, the client only supports two types of actions. 'C' or 'M'
     def listener(self):
         while 1: # listen forever
             message = self.rdtp_recv()
@@ -44,11 +46,10 @@ class RDTPClient(ChatClient):
                 else:
                     raise BadMessageFormat(message)
 
-    def recv(self):
+    def getNextMessage(self):
         while 1: # block until we recieve something on the messageQ
             if not self.messageQ.empty():
                 return self.messageQ.get()
-
 
     def close(self):
         self.socket.close()
@@ -57,33 +58,36 @@ class RDTPClient(ChatClient):
     ### Abstract Method Implementation
     ##################################
 
+    def send(self, action_name, *args):
+        rdtp_common.send(self.sock, ACTIONS[action_name], ':'.join(args))
+
     def username_exists(self, username):
         """Check if username already exists.
         Returns boolean."""
-        self.send('username_exists:' + username)
-        response = self.recv()
-        if response == "1":
-            return True
-        else:
-            return False
+
+        self.send('username_exists',  username)
+        response = self.getNextMessage()
+
+        return response == '1'
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
-        self.send('create_account:' + username + ':' + password)
+        self.send('create_account', username, password)
+        response = self.getNextMessage()
+        return response == '1'
+
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
-        self.send_action('create_group', group_id)
-        response = self.recv()
-        if response == "0":
-            print "Group {} already exists.".format(group_id)
+        self.send('create_group', group_id)
+        response = self.getNextMessage()
+        return response == '1'
 
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
-        self.send_action('add_to_group', username, group_id)
-        response = self.recv()
-        if response != "1":
-            print "Could not add user to that group."
+        self.send('add_to_group', username, group_id)
+        response = self.getNextMessage()
+        return response == '1':
 
     def login(self, username, password):
         """Login with given username and password.
@@ -93,8 +97,9 @@ class RDTPClient(ChatClient):
             self.logout
 
         # Login with new account
-        self.send('login:' + username + ':' + password)
-        response = self.recv()
+        # This logic should be moved to chat_client
+        self.send('login', username, password)
+        response = self.getNextMessage()
         if response == "0":
             return False
         else:
@@ -107,8 +112,8 @@ class RDTPClient(ChatClient):
         Returns boolean."""
         if not self.session_token:
             return False
-        self.send_action('logout', self.session_token)
-        response = self.recv()
+        self.send('logout', self.session_token)
+        response = self.getNextMessage()
         if response == "0":
             return False
         else:
@@ -118,23 +123,23 @@ class RDTPClient(ChatClient):
 
     def users_online(self):
         """Returns list of users logged into http-sucks-chat."""
-        self.send('users_online:')
-        response = self.recv()
+        self.send('users_online')
+        response = self.getNextMessage()
         if response == "0":
             return []
         return response.split(':')
 
     def get_users_in_group(self, group):
         """Returns list of users in some group (including possible wildcard characters)."""
-        self.send_action('get_users_in_group', group)
+        self.send('get_users_in_group', group)
         response = self.recv()
         if response == '0':
             return []
         return response.split(':')
 
     def send_user(self, user_id, message):
-        self.send_action('send_user', self.session_token, user_id, message)
-        response = self.recv()
+        self.send('send_user', self.session_token, user_id, message)
+        response = self.getNextMessage()
         if response == "0":
             print "Your session has expired."
         elif response == "2":
