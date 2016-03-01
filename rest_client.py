@@ -38,7 +38,7 @@ class RESTClient(ChatClient):
         print "Account successfully created!"
         return True
 
-        def login(self, username, password):
+    def login(self, username, password):
         """Login with given username and password.
         Returns boolean."""
         # First logout of current account
