@@ -1,7 +1,19 @@
+from functools import wraps
 import requests
 import sys
 from chat_client import ChatClient
+
 MAX_RECV_LEN = 1024
+
+def check_session(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if args[0].session is None:
+            print "No current session. Please, login to perform this action."
+            return
+
+        return f(*args, **kwargs)
+    return wrapper
 
 class RESTClient(ChatClient):
     def __init__(self, host, port):
@@ -9,15 +21,6 @@ class RESTClient(ChatClient):
         self.username = None
         self.session = None
         self.base_url = 'http://' + host + ':' + str(port)
-
-    ##################################
-    ### Connectivity -- ALL HANDLED BY REQUESTS
-    ##################################
-
-
-    ##################################
-    ### Abstract Method Implementation
-    ##################################
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
@@ -33,9 +36,10 @@ class RESTClient(ChatClient):
         print "Account successfully created!"
         return True
 
-    def create_group(self, group_id):
+    @check_session
+    def create_group(self, group_name):
         """Instructs server to create an account with some group_id."""
-        data = {'data': {'group_id': group_id}}
+        data = {'data': {'group_name': group_name}}
         response = self.session.post(self.base_url + '/groups', json=data)
         r = response.json()
 
@@ -44,10 +48,11 @@ class RESTClient(ChatClient):
         else:
             print "Group successfully created!"
 
-    def add_user_to_group(self, username, group_id):
+    @check_session
+    def add_user_to_group(self, username, group_name):
         """Instructs server to add a user to a group."""
         data = {'data': {'username': username}}
-        response = self.session.post(self.base_url + '/groups/' + str(group_id) + '/users', json=data)
+        response = self.session.post(self.base_url + '/groups/' + group_name + '/users', json=data)
         r = response.json()
 
         if 'errors' in r:
@@ -60,8 +65,7 @@ class RESTClient(ChatClient):
         Returns boolean."""
         # First logout of current account
         if self.session is not None:
-        	self.logout
-        	return
+            self.logout
 
         self.session = requests.Session()
 
@@ -74,11 +78,12 @@ class RESTClient(ChatClient):
             print r['errors']['title']
             return False
         
-        self.username = username
-        self.session.auth = ('TOK', response.json()['session_token'])
+        self.username = r['data']['user']['username']
+        self.session.auth = ('TOK', r['data']['user']['session_token'])
         print "Loged in successfully as {}!".format(self.username)
         return True
 
+    @check_session
     def logout(self):
         """Logout of http-sucks-chat.
         Returns boolean."""
@@ -98,6 +103,7 @@ class RESTClient(ChatClient):
         self.session_token = None
         return True
 
+    @check_session
     def users_online(self):
         """Returns list of users logged into http-sucks-chat."""
         response = self.session.get(self.base_url + '/users')
@@ -108,9 +114,10 @@ class RESTClient(ChatClient):
         else:
             return r['data']['users']
 
-    def send_user(self, user_id, message):
+    @check_session
+    def send_user(self, username, message):
         msg = {'data': {'message': message}}
-        response = self.session.post(self.base_url + '/users/' + str(user_id), json=msg)
+        response = self.session.post(self.base_url + '/users/' + username + '/messages', json=msg)
         r = response.json()
 
         if 'errors' in r:
@@ -118,9 +125,10 @@ class RESTClient(ChatClient):
         else:
             print "Your message has been sent!"
 
-    def send_group(self, group_id, message):
+    @check_session
+    def send_group(self, group_name, message):
         msg = {'data': {'message': message}}
-        response = self.session.post(self.base_url + '/groups/' + str(group_id), json=msg)
+        response = self.session.post(self.base_url + '/groups/' + group_name, json=msg)
         r = response.json()
 
         if 'errors' in r:
@@ -128,12 +136,41 @@ class RESTClient(ChatClient):
         else:
             print "Your message has been sent!"
 
+    @check_session
+    def get_groups(self, wildcard):
+        wildcard = {'wildcard': wildcard}
+        response = self.session.get(self.base_url + '/groups', params=wildcard)
+        r = response.json()
+
+        if 'errors' in r:
+            print r['errors']['title']
+        else:
+            return '\n'.join(r['data']['groups'])
+    
+    @check_session
+    def delete_account(self):
+        response = self.session.delete(self.base_url + '/users/' + self.username)
+        r = response.json()
+
+        if 'errors' in r:
+            print r['errors']['title']
+        else:
+            print "Your account has been deleted. :("
+
+    @check_session
     def fetch(self):
         """Fetch new messages from the server."""
-        response = self.session.get(self.base_url + '/users/' + self.username)
+        response = self.session.get(self.base_url + '/users/' + self.username + '/messages')
         r = response.json()
 
         if 'errors' in r:
             print r['errors']['title']
         else:
-            return '\n'.join(r['data']['messages'])
+            messages = r['data']['messages']
+
+            if messages == []:
+                return "No new messages."
+
+            ret = [msg['from_user'] + ' >>> ' + msg['message'] for msg in messages]
+            return '\n'.join(ret)
+            

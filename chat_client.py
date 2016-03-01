@@ -118,6 +118,15 @@ class ChatClient(cmd.Cmd):
         join_group [group]"""
         self.add_user_to_group(self.username, group_id)
 
+    @check_authorization
+    def do_get_groups(self, wildcard='*'):
+        print self.get_groups(wildcard)
+
+    @check_authorization
+    def do_delete_account(self, params):
+        self.delete_account()
+        self.loggedIn = False
+
     ##################################
     ### Abstract Methods
     ##################################
