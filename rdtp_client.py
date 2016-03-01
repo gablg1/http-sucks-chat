@@ -53,10 +53,11 @@ class RDTPClient(ChatClient):
 
     def getNextMessage(self):
         try:
-            response = self.response_queue.get(block=True, timeout=3)
-            return response
+            status, response = self.response_queue.get(block=True, timeout=3)
+            return status, response
         except Queue.Empty:
             print 'Server did not respond. Are you connected?'
+            return None, None
 
     def close(self):
         self.socket.close()
@@ -101,6 +102,24 @@ class RDTPClient(ChatClient):
         """Instructs server to add a user to a group."""
         return self.status_request_handler('add_to_group', username, group_id)
 
+    def users_online(self):
+        """Returns list of users logged into http-sucks-chat."""
+        return self.response_request_handler('users_online')
+
+    def get_users_in_group(self, group):
+        """Returns list of users in some group (including possible wildcard characters)."""
+        return self.response_request_handler('get_users_in_group', group)
+
+    def send_user(self, user_id, message):
+        return self.status_request_handler('send_user', self.session_token, user_id, message)
+
+    def send_group(self, group_id, message):
+        return self.status_request_handler('send_group', self.session_token, group_id, message)
+
+    def fetch(self):
+        """Fetch new messages from the server."""
+        return self.response_request_handler('fetch', self.session_token)
+
     def login(self, username, password):
         """Login with given username and password.
         Returns boolean."""
@@ -133,37 +152,3 @@ class RDTPClient(ChatClient):
             self.session_token = None
             return True
 
-    def users_online(self):
-        """Returns list of users logged into http-sucks-chat."""
-        self.send('users_online')
-        status, response = self.getNextMessage()
-        assert(status == 0)
-        return response
-
-    def get_users_in_group(self, group):
-        """Returns list of users in some group (including possible wildcard characters)."""
-        self.send('get_users_in_group', group)
-        status, response = self.getNextMessage()
-        assert(status == 0)
-        return response
-
-    def send_user(self, user_id, message):
-        self.send('send_user', self.session_token, user_id, message)
-        status, response = self.getNextMessage()
-        if status == 1:
-            print "Your session has expired."
-        elif status == 2:
-            print "Could not send message to " + response[0] + "." 
-
-    def send_group(self, group_id, message):
-        self.send('send_group', self.session_token, group_id, message)
-        status, response = self.getNextMessage()
-        if status == 1:
-            print "Your session has expired."
-        elif status == 2:
-            print "Could not send message to group " + group_id + "."
-
-    def fetch(self):
-        """Fetch new messages from the server."""
-        self.send('fetch', self.session_token)
-        return self.recv()
