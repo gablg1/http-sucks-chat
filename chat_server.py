@@ -20,6 +20,18 @@ class UserKeyError(Exception):
     def __str__(self):
         return "User {} does not exist.".format(self.user_id)
 
+class UsernameExists(Exception):
+    def __init__(self, username):
+        self.username = username
+    def __str__(self):
+        return "User {} already exists.".format(self.username)
+
+class UsernameDoesNotExist(Exception):
+    def __init__(self, username):
+        self.username = username
+    def __str__(self):
+        return "User {} does not exist.".format(self.username)
+
 class UserNotLoggedInError(Exception):
     def __init__(self, session_token):
         self.session_token = session_token
@@ -53,13 +65,13 @@ class ChatServer(object):
     ### For server subclasses
     ##################################
 
-    def username_exists(self, username):
-        """Returns user, or None if does not exist."""
-        return self.userCollection.find_one({'username' : username})
-
     def create_account(self, username, password):
         """Create an account with given username and password.
         NOTE: You should check if a username_exists before calling this method."""
+        user = self.userCollection.find_one({"username": username})
+
+        if user is not None:
+            raise UsernameExists(username)
 
         self.userCollection.insert_one(
             {
@@ -86,12 +98,13 @@ class ChatServer(object):
 
     def login(self, username, password):
         user = self.userCollection.find_one({'username': username})
-        if not user:
+        if user is None:
             return False, ''
         if user['password'] == password:
             if user['logged_in']:
                 # Kickout current user, so this guy can log in.
                 self.kickout_user(username)
+
             session_token = ''.join(choice(ascii_uppercase) for i in range(12))
             self.userCollection.update_one(
                 {"_id": user["_id"]},
@@ -109,7 +122,7 @@ class ChatServer(object):
     def logout(self, username):
         """Tell MongoDB that a user has been logged out."""
         user = self.userCollection.find_one({'username': username})
-        if not user:
+        if user is None:
             raise UserKeyError(username)
 
         self.userCollection.update_one(
@@ -151,16 +164,16 @@ class ChatServer(object):
         usernames = [user["username"] for user in users]
         return usernames
 
-    def add_user_to_group(self, username, group_name):
-        group = self.groupCollection.find_one({'name': group_name})
-        if not group:
+    def add_user_to_group(self, username, group_id):
+        group = self.groupCollection.find_one({'_id': ObjectId(str(group_id))})
+        if group is None:
             raise GroupDoesNotExist(group_name)
 
         user = self.userCollection.find_one({"username": username})
-        if not user:
-            raise UserKeyError(username)
+        if user is None:
+            raise UsernameDoesNotExist(username)
 
-        if group_name not in user['groups']:
+        if group_id not in user['groups']:
             self.userCollection.update_one(
                 {"_id": user["_id"]},
                 {
@@ -181,7 +194,7 @@ class ChatServer(object):
     def send_message_to_group(self, session_token, message, group_name):
         """Send message a group with this group_name."""
         group = self.groupCollection.find_one({'name': group_name})
-        if not group:
+        if group is None:
             raise GroupDoesNotExist(group_name)
 
         for user_id in group['users']:
@@ -196,7 +209,7 @@ class ChatServer(object):
         from_username = self.username_for_session_token(session_token)
 
         user = self.userCollection.find_one({'username': username})
-        if not user:
+        if user is None:
             raise UserKeyError(username)
 
         if self.is_online(username):
@@ -221,7 +234,7 @@ class ChatServer(object):
         Should be overriden in some server implementations if "logged in"
         scheme is senseless."""
         user = self.userCollection.find_one({'username': username})
-        if not user:
+        if user is None:
             raise UserKeyError(username)
 
         return user['logged_in'] 
@@ -237,7 +250,7 @@ class ChatServer(object):
     def clear_user_message_queue(self, username):
         """Clear all messages queued for some user."""
         user = self.userCollection.find_one({'username': username})
-        if not user:
+        if user is None:
             raise UserKeyError(username)
 
         self.userCollection.update_one(
@@ -253,11 +266,22 @@ class ChatServer(object):
         """Return all users who match some regex query."""
         regex = re.compile(query)
         users = self.userCollection.find({"username": regex})
-        return [user['username'] for user in users]
+        return list(users)
+
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        regex = re.compile(query)
+        groups = self.groupCollection.find({"name": regex})
+        return list(groups)
+
+    def delete_account(self, username):
+        """Deletes the account corresponding to a username."""
+        self.userCollection.remove({"username": username})
 
     def username_for_session_token(self, session_token):
         print session_token
         user = self.userCollection.find_one({'session_token': session_token})
-        if not user:
+        if user is None:
             raise UserNotLoggedInError(session_token)
+        print "returning"
         return user['username']

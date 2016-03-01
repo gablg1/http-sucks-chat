@@ -5,11 +5,11 @@ import cmd
 def check_authorization(f):
     @wraps(f)
     def wrapper(*args):
-        loggedIn = args[0].loggedIn
-        if not loggedIn:
-            print "Please log in to use that command."
-        else:
-            return f(*args)
+        # loggedIn = args[0].loggedIn
+        # if not loggedIn:
+        #     print "Please log in to use that command."
+        # else:
+        return f(*args)
     return wrapper
 
 class ChatClient(cmd.Cmd):
@@ -109,6 +109,14 @@ class ChatClient(cmd.Cmd):
         """Join a group. Must be logged in.
         join_group [group]"""
         self.add_user_to_group(self.username, group_id)
+
+    @check_authorization
+    def do_get_groups(self, wildcard='*'):
+        print self.get_groups(wildcard)
+
+    @check_authorization
+    def do_delete_account(self, params):
+        self.delete_account()
 
     ##################################
     ### Abstract Methods
