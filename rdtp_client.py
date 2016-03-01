@@ -22,12 +22,6 @@ class RDTPClient(ChatClient):
         self.session_token = None
         self.messageQ = Queue()
 
-    ##################################
-    ### Real Data Transfer Protocol
-    ##################################
-    #
-    # Version (1 byte) /  Action (1 byte) /
-    # Length (1 byte) / Message (Length bytes)
 
     ##################################
     ### Connectivity
@@ -55,36 +49,6 @@ class RDTPClient(ChatClient):
             if not self.messageQ.empty():
                 return self.messageQ.get()
 
-    def recv_nbytes(self, n):
-        bytes_received = 0
-        while bytes_received < n:
-            ready_to_read,_,_ = select.select([self.socket],[],[])
-            assert(ready_to_read != [])
-
-            new_recv = self.socket.recv(arg_length - bytes_received)
-            bytes_received += len(new_recv)
-            received += new_recv
-        assert(bytes_received == len(received))
-        return received
-
-
-    def rdtp_recv(self):
-        initial = self.recv_nbytes(3)
-
-        version = initial[0]
-        action = initial[1]
-        arg_length = initial[2]
-
-        arg = self.recv_nbytes(arg_length)
-
-        return version, action, arg
-
-    def send(self, message):
-        self.socket.sendall(message)
-
-    def send_action(self, action, *args):
-        message = action + ':' + ':'.join(args)
-        self.send(message)
 
     def close(self):
         self.socket.close()
