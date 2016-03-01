@@ -53,10 +53,11 @@ class RDTPClient(ChatClient):
 
     def getNextMessage(self):
         try:
-            response = self.response_queue.get(block=True, timeout=3)
-            return response
+            status, response = self.response_queue.get(block=True, timeout=3)
+            return status, response
         except Queue.Empty:
             print 'Server did not respond. Are you connected?'
+            return None, None
 
     def close(self):
         self.socket.close()

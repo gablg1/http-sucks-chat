@@ -97,26 +97,30 @@ class ChatClient(cmd.Cmd):
     ##################################
 
     @check_authorization
-    def do_send_user(self, body):
-        """send_user [user] [message]
-        Send a message to a user of your choice.
-        You must be logged in to use this command."""
+    def do_send(self, body):
+        """Send a message to a user of your choice."""
         if len(body.split(' ', 1)) != 2:
             print "Usage: send_user [user] [message]"
         else:
             user_id, message = body.split(' ', 1)
-            self.send_user(user_id, message)
+            status = self.send_user(user_id, message)
+            if status == 1:
+                print "Your session has expired."
+            elif status == 2:
+                print "Could not send message to " + user_id + "."
 
     @check_authorization
     def do_send_group(self, body):
-        """send_group [group] [message]
-        Send a message to a group of your choice.
-        You must be logged in to use this command."""
+        """Send a message to a group of your choice."""
         if len(body.split(' ', 1)) != 2:
             print "Usage: send_group [group] [message]"
         else:
             group_id, message = body.split(' ', 1)
-            self.send_group(group_id, message)
+            status = self.send_group(group_id, message)
+            if status == 1:
+                print "Your session has expired."
+            elif status == 2:
+                print "Could not send message to group " + group_id + "."
 
     @check_authorization
     def do_fetch(self, _):
