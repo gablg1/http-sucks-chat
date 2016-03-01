@@ -154,9 +154,9 @@ class RDTPClient(ChatClient):
     def send_group(self, group_id, message):
         self.send('send_group', self.session_token, group_id, message)
         response = self.recv()
-        if response == "0":
+        if response[0] == "0":
             print "Your session has expired."
-        elif response == "1":
+        elif response[0] == "1":
             print "Could not send message to group " + group_id + "."
 
     def fetch(self):
