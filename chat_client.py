@@ -117,6 +117,7 @@ class ChatClient(cmd.Cmd):
     @check_authorization
     def do_delete_account(self, params):
         self.delete_account()
+        self.loggedIn = False
 
     ##################################
     ### Abstract Methods
