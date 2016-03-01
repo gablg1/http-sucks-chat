@@ -5,7 +5,8 @@ from chat_client import ChatClient
 import thread
 from Queue import Queue
 import sys
-from rdtp_common import *
+
+import rdtp_common
 
 MAX_RECV_LEN = 1024
 
@@ -59,7 +60,7 @@ class RDTPClient(ChatClient):
     ##################################
 
     def send(self, action_name, *args):
-        rdtp_common.send(self.sock, ACTIONS[action_name], ':'.join(args))
+        rdtp_common.send(self.socket, action_name, ':'.join(args))
 
     def username_exists(self, username):
         """Check if username already exists.
@@ -87,7 +88,7 @@ class RDTPClient(ChatClient):
         """Instructs server to add a user to a group."""
         self.send('add_to_group', username, group_id)
         response = self.getNextMessage()
-        return response == '1':
+        return response == '1'
 
     def login(self, username, password):
         """Login with given username and password.
@@ -146,7 +147,7 @@ class RDTPClient(ChatClient):
             print "Could not send message to " + user_id + "."
 
     def send_group(self, group_id, message):
-        self.send_action('send_group', self.session_token, group_id, message)
+        self.send('send_group', self.session_token, group_id, message)
         response = self.recv()
         if response == "0":
             print "Your session has expired."
@@ -155,7 +156,7 @@ class RDTPClient(ChatClient):
 
     def fetch(self):
         """Fetch new messages from the server."""
-        self.send_action('fetch', self.session_token)
+        self.send('fetch', self.session_token)
         return self.recv()
 
     def sendToGroup(self, group_id, message):

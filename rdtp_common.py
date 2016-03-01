@@ -10,35 +10,39 @@ import select
 RDTP_HEADER_LENGTH = 4
 RDTP_MAGIC = 0x42
 RDTP_VERSION = 1
-MSG_LEN_MAX = 256
+ARG_LEN_MAX = 256
 
 def recv(sock):
     # get the first 3 bytes which are supposed to be part of the preamble
     header = recv_nbytes(sock, RDTP_HEADER_LENGTH)
     assert(len(header) == header)
 
-    magic, version, action, length = header[0], header[1], header[2], header[3]
+    magic, version, action_len, msg_len = header[0], header[1], header[2], header[3]
     assert(magic == RDTP_MAGIC)
     assert(version == RDTP_VERSION)
 
     # read in the expected message
-    message = recv_nbytes(sock, length)
+    action = recv_nbytes(sock, action_len)
+    message = recv_nbytes(sock, msg_len)
     return action, message
 
 def send(sock, action, message):
     msg_len = len(message)
-    if msg_len > MSG_LEN_MAX:
+    if msg_len > ARG_LEN_MAX:
     	print 'Message too long'
     	return False
 
-    if len(action) > 1:
-    	print 'Action should be a single character'
+    action_len = len(action)
+    if action_len > ARG_LEN_MAX:
+    	print 'Action too long'
     	return False
 
     # Constructs RDTP message
-    to_send = unichr(RDTP_MAGIC) + unichr(RDTP_VERSION) + action + unichr(msg_len)
+    to_send = unichr(RDTP_MAGIC) + unichr(RDTP_VERSION)
+    to_send += unichr(action_len) + unichr(msg_len)
+    to_send += action
     to_send += message
-    assert(len(to_send) == RDTP_HEADER_LENGTH + msg_len)
+    assert(len(to_send) == RDTP_HEADER_LENGTH + action_len + msg_len)
 
     # Sends the actual message
     sock.sendall(to_send)
