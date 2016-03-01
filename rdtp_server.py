@@ -45,9 +45,9 @@ class RDTPServer(ChatServer):
                 # we accept the connection and get a new socket
                 # for it
                 if sock == self.socket:
-                	new_client_sock, client_addr = sock.accept()
-                	self.sockets.append(new_client_sock)
-                	print 'New client connection with address [%s:%s]' % client_addr
+                    new_client_sock, client_addr = sock.accept()
+                    self.sockets.append(new_client_sock)
+                    print 'New client connection with address [%s:%s]' % client_addr
                 # Old client wrote us something. It must be
                 # a message!
                 else:
@@ -57,8 +57,8 @@ class RDTPServer(ChatServer):
                         self.handle_message(action, message, sock)
                     else:
                         print 'Client [%s:%s] is offline. Bye bye.' % (sock.getpeername())
-                    	assert(sock in self.sockets)
-                    	self.sockets.remove(sock)
+                        assert(sock in self.sockets)
+                        self.sockets.remove(sock)
 
     def create_account(self, username, password):
         super(RDTPServer, self).create_account(username, password)
@@ -77,9 +77,7 @@ class RDTPServer(ChatServer):
 
     def handle_message(self, action, message, sock):
         args = message.split(':')
-
         assert(len(args) > 0)
-
         # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
         # Would give O(1) command lookup by hashing.
 
@@ -89,138 +87,137 @@ class RDTPServer(ChatServer):
         if action == "username_exists":
             username = message
             if self.username_exists(username):
-                sock.sendall("C1")
+                send(sock, "R", "1")
             else:
-                sock.sendall("C0")
+                send(sock, "R", "0")
 
         elif action == "create_account":
-            username = args[1]
-            password = args[2]
+            username = args[0]
+            password = args[1]
             self.create_account(username, password)
 
         elif action == "create_group":
-            group_id = args[1]
+            group_id = args[0]
             try:
                 self.create_group(group_id)
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except GroupExists:
-                sock.sendall("C0")
+                send(sock, "R", "1")
 
         elif action == "login":
-            username = args[1]
-            password = args[2]
+            username = args[0]
+            password = args[1]
 
             success, session_token = self.login(username, password)
             if success:
                 self.sockets_by_user[username] = sock
-                sock.sendall('C' + session_token)
+                send(sock, "R", "0")
             else:
-                sock.sendall("C0")
+                send(sock, "R", "0")
 
         elif action == "users_online":
             users = self.users_online()
             if len(users) == 0:
-                sock.sendall('C0')
+                send(sock, "R", "0")
             else:
-                sock.sendall('C' + ':'.join(users))
+                send(sock, "R", ":".join(users))
 
         elif action == "add_to_group_current_user":
-            session_token = args[1]
-            group_name = args[2]
+            session_token = args[0]
+            group_name = args[1]
 
             try:
                 username = self.username_for_session_token(session_token)
                 self.add_user_to_group(username, group_name)
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except UserNotLoggedInError:
-                sock.sendall("C0")
+                send(sock, "R", "1")
             except GroupDoesNotExist:
-                sock.sendall("C2")
+                send(sock, "R", "2")
 
         elif action == "add_to_group":
-            username = args[1]
-            group_name = args[2]
+            username = args[0]
+            group_name = args[1]
 
             try:
                 self.add_user_to_group(username, group_name)
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except GroupDoesNotExist:
-                sock.sendall("C0")
+                send(sock, "R", "1")
 
         elif action == "send_user":
-            session_token = args[1]
-            dest_user = args[2]
-            message = args[3]
+            session_token = args[0]
+            dest_user = args[1]
+            message = args[2]
 
             try:
                 self.send_message_to_user(message, dest_user)
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except UserKeyError:
-                sock.sendall("C2")
+                send(sock, "R", "1")
 
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
 
         elif action == "send_group":
-            session_token = args[1]
-            dest_group = args[2]
-            message = args[3]
+            session_token = args[0]
+            dest_group = args[1]
+            message = args[2]
 
             try:
                 self.send_message_to_group(message, dest_group)
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except GroupKeyError:
-                sock.sendall("C2")
-
+                send(sock, "R", "1")
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
 
         elif action == "get_users_in_group":
-            group = args[1]
+            group = args[0]
             users = self.get_users_in_group(group)
             if len(users) == 0:
-                sock.sendall('C0')
+                send(sock, "R", "0")
             else:
-                sock.sendall('C' + ':'.join(users))
+                send(sock, "R", ":".join(users))
 
         #################################
         # Authentication required actions
         #################################
         elif action == "fetch":
-            session_token = args[1]
+            session_token = args[0]
             try:
                 username = self.username_for_session_token(session_token)
                 messages = self.get_user_queued_messages(username)
                 if len(messages) == 0:
-                    sock.sendall('C' + "Your inbox is empty.")
+                    send(sock, "R", "0")
                 else:
                     messageString = '\n'.join(messages)
-                    sock.sendall('C' + messageString)
+                    send(sock, "M", messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
                 print "Could not deliver messages to client with session_token {} because this client is not logged in.".format(session_token)
 
         elif action == "send":
-        	self.send_message_to_group(args[2], int(args[1]))
+            self.send_message_to_group(args[2], int(args[1]))
 
         elif action == "logout":
-            session_token = args[1]
+            session_token = args[0]
             try:
                 username = self.username_for_session_token(session_token)
                 self.logout(username)
                 del self.sockets_by_user[username]
-                sock.sendall("C1")
+                send(sock, "R", "0")
             except UserKeyError:
-                sock.sendall("C2")
+                send(sock, "R", "1")
             except UserNotLoggedInError:
-                sock.sendall("C0")
+                send(sock, "R", "2")
         else:
-        	print "Action not found."
+            print "Action not found."
 
 
     def send(self, message, username):
         sock = self.sockets_by_user[username]
         try:
-            sock.sendall('M' + message)
+            send(sock, "M", message)
         except:
             print 'Failed to send message to client [%s:%s]' % sock.getpeername()
