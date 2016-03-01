@@ -68,7 +68,7 @@ class RDTPServer(ChatServer):
         """Kickout the current user."""
         try:
             sock = self.sockets_by_user[username]
-            sock.sendall('M' + "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
+            self.send(sock, 'M', "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
             if sock in self.sockets:
                 self.sockets.remove(sock)
                 sock.close()
@@ -94,7 +94,11 @@ class RDTPServer(ChatServer):
         elif action == "create_account":
             username = args[0]
             password = args[1]
-            self.create_account(username, password)
+            if self.create_account(username, password):
+                self.send(sock, "R", "0")
+            else:
+            	self.send(sock, "R", "1")
+
 
         elif action == "create_group":
             group_id = args[0]
@@ -113,7 +117,7 @@ class RDTPServer(ChatServer):
                 self.sockets_by_user[username] = sock
                 self.send(sock, "R", "0")
             else:
-                self.send(sock, "R", "0")
+                self.send(sock, "R", "1")
 
         elif action == "users_online":
             users = self.users_online()
@@ -151,7 +155,7 @@ class RDTPServer(ChatServer):
             message = args[2]
 
             try:
-                self.send_message_to_user(message, dest_user)
+                self.send_or_queue_message(message, dest_user)
                 self.send(sock, "R", "0")
             except UserKeyError:
                 self.send(sock, "R", "1")
@@ -214,9 +218,12 @@ class RDTPServer(ChatServer):
         else:
             print "Action not found."
 
+    def send_user(self, message, username):
+        user_sock = self.sockets_by_user[username]
+        self.send(user_sock, "M", message)
 
     def send(self, sock, action, message):
         try:
-            rdtp_common.send(sock, "M", message)
+            rdtp_common.send(sock, action, message)
         except:
-            print 'Failed to send message to client [%s:%s]' % sock.getpeername()
+            print 'Failed to send message to client.'

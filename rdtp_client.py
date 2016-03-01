@@ -33,17 +33,17 @@ class RDTPClient(ChatClient):
         self.socket.connect((self.host, self.port))
 
         # fork thread that will print received messages
-        #thread.start_new_thread(self.listener, ())
+        thread.start_new_thread(self.listener, ())
 
     # Right now, the client only supports two types of actions. 'C' or 'M'
     def listener(self):
         while 1: # listen forever
-            message = self.rdtp_recv()
-            if message:
-                if message[0] == "C": # Command
-                    self.messageQ.put(message[1:])
-                elif message[0] == "M": # Message
-                    sys.stdout.write("\nNEW MESSAGE RECEIVED: " + message[1:] + "\n> ")
+            action, message = rdtp_common.recv(self.socket)
+            if action:
+                if action == "R": # Response
+                    self.messageQ.put(message)
+                elif action == "M": # Message
+                    sys.stdout.write("\nNEW MESSAGE RECEIVED: " + message + "\n> ")
                 else:
                     raise BadMessageFormat(message)
 
@@ -69,26 +69,26 @@ class RDTPClient(ChatClient):
         self.send('username_exists',  username)
         response = self.getNextMessage()
 
-        return response == '1'
+        return response == '0'
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
         self.send('create_account', username, password)
         response = self.getNextMessage()
-        return response == '1'
+        return response == '0'
 
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
         self.send('create_group', group_id)
         response = self.getNextMessage()
-        return response == '1'
+        return response == '0'
 
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
         self.send('add_to_group', username, group_id)
         response = self.getNextMessage()
-        return response == '1'
+        return response == '0'
 
     def login(self, username, password):
         """Login with given username and password.
@@ -101,7 +101,7 @@ class RDTPClient(ChatClient):
         # This logic should be moved to chat_client
         self.send('login', username, password)
         response = self.getNextMessage()
-        if response == "0":
+        if response == "1":
             return False
         else:
             self.username = username
@@ -141,7 +141,7 @@ class RDTPClient(ChatClient):
     def send_user(self, user_id, message):
         self.send('send_user', self.session_token, user_id, message)
         response = self.getNextMessage()
-        if response == "0":
+        if response == "1":
             print "Your session has expired."
         elif response == "2":
             print "Could not send message to " + user_id + "."

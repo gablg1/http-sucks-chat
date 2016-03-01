@@ -71,6 +71,7 @@ class ChatServer(object):
                 'messageQ': []
             }
         )
+        return True
 
     def create_group(self, group_name):
         if self.groupCollection.find_one({'name': group_name}):
@@ -190,7 +191,7 @@ class ChatServer(object):
             else:
                 print "Tried sending message to non-existant user with id {0} in group {1}.".format(user_id, group_name)
 
-    def send_message_to_user(self, message, username):
+    def send_or_queue_message(self, message, username):
         """send message to a user with this username."""
         user = self.userCollection.find_one({'username': username})
         if not user:
@@ -198,7 +199,7 @@ class ChatServer(object):
 
         if self.is_online(username):
             print 'Found {} online! Sending message.'.format(username)
-            self.send(message, username)
+            self.send_user(message, username)
         else:
             print '{} not online. Queuening message.'.format(username)
             self.userCollection.update_one(
