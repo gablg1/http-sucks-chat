@@ -30,8 +30,11 @@ class ChatClient(cmd.Cmd):
     def do_register(self, params):
         """register [username] [password]
         Create a new account."""
-        username, password = params.split()
-        self.create_account(username, password)
+        if len(params.split()) != 2:
+            print "The appropriate command format is: register [username] [password]"
+        else:
+            username, password = params.split()
+            self.create_account(username, password)
 
     def do_create_group(self, group_id):
         """create_group [group]
@@ -41,13 +44,18 @@ class ChatClient(cmd.Cmd):
     def do_add_user_to_group(self, params):
         """add_user_to_group [username] [group]
         Adds a user to a specified group."""
-        username, group_id = params.split()
-        self.add_user_to_group(username, group_id)
+        if len(params.split()) != 2:
+            print "The appropriate command format is: add_user_to_group [username] [group]"
+        else:
+            username, group_id = params.split()
+            self.add_user_to_group(username, group_id)
 
     def do_login(self, params):
         """login [username] [password]
         Login to http-sucks-chat."""
-        if self.loggedIn:
+        if len(params.split()) != 2:
+            print "The appropriate command format is: login [username] [password]."
+        elif self.loggedIn:
             print "You are already logged into http-sucks-chat."
         else:
             username, password = params.split()
@@ -57,7 +65,7 @@ class ChatClient(cmd.Cmd):
             else:
                 print "Could not log into http-sucks-chat with that username and password."
 
-    def do_logout(self, params):
+    def do_logout(self, _):
         """logout
         Logout of http-sucks-chat."""
         if self.logout():
@@ -65,7 +73,7 @@ class ChatClient(cmd.Cmd):
         else:
             print "Could not log out of http-sucks-chat."
 
-    def do_users_online(self, params):
+    def do_users_online(self, _):
         """users_online
         Get list of users logged in to http-sucks-chat."""
         users = self.users_online()
@@ -100,7 +108,7 @@ class ChatClient(cmd.Cmd):
         self.send_group(group_id, message)
 
     @check_authorization
-    def do_fetch(self, params):
+    def do_fetch(self, _):
         """Fetch new messages from the server."""
         print self.fetch()
 

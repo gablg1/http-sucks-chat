@@ -53,7 +53,8 @@ class RDTPClient(ChatClient):
 
     def getNextMessage(self):
         try:
-            return self.response_queue.get(block=True, timeout=3)
+            response = self.response_queue.get(block=True, timeout=3)
+            return response
         except Queue.Empty:
             print 'Server did not respond. Are you connected?'
 
@@ -120,9 +121,9 @@ class RDTPClient(ChatClient):
             return False
         self.send('logout', self.session_token)
         status, response = self.getNextMessage()
-        if status == 0:
+        if status == 1:
             return False
-        else:
+        elif status == 0:
             self.username = None
             self.session_token = None
             return True
