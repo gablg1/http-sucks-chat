@@ -6,7 +6,7 @@ from chat_server import UserKeyError
 from chat_server import UserNotLoggedInError
 from chat_server import GroupExists
 from chat_server import GroupDoesNotExist
-
+from rdtp_common import recv, send
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -38,7 +38,7 @@ class RDTPServer(ChatServer):
 
         while 1:
             # This blocks until we are ready to read some socket
-            ready_to_read,_,_ = select.select(self.sockets,[],[],0)
+            ready_to_read,_,_ = select.select(self.sockets,[],[])
 
             for sock in ready_to_read:
                 # New client connection!
@@ -51,10 +51,10 @@ class RDTPServer(ChatServer):
                 # Old client wrote us something. It must be
                 # a message!
                 else:
-                    received = sock.recv(MAX_MSG_SIZE)
-                    if received:
-                        print 'Client message: %s' % (received)
-                        self.handle_message(sock, received)
+                    action, message = recv(MAX_MSG_SIZE)
+                    if action:
+                        print 'Client message: %s' % (message)
+                        self.handle_message(action, message, sock)
                     else:
                         print 'Client [%s:%s] is offline. Bye bye.' % (sock.getpeername())
                     	assert(sock in self.sockets)
@@ -75,12 +75,10 @@ class RDTPServer(ChatServer):
         except KeyError:
             print "Could not kickout the previous user, probably because he/she is leftover from a previous instantation of the server."
 
-    def handle_message(self, sock, message):
+    def handle_message(self, action, message, sock):
         args = message.split(':')
 
         assert(len(args) > 0)
-
-        action = args[0]
 
         # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
         # Would give O(1) command lookup by hashing.
@@ -89,7 +87,7 @@ class RDTPServer(ChatServer):
         # Public actions
         ################
         if action == "username_exists":
-            username = args[1]
+            username = message
             if self.username_exists(username):
                 sock.sendall("C1")
             else:
@@ -175,7 +173,7 @@ class RDTPServer(ChatServer):
                 sock.sendall("C2")
 
             # TODO: Send C0 if user is not logged in.
-            # Will do this after we implement keeping track of sender username.           
+            # Will do this after we implement keeping track of sender username.
 
         elif action == "get_users_in_group":
             group = args[1]
@@ -219,7 +217,7 @@ class RDTPServer(ChatServer):
         else:
         	print "Action not found."
 
-        
+
     def send(self, message, username):
         sock = self.sockets_by_user[username]
         try:
