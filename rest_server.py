@@ -56,7 +56,8 @@ class RESTServer(ChatServer):
 
     ###########
     ## USERS ##
-    ###########    
+    ###########  
+      
     def handle_login(self):
         username = request.authorization.username
         password = request.authorization.password
