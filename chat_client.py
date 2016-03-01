@@ -5,11 +5,11 @@ import cmd
 def check_authorization(f):
     @wraps(f)
     def wrapper(*args):
-        loggedIn = args[0].loggedIn
-        if not loggedIn:
-            print "Please log in to use that command."
-        else:
-            return f(*args)
+        # loggedIn = args[0].loggedIn
+        # if not loggedIn:
+        #     print "Please log in to use that command."
+        # else:
+        return f(*args)
     return wrapper
 
 class ChatClient(cmd.Cmd):
@@ -31,10 +31,7 @@ class ChatClient(cmd.Cmd):
         """register [username] [password]
         Create a new account."""
         username, password = params.split()
-        if self.username_exists(username):
-            print "An account already exists with that username. Please try again."
-        else:
-            self.create_account(username, password)
+        self.create_account(username, password)
 
     def do_create_group(self, group_id):
         """create_group [group]
@@ -112,6 +109,14 @@ class ChatClient(cmd.Cmd):
         """Join a group. Must be logged in.
         join_group [group]"""
         self.add_user_to_group(self.username, group_id)
+
+    @check_authorization
+    def do_get_groups(self, wildcard='*'):
+        print self.get_groups(wildcard)
+
+    @check_authorization
+    def do_delete_account(self, params):
+        self.delete_account()
 
     ##################################
     ### Abstract Methods
