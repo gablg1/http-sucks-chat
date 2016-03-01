@@ -5,11 +5,11 @@ import cmd
 def check_authorization(f):
     @wraps(f)
     def wrapper(*args):
-        # loggedIn = args[0].loggedIn
-        # if not loggedIn:
-        #     print "Please log in to use that command."
-        # else:
-        return f(*args)
+        loggedIn = args[0].loggedIn
+        if not loggedIn:
+            print "Please log in to use that command."
+        else:
+            return f(*args)
     return wrapper
 
 class ChatClient(cmd.Cmd):

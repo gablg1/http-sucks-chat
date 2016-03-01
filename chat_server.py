@@ -164,16 +164,20 @@ class ChatServer(object):
         usernames = [user["username"] for user in users]
         return usernames
 
-    def add_user_to_group(self, username, group_id):
-        group = self.groupCollection.find_one({'_id': ObjectId(str(group_id))})
+    def add_user_to_group(self, username, group_name):
+        group = self.groupCollection.find_one({'name': group_name})
         if group is None:
             raise GroupDoesNotExist(group_name)
+
+        print group
 
         user = self.userCollection.find_one({"username": username})
         if user is None:
             raise UsernameDoesNotExist(username)
 
-        if group_id not in user['groups']:
+        print user
+
+        if group_name not in user['groups']:
             self.userCollection.update_one(
                 {"_id": user["_id"]},
                 {
@@ -245,7 +249,7 @@ class ChatServer(object):
         if not user:
             raise UserKeyError(username)
 
-        return user["messageQ"]
+        return user['messageQ']
 
     def clear_user_message_queue(self, username):
         """Clear all messages queued for some user."""
@@ -283,5 +287,4 @@ class ChatServer(object):
         user = self.userCollection.find_one({'session_token': session_token})
         if user is None:
             raise UserNotLoggedInError(session_token)
-        print "returning"
         return user['username']
