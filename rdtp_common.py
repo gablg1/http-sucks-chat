@@ -8,22 +8,22 @@ import select
 # Length (1 byte) / Message (Length bytes)
 
 RDTP_HEADER_LENGTH = 4
-RDTP_MAGIC = 0x42
-RDTP_VERSION = 1
+RDTP_MAGIC = unichr(0x42)
+RDTP_VERSION = unichr(1)
 ARG_LEN_MAX = 256
 
 def recv(sock):
     # get the first 3 bytes which are supposed to be part of the preamble
     header = recv_nbytes(sock, RDTP_HEADER_LENGTH)
-    assert(len(header) == header)
+    assert(len(header) == RDTP_HEADER_LENGTH)
 
     magic, version, action_len, msg_len = header[0], header[1], header[2], header[3]
     assert(magic == RDTP_MAGIC)
     assert(version == RDTP_VERSION)
 
     # read in the expected message
-    action = recv_nbytes(sock, action_len)
-    message = recv_nbytes(sock, msg_len)
+    action = recv_nbytes(sock, ord(action_len))
+    message = recv_nbytes(sock, ord(msg_len))
     return action, message
 
 def send(sock, action, message):
@@ -38,7 +38,7 @@ def send(sock, action, message):
     	return False
 
     # Constructs RDTP message
-    to_send = unichr(RDTP_MAGIC) + unichr(RDTP_VERSION)
+    to_send = RDTP_MAGIC + RDTP_VERSION
     to_send += unichr(action_len) + unichr(msg_len)
     to_send += action
     to_send += message

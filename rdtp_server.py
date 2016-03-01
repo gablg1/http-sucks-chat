@@ -6,7 +6,7 @@ from chat_server import UserKeyError
 from chat_server import UserNotLoggedInError
 from chat_server import GroupExists
 from chat_server import GroupDoesNotExist
-from rdtp_common import recv, send
+import rdtp_common
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -51,10 +51,10 @@ class RDTPServer(ChatServer):
                 # Old client wrote us something. It must be
                 # a message!
                 else:
-                    action, message = recv(MAX_MSG_SIZE)
+                    action, message = rdtp_common.recv(sock)
                     if action:
-                        print 'Client message: %s' % (message)
-                        self.handle_message(action, message, sock)
+                        print 'Client action: %s,  Client message: %s' % (action, message)
+                        self.handle_message(sock, action, message)
                     else:
                         print 'Client [%s:%s] is offline. Bye bye.' % (sock.getpeername())
                         assert(sock in self.sockets)
@@ -75,7 +75,7 @@ class RDTPServer(ChatServer):
         except KeyError:
             print "Could not kickout the previous user, probably because he/she is leftover from a previous instantation of the server."
 
-    def handle_message(self, action, message, sock):
+    def handle_message(self, sock, action, message):
         args = message.split(':')
         assert(len(args) > 0)
         # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
@@ -87,9 +87,9 @@ class RDTPServer(ChatServer):
         if action == "username_exists":
             username = message
             if self.username_exists(username):
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
             else:
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
 
         elif action == "create_account":
             username = args[0]
@@ -100,9 +100,9 @@ class RDTPServer(ChatServer):
             group_id = args[0]
             try:
                 self.create_group(group_id)
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except GroupExists:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
 
         elif action == "login":
             username = args[0]
@@ -111,16 +111,16 @@ class RDTPServer(ChatServer):
             success, session_token = self.login(username, password)
             if success:
                 self.sockets_by_user[username] = sock
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             else:
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
 
         elif action == "users_online":
             users = self.users_online()
             if len(users) == 0:
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             else:
-                send(sock, "R", ":".join(users))
+                self.send(sock, "R", ":".join(users))
 
         elif action == "add_to_group_current_user":
             session_token = args[0]
@@ -129,11 +129,11 @@ class RDTPServer(ChatServer):
             try:
                 username = self.username_for_session_token(session_token)
                 self.add_user_to_group(username, group_name)
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except UserNotLoggedInError:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
             except GroupDoesNotExist:
-                send(sock, "R", "2")
+                self.send(sock, "R", "2")
 
         elif action == "add_to_group":
             username = args[0]
@@ -141,9 +141,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.add_user_to_group(username, group_name)
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except GroupDoesNotExist:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
 
         elif action == "send_user":
             session_token = args[0]
@@ -152,9 +152,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.send_message_to_user(message, dest_user)
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except UserKeyError:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
 
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
@@ -166,9 +166,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.send_message_to_group(message, dest_group)
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except GroupKeyError:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
 
@@ -176,9 +176,9 @@ class RDTPServer(ChatServer):
             group = args[0]
             users = self.get_users_in_group(group)
             if len(users) == 0:
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             else:
-                send(sock, "R", ":".join(users))
+                self.send(sock, "R", ":".join(users))
 
         #################################
         # Authentication required actions
@@ -189,10 +189,10 @@ class RDTPServer(ChatServer):
                 username = self.username_for_session_token(session_token)
                 messages = self.get_user_queued_messages(username)
                 if len(messages) == 0:
-                    send(sock, "R", "0")
+                    self.send(sock, "R", "0")
                 else:
                     messageString = '\n'.join(messages)
-                    send(sock, "M", messageString)
+                    self.send(sock, "M", messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
                 print "Could not deliver messages to client with session_token {} because this client is not logged in.".format(session_token)
@@ -206,18 +206,17 @@ class RDTPServer(ChatServer):
                 username = self.username_for_session_token(session_token)
                 self.logout(username)
                 del self.sockets_by_user[username]
-                send(sock, "R", "0")
+                self.send(sock, "R", "0")
             except UserKeyError:
-                send(sock, "R", "1")
+                self.send(sock, "R", "1")
             except UserNotLoggedInError:
-                send(sock, "R", "2")
+                self.send(sock, "R", "2")
         else:
             print "Action not found."
 
 
-    def send(self, message, username):
-        sock = self.sockets_by_user[username]
+    def send(self, sock, action, message):
         try:
-            send(sock, "M", message)
+            rdtp_common.send(sock, "M", message)
         except:
             print 'Failed to send message to client [%s:%s]' % sock.getpeername()
