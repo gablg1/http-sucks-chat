@@ -68,33 +68,38 @@ class RDTPClient(ChatClient):
     def send(self, action_name, *args):
         rdtp_common.send(self.socket, action_name, 0, *args)
 
+    # request is of type () ->
+    def request_handler(self, callback, *args):
+        self.send(*args)
+        status, response = self.getNextMessage()
+        return callback(status, response)
+
+    # A request handler that just returns the status of the request
+    def status_request_handler(self, *args):
+        return self.request_handler(lambda x, _: x, *args)
+
+    # A request handler that just returns the response as an array
+    # whatever it is. It also assumes that the status is 0,
+    # asserting it.
+    def response_request_handler(self, *args):
+        return self.request_handler(lambda _, y: y, *args)
+
     def username_exists(self, username):
         """Check if username already exists.
         Returns boolean."""
-
-        self.send('username_exists',  username)
-        status, response = self.getNextMessage()
-
-        return status == 0
+        return self.status_request_handler('username_exists', username)
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
-        self.send('create_account', username, password)
-        status, response = self.getNextMessage()
-        return status == 0
-
+        return self.status_request_handler('create_account', username, password)
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
-        self.send('create_group', group_id)
-        status, response = self.getNextMessage()
-        return status == 0
+        return self.status_request_handler('create_group', group_id)
 
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
-        self.send('add_to_group', username, group_id)
-        status, response = self.getNextMessage()
-        return status == 0
+        return self.status_request_handler('add_to_group', username, group_id)
 
     def login(self, username, password):
         """Login with given username and password.
