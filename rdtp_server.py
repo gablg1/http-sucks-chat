@@ -155,7 +155,7 @@ class RDTPServer(ChatServer):
             message = args[2]
 
             try:
-                self.send_or_queue_message(message, dest_user)
+                self.send_or_queue_message(session_token, message, dest_user)
                 self.send(sock, "R", "0")
             except UserKeyError:
                 self.send(sock, "R", "1")
@@ -169,7 +169,7 @@ class RDTPServer(ChatServer):
             message = args[2]
 
             try:
-                self.send_message_to_group(message, dest_group)
+                self.send_message_to_group(session_token, message, dest_group)
                 self.send(sock, "R", "0")
             except GroupKeyError:
                 self.send(sock, "R", "1")
@@ -218,9 +218,10 @@ class RDTPServer(ChatServer):
         else:
             print "Action not found."
 
-    def send_user(self, message, username):
+    def send_user(self, message, from_username, username):
         user_sock = self.sockets_by_user[username]
-        self.send(user_sock, "M", message)
+        rdtp_message = "M{0} >>> {1}".format(from_username, message)
+        self.send(user_sock, rdtp_message)
 
     def send(self, sock, action, message):
         try:

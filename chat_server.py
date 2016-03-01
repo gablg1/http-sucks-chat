@@ -12,31 +12,31 @@ class GroupKeyError(Exception):
     def __init__(self, group_id):
         self.group_id = group_id
     def __str__(self):
-        return "Group {} does not exist.".format(group_id)
+        return "Group {} does not exist.".format(self.group_id)
 
 class UserKeyError(Exception):
     def __init__(self, user_id):
         self.user_id = user_id
     def __str__(self):
-        return "User {} does not exist.".format(user_id)
+        return "User {} does not exist.".format(self.user_id)
 
 class UserNotLoggedInError(Exception):
     def __init__(self, session_token):
-        sefl.username = session_token
+        self.session_token = session_token
     def __str__(self):
-        return "User {} is not logged in.".format(session_token)
+        return "User with session_token {} is not logged in.".format(self.session_token)
 
 class GroupExists(Exception):
     def __init__(self, group_id):
         self.group_id = group_id
     def __str__(self):
-        return "Group {} already exists.".format(group_id)
+        return "Group {} already exists.".format(self.group_id)
 
 class GroupDoesNotExist(Exception):
     def __init__(self, group_id):
         self.group_id = group_id
     def __str__(self):
-        return "Group {} does not exist.".format(group_id)
+        return "Group {} does not exist.".format(self.group_id)
 
 class ChatServer(object):
     def __init__(self, host, port):
@@ -178,7 +178,7 @@ class ChatServer(object):
                     }
                 })
 
-    def send_message_to_group(self, message, group_name):
+    def send_message_to_group(self, session_token, message, group_name):
         """Send message a group with this group_name."""
         group = self.groupCollection.find_one({'name': group_name})
         if not group:
@@ -187,26 +187,31 @@ class ChatServer(object):
         for user_id in group['users']:
             user = self.userCollection.find_one({'_id': user_id})
             if user:
-                self.send_message_to_user(message, user["username"])
+                self.send_or_queue_message(session_token, message, user["username"])
             else:
                 print "Tried sending message to non-existant user with id {0} in group {1}.".format(user_id, group_name)
 
-    def send_or_queue_message(self, message, username):
+    def send_or_queue_message(self, session_token, message, username):
         """send message to a user with this username."""
+        from_username = self.username_for_session_token(session_token)
+
         user = self.userCollection.find_one({'username': username})
         if not user:
             raise UserKeyError(username)
 
         if self.is_online(username):
             print 'Found {} online! Sending message.'.format(username)
-            self.send_user(message, username)
+            self.send_user(message, from_username, username)
         else:
             print '{} not online. Queuening message.'.format(username)
             self.userCollection.update_one(
                 {"_id": user["_id"]},
                 {
                     "$push": {
-                        "messageQ": message
+                        "messageQ": {
+                            "message": message,
+                            "from_user": from_username
+                        }
                     }
                 }
             )
@@ -251,6 +256,7 @@ class ChatServer(object):
         return [user['username'] for user in users]
 
     def username_for_session_token(self, session_token):
+        print session_token
         user = self.userCollection.find_one({'session_token': session_token})
         if not user:
             raise UserNotLoggedInError(session_token)

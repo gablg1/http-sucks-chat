@@ -139,6 +139,7 @@ class RDTPClient(ChatClient):
         return response.split(':')
 
     def send_user(self, user_id, message):
+        print self.session_token
         self.send('send_user', self.session_token, user_id, message)
         response = self.getNextMessage()
         if response == "1":
