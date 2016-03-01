@@ -3,7 +3,7 @@ import sys
 import select
 from chat_client import ChatClient
 import thread
-from Queue import Queue
+import Queue
 import sys
 
 import rdtp_common
@@ -22,7 +22,10 @@ class RDTPClient(ChatClient):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.username = None
         self.session_token = None
-        self.messageQ = Queue()
+
+        # This is synchronized which is cool since we
+        # want to use it across two different threads below
+        self.response_queue = Queue.Queue()
 
 
     ##################################
@@ -41,16 +44,17 @@ class RDTPClient(ChatClient):
             action, message = rdtp_common.recv(self.socket)
             if action:
                 if action == "R": # Response
-                    self.messageQ.put(message)
+                    self.response_queue.put(message)
                 elif action == "M": # Message
-                    sys.stdout.write("\nNEW MESSAGE RECEIVED: " + message + "\n> ")
+                    sys.stdout.write("\n" + message + "\n")
                 else:
                     raise BadMessageFormat(message)
 
     def getNextMessage(self):
-        while 1: # block until we recieve something on the messageQ
-            if not self.messageQ.empty():
-                return self.messageQ.get()
+        try:
+            return self.response_queue.get(block=True, timeout=3)
+        except Queue.Empty:
+            print 'Server did not respond. Are you connected?'
 
     def close(self):
         self.socket.close()
