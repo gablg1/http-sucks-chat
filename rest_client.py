@@ -166,9 +166,11 @@ class RESTClient(ChatClient):
         if 'errors' in r:
             print r['errors']['title']
         else:
-            msg = r['data']['messages']
+            messages = r['data']['messages']
 
-            if msg == []:
+            if messages == []:
                 return "No new messages."
 
-            return '\n'.join(r['data']['messages'])
+            ret = [msg['from_user'] + ' >>> ' + msg['message'] for msg in messages]
+            return '\n'.join(ret)
+            

@@ -249,6 +249,7 @@ class ChatServer(object):
         if not user:
             raise UserKeyError(username)
 
+        print user
         return user['messageQ']
 
     def clear_user_message_queue(self, username):
@@ -283,7 +284,6 @@ class ChatServer(object):
         self.userCollection.remove({"username": username})
 
     def username_for_session_token(self, session_token):
-        print session_token
         user = self.userCollection.find_one({'session_token': session_token})
         if user is None:
             raise UserNotLoggedInError(session_token)

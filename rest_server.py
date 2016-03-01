@@ -151,11 +151,7 @@ class RESTServer(ChatServer):
             return json.dumps({'errors': {'status_code': 400, 'title': 'Bad Request: Cannot process JSON'}}), 400
 
         try:
-            print "yoooo!"
-            print username
-            print group_id
             self.add_user_to_group(username, group_id)
-            print 'yaaa!'
         except GroupDoesNotExist:
             return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested group does not exist'}}), 404
         except UsernameDoesNotExist:
@@ -166,7 +162,6 @@ class RESTServer(ChatServer):
     @check_authorization
     def handle_get_groups(self):
         wildcard = request.args.get('wildcard')
-        print wildcard
 
         if wildcard is None:
             wildcard = '*'
