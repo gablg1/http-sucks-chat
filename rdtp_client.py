@@ -23,6 +23,13 @@ class RDTPClient(ChatClient):
         self.messageQ = Queue()
 
     ##################################
+    ### Real Data Transfer Protocol
+    ##################################
+    #
+    # Version (1 byte) /  Action (1 byte) /
+    # Length (1 byte) / Message (Length bytes)
+
+    ##################################
     ### Connectivity
     ##################################
 
@@ -30,11 +37,11 @@ class RDTPClient(ChatClient):
         self.socket.connect((self.host, self.port))
 
         # fork thread that will print received messages
-        thread.start_new_thread(self.listener, ())
+        #thread.start_new_thread(self.listener, ())
 
     def listener(self):
         while 1: # listen forever
-            message = self.internal_recv(MAX_RECV_LEN)
+            message = self.rdtp_recv()
             if message:
                 if message[0] == "C": # Command
                     self.messageQ.put(message[1:])
@@ -48,11 +55,29 @@ class RDTPClient(ChatClient):
             if not self.messageQ.empty():
                 return self.messageQ.get()
 
-    def internal_recv(self, max_len):
-        ready_to_read,_,_ = select.select([self.socket],[],[])
-        if ready_to_read == []:
-            return None
-        return self.socket.recv(max_len)
+    def recv_nbytes(self, n):
+        bytes_received = 0
+        while bytes_received < n:
+            ready_to_read,_,_ = select.select([self.socket],[],[])
+            assert(ready_to_read != [])
+
+            new_recv = self.socket.recv(arg_length - bytes_received)
+            bytes_received += len(new_recv)
+            received += new_recv
+        assert(bytes_received == len(received))
+        return received
+
+
+    def rdtp_recv(self):
+        initial = self.recv_nbytes(3)
+
+        version = initial[0]
+        action = initial[1]
+        arg_length = initial[2]
+
+        arg = self.recv_nbytes(arg_length)
+
+        return version, action, arg
 
     def send(self, message):
         self.socket.sendall(message)
@@ -136,7 +161,7 @@ class RDTPClient(ChatClient):
         return response.split(':')
 
     def get_users_in_group(self, group):
-        """Returns list of users in some group (including possible wildcard characters).""" 
+        """Returns list of users in some group (including possible wildcard characters)."""
         self.send_action('get_users_in_group', group)
         response = self.recv()
         if response == '0':

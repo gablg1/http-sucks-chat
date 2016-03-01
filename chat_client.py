@@ -31,10 +31,7 @@ class ChatClient(cmd.Cmd):
         """register [username] [password]
         Create a new account."""
         username, password = params.split()
-        if self.username_exists(username):
-            print "An account already exists with that username. Please try again."
-        else:
-            self.create_account(username, password)
+        self.create_account(username, password)
 
     def do_create_group(self, group_id):
         """create_group [group]
