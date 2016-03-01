@@ -26,17 +26,17 @@ def recv_message(sock):
     message = recv_nbytes(sock, ord(msg_len))
     status_code = ord(status)
 
-    return status, action, message
+    return action, status, message
 
 def recv(sock):
-    status, action, message = recv_message(sock)
+    action, status, message = recv_message(sock)
     args = message.split(':')
-    return status, action, args
+    return action, status, args
 
-def send(sock, status, action, *args):
-    send_message(sock, status, action, ':'.join(args))
+def send(sock, action, status, *args):
+    send_message(sock, action, status, ':'.join(args))
 
-def send_message(sock, status, action, message):
+def send_message(sock, action, status, message):
     msg_len = len(message)
     if msg_len > ARG_LEN_MAX:
     	print 'Message too long'
