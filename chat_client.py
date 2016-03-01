@@ -34,7 +34,8 @@ class ChatClient(cmd.Cmd):
             print "The appropriate command format is: register [username] [password]"
         else:
             username, password = params.split()
-            self.create_account(username, password)
+            if not self.create_account(username, password):
+                print "That account already exists."
 
     def do_create_group(self, group_id):
         """create_group [group]
@@ -97,33 +98,52 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_send_user(self, body):
-        """Send a message to a user of your choice."""
-        user_id, message = body.split(' ', 1)
-        self.send_user(user_id, message)
+        """send_user [user] [message]
+        Send a message to a user of your choice.
+        You must be logged in to use this command."""
+        if len(body.split(' ', 1)) != 2:
+            print "Usage: send_user [user] [message]"
+        else:
+            user_id, message = body.split(' ', 1)
+            self.send_user(user_id, message)
 
     @check_authorization
     def do_send_group(self, body):
-        """Send a message to a group of your choice."""
-        group_id, message = body.split(' ', 1)
-        self.send_group(group_id, message)
+        """send_group [group] [message]
+        Send a message to a group of your choice.
+        You must be logged in to use this command."""
+        if len(body.split(' ', 1)) != 2:
+            print "Usage: send_group [group] [message]"
+        else:
+            group_id, message = body.split(' ', 1)
+            self.send_group(group_id, message)
 
     @check_authorization
     def do_fetch(self, _):
-        """Fetch new messages from the server."""
+        """Fetch new messages from the server.
+        You must be logged in to use this command."""
         print self.fetch()
 
     @check_authorization
     def do_join_group(self, group_id):
-        """Join a group. Must be logged in.
-        join_group [group]"""
+        """join_group [group]
+        Join a group. Must be logged in.
+        You must be logged in to use this command."""
         self.add_user_to_group(self.username, group_id)
 
     @check_authorization
     def do_get_groups(self, wildcard='*'):
+        """get_groups [query]
+        Returns a list of groups matching your query. You can use a wildcard!
+        You must be logged in to use this command."""
         print self.get_groups(wildcard)
 
     @check_authorization
-    def do_delete_account(self, params):
+    def do_delete_account(self, _):
+        """delete_account
+        Delete your account.
+        You must be logged in to use this command.
+        """
         self.delete_account()
         self.loggedIn = False
 

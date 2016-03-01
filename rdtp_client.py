@@ -47,7 +47,7 @@ class RDTPClient(ChatClient):
                     self.response_queue.put((status, args))
                 elif action == "M": # Message
                     message = args[0]
-                    sys.stdout.write("\n" + message + "\n")
+                    sys.stdout.write(message + "\n")
                 else:
                     raise BadMessageFormat(message)
 
@@ -91,7 +91,11 @@ class RDTPClient(ChatClient):
 
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
-        return self.status_request_handler('create_account', username, password)
+        self.send('create_account', username, password)
+        status, response = self.getNextMessage()
+        if status == 1:
+            return False
+        return True
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
@@ -166,4 +170,8 @@ class RDTPClient(ChatClient):
     def fetch(self):
         """Fetch new messages from the server."""
         self.send('fetch', self.session_token)
-        return self.recv()
+        status, response = self.getNextMessage()
+        if len(response) == 0 or response[0] == '':
+            return "Your inbox is empty."
+        else:
+            return response[0]

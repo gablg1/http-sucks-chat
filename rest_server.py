@@ -1,11 +1,11 @@
 from flask import Flask, request
 from chat_server import ChatServer
-from chat_server import UserKeyError
-from chat_server import GroupExists
-from chat_server import GroupDoesNotExist
-from chat_server import UsernameDoesNotExist
-from chat_server import UsernameExists
-from chat_server import UserNotLoggedInError
+from chat_db import UserKeyError
+from chat_db import GroupExists
+from chat_db import GroupDoesNotExist
+from chat_db import UsernameDoesNotExist
+from chat_db import UsernameExists
+from chat_db import UserNotLoggedInError
 import bson
 from bson import json_util
 import json

@@ -1,11 +1,11 @@
 import socket
 import select
 from chat_server import ChatServer
-from chat_server import GroupKeyError
-from chat_server import UserKeyError
-from chat_server import UserNotLoggedInError
-from chat_server import GroupExists
-from chat_server import GroupDoesNotExist
+from chat_db import GroupKeyError
+from chat_db import UserKeyError
+from chat_db import UserNotLoggedInError
+from chat_db import GroupExists
+from chat_db import GroupDoesNotExist
 import rdtp_common
 
 MAX_MSG_SIZE = 1024
@@ -99,7 +99,6 @@ class RDTPServer(ChatServer):
                 self.send(sock, "R", 0)
             else:
             	self.send(sock, "R", 1)
-
 
         elif action == "create_group":
             group_id = args[0]
@@ -196,7 +195,9 @@ class RDTPServer(ChatServer):
                 if len(messages) == 0:
                     self.send(sock, "R", 0)
                 else:
-                    messageString = '\n'.join(messages)
+                    messageString = ""
+                    for message in messages:
+                        messageString += message['message'] + " >>> " + message['from_username']
                     self.send(sock, "M", 0, messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
