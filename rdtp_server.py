@@ -115,16 +115,16 @@ class RDTPServer(ChatServer):
             success, session_token = self.login(username, password)
             if success:
                 self.sockets_by_user[username] = sock
-                self.send(sock, "R", "0")
+                self.send(sock, "R", "0", session_token)
             else:
                 self.send(sock, "R", "1")
 
         elif action == "users_online":
             users = self.users_online()
             if len(users) == 0:
-                self.send(sock, "R", "0")
+                self.send(sock, "R", "1")
             else:
-                self.send(sock, "R", ":".join(users))
+                self.send(sock, "R", "0", *users)
 
         elif action == "add_to_group_current_user":
             session_token = args[0]
@@ -223,8 +223,8 @@ class RDTPServer(ChatServer):
         rdtp_message = "M{0} >>> {1}".format(from_username, message)
         self.send(user_sock, rdtp_message)
 
-    def send(self, sock, action, message):
+    def send(self, sock, action, *args):
         try:
-            rdtp_common.send(sock, action, message)
+            rdtp_common.send(sock, action, *args)
         except:
             print 'Failed to send message to client.'

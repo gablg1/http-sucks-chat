@@ -64,7 +64,7 @@ class RDTPClient(ChatClient):
     ##################################
 
     def send(self, action_name, *args):
-        rdtp_common.send(self.socket, action_name, ':'.join(args))
+        rdtp_common.send(self.socket, action_name, *args)
 
     def username_exists(self, username):
         """Check if username already exists.
@@ -79,20 +79,20 @@ class RDTPClient(ChatClient):
         """Instructs server to create an account with given username and password."""
         self.send('create_account', username, password)
         response = self.getNextMessage()
-        return response == '0'
+        return response[0] == '0'
 
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
         self.send('create_group', group_id)
         response = self.getNextMessage()
-        return response == '0'
+        return response[0] == '0'
 
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
         self.send('add_to_group', username, group_id)
         response = self.getNextMessage()
-        return response == '0'
+        return response[0] == '0'
 
     def login(self, username, password):
         """Login with given username and password.
@@ -105,11 +105,11 @@ class RDTPClient(ChatClient):
         # This logic should be moved to chat_client
         self.send('login', username, password)
         response = self.getNextMessage()
-        if response == "1":
+        if response[0] == "1":
             return False
-        else:
+        elif response[0] == "0":
             self.username = username
-            self.session_token = response
+            self.session_token = response[1]
             return True
 
     def logout(self):
@@ -119,7 +119,7 @@ class RDTPClient(ChatClient):
             return False
         self.send('logout', self.session_token)
         response = self.getNextMessage()
-        if response == "0":
+        if response[0] == "0":
             return False
         else:
             self.username = None
@@ -130,26 +130,26 @@ class RDTPClient(ChatClient):
         """Returns list of users logged into http-sucks-chat."""
         self.send('users_online')
         response = self.getNextMessage()
-        if response == "0":
+        if response[0] == "1":
             return []
-        return response.split(':')
+        return response[1:]
 
     def get_users_in_group(self, group):
         """Returns list of users in some group (including possible wildcard characters)."""
         self.send('get_users_in_group', group)
         response = self.recv()
-        if response == '0':
+        if response[0] == '1':
             return []
-        return response.split(':')
+        return response[1:]
 
     def send_user(self, user_id, message):
         print self.session_token
         self.send('send_user', self.session_token, user_id, message)
         response = self.getNextMessage()
-        if response == "1":
+        if response[0] == "1":
             print "Your session has expired."
-        elif response == "2":
-            print "Could not send message to " + user_id + "."
+        elif response[0] == "2":
+            print "Could not send message to " + response[1] + "." 
 
     def send_group(self, group_id, message):
         self.send('send_group', self.session_token, group_id, message)
