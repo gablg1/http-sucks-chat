@@ -68,7 +68,7 @@ class RDTPServer(ChatServer):
         """Kickout the current user."""
         try:
             sock = self.sockets_by_user[username]
-            self.send(sock, 'M', "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
+            self.send(sock, 'M', 0, "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
             if sock in self.sockets:
                 self.sockets.remove(sock)
                 sock.close()
@@ -86,27 +86,27 @@ class RDTPServer(ChatServer):
         ################
         if action == "username_exists":
             username = message
-            if self.username_exists(username):
-                self.send(sock, "R", "1")
+            if not self.username_exists(username):
+                self.send(sock, "R", 0)
             else:
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 1)
 
         elif action == "create_account":
             username = args[0]
             password = args[1]
             if self.create_account(username, password):
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             else:
-            	self.send(sock, "R", "1")
+            	self.send(sock, "R", 1)
 
 
         elif action == "create_group":
             group_id = args[0]
             try:
                 self.create_group(group_id)
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except GroupExists:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
 
         elif action == "login":
             username = args[0]
@@ -115,16 +115,16 @@ class RDTPServer(ChatServer):
             success, session_token = self.login(username, password)
             if success:
                 self.sockets_by_user[username] = sock
-                self.send(sock, "R", "0", session_token)
+                self.send(sock, "R", 0, session_token)
             else:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
 
         elif action == "users_online":
             users = self.users_online()
-            if len(users) == 0:
-                self.send(sock, "R", "1")
+            if len(users) > 0:
+                self.send(sock, "R", 0, users)
             else:
-                self.send(sock, "R", "0", *users)
+                self.send(sock, "R", 1)
 
         elif action == "add_to_group_current_user":
             session_token = args[0]
@@ -133,11 +133,11 @@ class RDTPServer(ChatServer):
             try:
                 username = self.username_for_session_token(session_token)
                 self.add_user_to_group(username, group_name)
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except UserNotLoggedInError:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
             except GroupDoesNotExist:
-                self.send(sock, "R", "2")
+                self.send(sock, "R", 2)
 
         elif action == "add_to_group":
             username = args[0]
@@ -145,9 +145,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.add_user_to_group(username, group_name)
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except GroupDoesNotExist:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
 
         elif action == "send_user":
             session_token = args[0]
@@ -156,9 +156,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.send_or_queue_message(session_token, message, dest_user)
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except UserKeyError:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
 
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
@@ -170,9 +170,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.send_message_to_group(session_token, message, dest_group)
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except GroupKeyError:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
 
@@ -180,9 +180,9 @@ class RDTPServer(ChatServer):
             group = args[0]
             users = self.get_users_in_group(group)
             if len(users) == 0:
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             else:
-                self.send(sock, "R", ":".join(users))
+                self.send(sock, "R", 0, users)
 
         #################################
         # Authentication required actions
@@ -193,10 +193,10 @@ class RDTPServer(ChatServer):
                 username = self.username_for_session_token(session_token)
                 messages = self.get_user_queued_messages(username)
                 if len(messages) == 0:
-                    self.send(sock, "R", "0")
+                    self.send(sock, "R", 0)
                 else:
                     messageString = '\n'.join(messages)
-                    self.send(sock, "M", messageString)
+                    self.send(sock, "M", 0, messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
                 print "Could not deliver messages to client with session_token {} because this client is not logged in.".format(session_token)
@@ -210,11 +210,11 @@ class RDTPServer(ChatServer):
                 username = self.username_for_session_token(session_token)
                 self.logout(username)
                 del self.sockets_by_user[username]
-                self.send(sock, "R", "0")
+                self.send(sock, "R", 0)
             except UserKeyError:
-                self.send(sock, "R", "1")
+                self.send(sock, "R", 1)
             except UserNotLoggedInError:
-                self.send(sock, "R", "2")
+                self.send(sock, "R", 2)
         else:
             print "Action not found."
 
