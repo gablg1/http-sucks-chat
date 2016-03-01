@@ -274,3 +274,15 @@ class ChatDB(object):
         if user is None:
             raise UserNotLoggedInError(session_token)
         return user['username']
+
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        regex = re.compile(query)
+        users = self.userCollection.find({"username": regex})
+        return list(users)
+
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        regex = re.compile(query)
+        groups = self.groupCollection.find({"name": regex})
+        return list(groups)

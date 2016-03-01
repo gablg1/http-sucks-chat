@@ -85,6 +85,14 @@ class ChatServer(object):
     def username_for_session_token(self, session_token):
         return self.chatDB.username_for_session_token(session_token)
 
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        return self.chatDB.get_users(query)
+
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        return self.chatDB.get_groups(query)
+
     @abstractmethod
     def send_user(self, message, from_username, username):
         """Send a message from one user to another user. 
