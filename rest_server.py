@@ -206,7 +206,7 @@ class RESTServer(ChatServer):
 
         try:
             self.send_message_to_group(session_token, message, group_id)
-        except Exception, e:
+        except GroupDoesNotExist:
             return rest_errors.not_found()
 
         return json.dumps({'data': {'group_id': group_id, 'message': message}}), 201

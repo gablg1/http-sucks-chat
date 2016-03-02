@@ -156,8 +156,10 @@ class ChatDB(object):
         # create an array of group ids
         group_ids = [group["_id"] for group in groups]
 
+        if group_ids == []:
+            raise GroupDoesNotExist(group_name)
+
         # fetch all users with that group id
-        print group_ids
         users = self.userCollection.find({"groups": {"$in": group_ids} })
 
         # generate usernames

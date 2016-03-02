@@ -120,7 +120,7 @@ class RESTClient(ChatClient):
         if messages == []:
             return "No new messages."
 
-        ret = [msg['from_username'] + ' >>> ' + msg['message'] for msg in messages]
+        ret = [msg['from_username'] + ' @ ' + msg['from_group_name'] + ' >>> ' + msg['message'] for msg in messages]
         return '\n'.join(ret)
 
     ############
