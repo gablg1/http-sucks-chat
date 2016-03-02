@@ -152,7 +152,7 @@ class RDTPServer(ChatServer):
                 self.add_user_to_group(username, group_name)
                 self.send(sock, "R", 0)
             except GroupDoesNotExist:
-                self.send(sock, "R", 1)
+                self.send(sock, "R", 2)
 
         elif action == "send_user":
             session_token = args[0]
@@ -163,7 +163,7 @@ class RDTPServer(ChatServer):
                 self.send_or_queue_message(session_token, message, dest_user)
                 self.send(sock, "R", 0)
             except UserKeyError:
-                self.send(sock, "R", 1)
+                self.send(sock, "R", 2)
 
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
@@ -176,8 +176,8 @@ class RDTPServer(ChatServer):
             try:
                 self.send_message_to_group(session_token, message, dest_group)
                 self.send(sock, "R", 0)
-            except GroupKeyError:
-                self.send(sock, "R", 1)
+            except GroupDoesNotExist:
+                self.send(sock, "R", 2)
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
 

@@ -140,7 +140,7 @@ class ChatClient(cmd.Cmd):
             if status == 1:
                 print "Your session has expired."
             elif status == 2:
-                print "Could not send message to " + user_id + "."
+                print "Could not send message to user " + user_id + "."
             elif status == 3:
                 print "Server timed out. Are you connected?"
 

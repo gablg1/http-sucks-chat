@@ -174,18 +174,12 @@ class RDTPClient(ChatClient):
     def send_user(self, user_id, message):
         self.send('send_user', self.session_token, user_id, message)
         status, response = self.getNextMessage()
-        if status == 1:
-            print "Your session has expired."
-        elif status == 2:
-            print "Could not send message to " + response[0] + "." 
+        return status
 
     def send_group(self, group_id, message):
         self.send('send_group', self.session_token, group_id, message)
         status, response = self.getNextMessage()
-        if status == 1:
-            print "Your session has expired."
-        elif status == 2:
-            print "Could not send message to group " + group_id + "."
+        return status
 
     def fetch(self):
         """Fetch new messages from the server."""
