@@ -1,4 +1,4 @@
-from chat_client import ChatClient
+from chat.chat_client import ChatClient
 from functools import wraps
 import requests
 import sys
@@ -19,15 +19,15 @@ class RESTClient(ChatClient):
         self.username = None
         self.session = None
         self.base_url = 'http://' + host + ':' + str(port)
-    
+
     ###########
     ## USERS ##
-    ###########  
-    
+    ###########
+
     def create_account(self, username, password):
         """Instructs server to create an account with given username and password."""
         credentials = {'username': username, 'password': password}
-        
+
         response = requests.post(self.base_url + '/users', json=credentials)
         r = response.json()
 
@@ -52,7 +52,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-        
+
         try:
             self.username = r['data']['user']['username']
             self.session.auth = ('TOK', r['data']['user']['session_token'])
@@ -86,7 +86,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-        
+
         return 0
 
     @check_session
@@ -108,7 +108,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-    
+
         messages = r['data']['messages']
 
         if messages == []:
@@ -119,11 +119,11 @@ class RESTClient(ChatClient):
             for msg in messages:
                 if msg['from_group_name'] is None:
                     ret.append(msg['from_username'] + ' >>> ' + msg['message'])
-                else: 
+                else:
                     ret.append(msg['from_username'] + ' @ ' + msg['from_group_name'] + ' >>> ' + msg['message'])
         except:
             return 2
-        
+
         return '\n'.join(ret)
 
     ############
@@ -139,7 +139,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-        
+
         return 0
 
     @check_session
@@ -151,7 +151,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-        
+
         return 0
 
     @check_session
@@ -162,7 +162,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-        
+
         return 0
 
     @check_session
@@ -180,7 +180,7 @@ class RESTClient(ChatClient):
             return 2
 
         return '\n'.join(groups)
-    
+
     @check_session
     def get_users(self, wildcard):
         wildcard = {'wildcard': wildcard}
@@ -189,7 +189,7 @@ class RESTClient(ChatClient):
 
         if 'errors' in r:
             return self.__handle_error(r)
-                
+
         try:
             users = r['data']['users']
         except:
@@ -212,7 +212,7 @@ class RESTClient(ChatClient):
         # 200 here means a conflict: create_group or create_account
         if status_code == 200:
             return 2
-        
+
         return 2
 
-            
+

@@ -1,7 +1,7 @@
 import socket
 import sys
-from rdtp_server import RDTPServer
-from rest_server import RESTServer
+from rdtp.rdtp_server import RDTPServer
+from rest.rest_server import RESTServer
 
 def usage():
 	print "Usage: python server.py <REST|RDTP>"

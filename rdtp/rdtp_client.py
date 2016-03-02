@@ -1,7 +1,7 @@
 import socket
 import sys
 import select
-from chat_client import ChatClient
+from chat.chat_client import ChatClient
 import thread
 import Queue
 import sys

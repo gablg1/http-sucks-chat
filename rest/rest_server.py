@@ -1,16 +1,17 @@
 from functools import wraps
 from flask import Flask, request
-from chat_server import ChatServer
-from chat_db import UserKeyError
-from chat_db import GroupExists
-from chat_db import GroupDoesNotExist
-from chat_db import UsernameDoesNotExist
-from chat_db import UsernameExists
-from chat_db import UserNotLoggedInError
 import bson
 import json
 from bson import json_util
-import rest_errors
+
+from rest import rest_errors
+from chat.chat_server import ChatServer
+from chat.chat_db import GroupKeyError
+from chat.chat_db import UserKeyError
+from chat.chat_db import UserNotLoggedInError
+from chat.chat_db import GroupExists
+from chat.chat_db import GroupDoesNotExist
+from chat.chat_db import UsernameExists
 
 def check_authorization(f):
     @wraps(f)

@@ -1,12 +1,12 @@
 import socket
 import select
-from chat_server import ChatServer
-from chat_db import GroupKeyError
-from chat_db import UserKeyError
-from chat_db import UserNotLoggedInError
-from chat_db import GroupExists
-from chat_db import GroupDoesNotExist
-from chat_db import UsernameExists
+from chat.chat_server import ChatServer
+from chat.chat_db import GroupKeyError
+from chat.chat_db import UserKeyError
+from chat.chat_db import UserNotLoggedInError
+from chat.chat_db import GroupExists
+from chat.chat_db import GroupDoesNotExist
+from chat.chat_db import UsernameExists
 import rdtp_common
 from rdtp_common import ClientDied
 

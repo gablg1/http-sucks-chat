@@ -1,8 +1,8 @@
 import socket
 import sys
 import time
-from rdtp_client import RDTPClient
-from rest_client import RESTClient
+from rdtp.rdtp_client import RDTPClient
+from rest.rest_client import RESTClient
 
 def usage():
 	print "Usage: python client.py <REST|RDTP>"
@@ -16,8 +16,8 @@ if len(sys.argv) == 1:
 if sys.argv[1].upper() == 'REST':
 	chat_client = RESTClient(HOST, PORT)
 elif sys.argv[1].upper() == 'RDTP':
-	chat_client = RDTPClient(HOST, PORT)
-	chat_client.connect()
+    chat_client = RDTPClient(HOST, PORT)
+    chat_client.connect()
 else:
 	usage()
 
