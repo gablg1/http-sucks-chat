@@ -224,8 +224,8 @@ class RDTPServer(ChatServer):
                 else:
                     messageString = ""
                     for message in messages:
-                        messageString += message['message'] + " >>> " + message['from_username']
-                    self.send(sock, "M", 0, messageString)
+                        messageString += message['message'] + " >>> " + message['from_username'] + "\n"
+                    self.send(sock, "R", 0, messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
                 print "Could not deliver messages to client with session_token {} because this client is not logged in.".format(session_token)

@@ -185,7 +185,7 @@ class RDTPClient(ChatClient):
         """Fetch new messages from the server."""
         self.send('fetch', self.session_token)
         status, response = self.getNextMessage()
-        if len(response) == 0 or response[0] == '':
+        if response is None or len(response) == 0 or response[0] == '':
             return "Your inbox is empty."
         else:
             return response[0]
