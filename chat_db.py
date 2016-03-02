@@ -172,6 +172,10 @@ class ChatDB(object):
         if user is None:
             raise UsernameDoesNotExist(username)
 
+        users_in_group = self.get_users_in_group(group_name)
+        if username in users_in_group:
+            return
+
         if group_name not in user['groups']:
             self.userCollection.update_one(
                 {"_id": user["_id"]},
