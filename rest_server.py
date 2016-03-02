@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import Flask, request
 from chat_server import ChatServer
 from chat_db import UserKeyError
@@ -7,10 +8,9 @@ from chat_db import UsernameDoesNotExist
 from chat_db import UsernameExists
 from chat_db import UserNotLoggedInError
 import bson
-from bson import json_util
 import json
-
-from functools import wraps
+from bson import json_util
+import rest_errors
 
 def check_authorization(f):
     @wraps(f)
@@ -19,9 +19,9 @@ def check_authorization(f):
 
         try:
             args[0].username_for_session_token(session_token)
-        # !# For some reason, this won't catch UserNotLoggedInError. Anybody?
         except UserNotLoggedInError:
-            return json.dumps({'errors': {'status_code': 403, 'title': 'Forbidden: You do not have access to perform this request'}}), 403
+            return rest_errors.unauthorized()
+        
         return f(*args, **kwargs)
     return wrapper
 
@@ -66,7 +66,7 @@ class RESTServer(ChatServer):
         if success:
             return json.dumps({'data': {'user': {'session_token': token, 'username': username}}})
         else:
-            return json.dumps({'errors': {'status': 403, 'title': 'Forbidden: Could not authenticate password.'}})
+            return rest_errors.unauthorized()
 
     @check_authorization
     def handle_logout(self):
@@ -75,23 +75,22 @@ class RESTServer(ChatServer):
         try:
             username = self.username_for_session_token(session_token)
             self.logout(username)
-
-            return json.dumps({'data': {'user': {'session_token': session_token}}}), 200
-
         except UserKeyError:
-            return json.dumps({'errors': {'status_code': 500, 'title': 'Internal Server Error'}}), 500
+            return rest_errors.internal_server_error()
+
+        return json.dumps({'data': {'user': {'session_token': session_token}}}), 200
 
     def handle_create_user(self):
         try:
             username = request.json['username']
             password = request.json['password']
         except ValueError:
-            return json.dumps({'errors': {'status_code': 400, 'title': 'Bad Request: Could not process JSON'}}), 400
+            return rest_errors.bad_request()
 
         try:
             self.create_account(username, password)
         except UsernameExists:
-            return json.dumps({'errors': {'status_code': 409, 'title': 'Conflict: Username taken'}}), 409
+            return rest_errors.error(200, 'Username Taken: The username chosen already exists')
 
         return json.dumps({'data': {'user': {'username': username}}}), 201
 
@@ -102,15 +101,14 @@ class RESTServer(ChatServer):
         try:
             session_username = self.username_for_session_token(session_token)
             if (session_username != user_id):
-                return json.dumps({'errors': {'status_code': 403, 'title': 'Forbidden: You do not have permission to perform this request'}}), 403
+                return rest_errors.forbidden()
             
             self.logout(user_id)
             self.delete_account(user_id)
-
-            return json.dumps({'data': {'user': {'username': user_id}}}), 200
-
         except UserKeyError:
-            return json.dumps({'errors': {'status_code': 403, 'title': 'Forbidden: You do not have permission to perform this request'}}), 403
+            return rest_errors.unauthorized()
+
+        return json.dumps({'data': {'user': {'username': user_id}}}), 200
 
     @check_authorization
     def handle_get_users(self):
@@ -122,7 +120,7 @@ class RESTServer(ChatServer):
         try:
             users = self.get_users(wildcard)
         except:
-            return json.dumps({'errors': {'status_code': 500, 'title': 'Internal Server Error'}})
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'users': users}}, default=json_util.default)
 
@@ -135,12 +133,12 @@ class RESTServer(ChatServer):
         try:
             group_name = request.json['data']['group_name']
         except ValueError:
-            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+            return rest_errors.bad_request()
         
         try:
             self.create_group(group_name)
         except GroupExists:
-            return json.dumps({'errors': {'status_code': 200, 'title': 'Group ID Taken: The ID chosen already exists.'}}), 200
+            return rest_errors.error(200, 'Group Name Taken: The group name chosen already exists')
 
         return json.dumps({'data': {'group_id': group_name}}), 200
 
@@ -149,14 +147,14 @@ class RESTServer(ChatServer):
         try:
             username = request.json['data']['username']
         except ValueError:
-            return json.dumps({'errors': {'status_code': 400, 'title': 'Bad Request: Cannot process JSON'}}), 400
+            return rest_errors.bad_request()
 
         try:
             self.add_user_to_group(username, group_id)
         except GroupDoesNotExist:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested group does not exist'}}), 404
+            return rest_errors.not_found()
         except UsernameDoesNotExist:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: The requested username does not exist'}}), 404
+            return rest_errors.not_found()
 
         return json.dumps({'data': {'group_id': group_id, 'username': username}}), 201
 
@@ -170,7 +168,7 @@ class RESTServer(ChatServer):
         try:
             groups = [group['name'] for group in self.get_groups(wildcard)]
         except:
-            return json.dumps({'errors': {'status_code': 500, 'title': 'Internal Server Error'}}), 500
+            rest_errors.internal_server_error()
 
         return json.dumps({'data': {'groups': groups}})
 
@@ -184,13 +182,16 @@ class RESTServer(ChatServer):
 
         try:
             message = request.json['data']['message']
-        except ValueError:
-            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+        except:
+            return rest_errors.bad_request()
 
         try:
             self.send_or_queue_message(session_token, message, user_id)
         except UserKeyError:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: Username not found'}})
+            return rest_errors.not_found()
+        except Exception, e:
+            print e
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user_id': user_id, 'message': message}}), 201
     
@@ -201,13 +202,14 @@ class RESTServer(ChatServer):
         try:
             message = request.json['data']['message']
         except ValueError:
-            return json.dumps({'errors': {'status_code': 400, 'title':'Bad Request: Cannot process JSON'}}), 400
+            return rest_errors.bad_request()
 
         try:
             self.send_message_to_group(session_token, message, group_id)
-            return json.dumps({'data': {'group_id': group_id, 'message': message}}), 201
-        except GroupDoesNotExist:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not Found: Group not found'}})
+        except Exception, e:
+            return rest_errors.not_found()
+
+        return json.dumps({'data': {'group_id': group_id, 'message': message}}), 201
 
     @check_authorization
     def handle_fetch(self, user_id):
@@ -215,9 +217,9 @@ class RESTServer(ChatServer):
             messages = self.get_user_queued_messages(user_id)
             self.clear_user_message_queue(user_id)
         except UserKeyError:
-            return json.dumps({'errors': {'status_code': 404, 'title': 'Not found: The requested user does not exist'}}), 404
+            return rest_errors.not_found()
         except:
-            return json.dumps({'errors': {'status_code': 500, 'title': 'Internal Server Error'}}), 500
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'messages': messages}})
 

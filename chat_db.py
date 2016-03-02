@@ -157,7 +157,8 @@ class ChatDB(object):
         group_ids = [group["_id"] for group in groups]
 
         # fetch all users with that group id
-        users = self.userCollection.find({"groups._id": {"$in": group_ids} })
+        print group_ids
+        users = self.userCollection.find({"groups": {"$in": group_ids} })
 
         # generate usernames
         usernames = [user["username"] for user in users]
@@ -176,7 +177,7 @@ class ChatDB(object):
         if username in users_in_group:
             return
 
-        if group_name not in user['groups']:
+        if group["_id"] not in user['groups']:
             self.userCollection.update_one(
                 {"_id": user["_id"]},
                 {
@@ -193,19 +194,6 @@ class ChatDB(object):
                         "users": user["_id"]
                     }
                 })
-
-    def send_message_to_group(self, session_token, message, group_name):
-        """Send message a group with this group_name."""
-        group = self.groupCollection.find_one({'name': group_name})
-        if group is None:
-            raise GroupDoesNotExist(group_name)
-
-        for user_id in group['users']:
-            user = self.userCollection.find_one({'_id': user_id})
-            if user:
-                self.send_or_queue_message(session_token, message, user["username"])
-            else:
-                print "Tried sending message to non-existant user with id {0} in group {1}.".format(user_id, group_name)
 
     def queue_message(self, message, from_username, username):
         user = self.userCollection.find_one({'username': username})
@@ -278,3 +266,15 @@ class ChatDB(object):
         if user is None:
             raise UserNotLoggedInError(session_token)
         return user['username']
+
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        regex = re.compile(query)
+        users = self.userCollection.find({"username": regex})
+        return list(users)
+
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        regex = re.compile(query)
+        groups = self.groupCollection.find({"name": regex})
+        return list(groups)

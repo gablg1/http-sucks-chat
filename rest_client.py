@@ -32,7 +32,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
             return False
 
         print "Account successfully created!"
@@ -53,7 +53,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
             return False
         
         self.username = r['data']['user']['username']
@@ -72,7 +72,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
             return False
  
         print "See you later, {}!".format(self.username)
@@ -86,7 +86,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             print "Your account has been deleted. :("
 
@@ -97,7 +97,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             print "Your message has been sent!"
 
@@ -108,26 +108,15 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             messages = r['data']['messages']
 
             if messages == []:
                 return "No new messages."
 
-            ret = [msg['from_user'] + ' >>> ' + msg['message'] for msg in messages]
+            ret = [msg['from_username'] + ' >>> ' + msg['message'] for msg in messages]
             return '\n'.join(ret)
-
-    @check_session
-    def users_online(self):
-        """Returns list of users logged into http-sucks-chat."""
-        response = self.session.get(self.base_url + '/users')
-        r = response.json()
-
-        if 'errors' in r:
-            print r['errors']['title']
-        else:
-            return r['data']['users']
 
     ############
     ## GROUPS ##
@@ -141,7 +130,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             print "Group successfully created!"
 
@@ -153,7 +142,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             print "Successfully added user to the group!"
 
@@ -164,7 +153,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             print "Your message has been sent!"
 
@@ -175,7 +164,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['title']
+            print r['errors']['description']
         else:
             return '\n'.join(r['data']['groups'])
             
