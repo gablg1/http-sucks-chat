@@ -27,10 +27,6 @@ class ChatServer(object):
         """Tell MongoDB that a user has been logged out."""
         return self.chatDB.logout(username)
 
-    def users_online(self):
-        """Return usernames of users who are logged in."""
-        return self.chatDB.users_online()
-
     def is_online(self, username):
         """Check if a user is online. 
         Should be overriden in some server implementations if "logged in"
@@ -54,10 +50,6 @@ class ChatServer(object):
     def get_users(self, query):
         """Return all users who match some regex query."""
         return self.chatDB.get_users(query)
-
-    def get_users_in_group(self, group_name):
-        """Return usernames of users who are in this group."""
-        return self.chatDB.get_users_in_group(group_name)
 
     def add_user_to_group(self, username, group_name):
         return self.chatDB.add_user_to_group(username, group_name)

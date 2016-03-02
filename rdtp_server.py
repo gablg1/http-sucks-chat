@@ -128,13 +128,6 @@ class RDTPServer(ChatServer):
             else:
                 self.send(sock, "R", 1)
 
-        elif action == "users_online":
-            users = self.users_online()
-            if len(users) > 0:
-                self.send(sock, "R", 0, users)
-            else:
-                self.send(sock, "R", 1)
-
         elif action == "add_to_group_current_user":
             session_token = args[0]
             group_name = args[1]
@@ -184,14 +177,6 @@ class RDTPServer(ChatServer):
                 self.send(sock, "R", 2)
             # TODO: Send C0 if user is not logged in.
             # Will do this after we implement keeping track of sender username.
-
-        elif action == "get_users_in_group":
-            group = args[0]
-            users = self.get_users_in_group(group)
-            if len(users) == 0:
-                self.send(sock, "R", 0)
-            else:
-                self.send(sock, "R", 0, users)
 
         elif action == "get_groups":
             wildcard = args[0]

@@ -107,24 +107,6 @@ class ChatClient(cmd.Cmd):
         else:
             print "Could not log out of http-sucks-chat."
 
-    def do_users_online(self, _):
-        """users_online
-        Get list of users logged in to http-sucks-chat."""
-        users = self.users_online()
-        if len(users) == 0:
-            print "No users are logged in."
-        else:
-            print 'There are {0} users logged in: {1}'.format(len(users), ','.join(users))
-
-    def do_users_in_group(self, group):
-        """users_in_group [group]
-        Get a list of users in some group."""
-        users = self.get_users_in_group(group)
-        if len(users) == 0:
-            print "No users in group " + group + "."
-        else:
-            print "Users in group {0}: {1}.".format(group, ', '.join(users))
-
     ##################################
     ### User Interaction
     ##################################
