@@ -21,6 +21,7 @@ class ChatServer(object):
         try:
             return self.chatDB.create_account(username, password)
         except UsernameExists:
+            print "caught usernameExists in chat_server.create_account"
             return False
 
     def create_group(self, group_name):
@@ -49,21 +50,21 @@ class ChatServer(object):
         users = self.chatDB.get_users_in_group(group_name)
 
         for username in users:
-            self.send_or_queue_message(session_token, message, username)
+            self.send_or_queue_message(session_token, message, username, group_name)
 
-    def send_or_queue_message(self, session_token, message, username):
+    def send_or_queue_message(self, session_token, message, username, group_name = None):
         """send message to a user with this username."""
         from_username = self.chatDB.username_for_session_token(session_token)
 
         if self.is_online(username):
             try:
-                self.send_user(message, from_username, username)
+                self.send_user(message, from_username, username, group_name)
                 print 'Found {} online! Sending message.'.format(username)
             except:
-                self.chatDB.queue_message(message, from_username, username)
+                self.chatDB.queue_message(message, from_username, username, group_name)
                 print '{} not online. Queuening message.'.format(username)
         else:
-            self.chatDB.queue_message(message, from_username, username)
+            self.chatDB.queue_message(message, from_username, username, group_name)
             print '{} not online. Queuening message.'.format(username)
 
     def is_online(self, username):

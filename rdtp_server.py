@@ -62,8 +62,8 @@ class RDTPServer(ChatServer):
                         self.sockets.remove(sock)
 
     def create_account(self, username, password):
-        super(RDTPServer, self).create_account(username, password)
         self.sockets_by_user[username] = None
+        return super(RDTPServer, self).create_account(username, password)
 
     def kickout_user(self, username):
         """Kickout the current user."""
@@ -220,9 +220,13 @@ class RDTPServer(ChatServer):
         else:
             print "Action not found."
 
-    def send_user(self, message, from_username, username):
+    def send_user(self, message, from_username, username, group_name = None):
         user_sock = self.sockets_by_user[username]
-        rdtp_message = "{0} >>> {1}".format(from_username, message)
+        rdtp_message = ""
+        if group_name:
+            rdtp_message = "{0} in {1} >>> {2}".format(from_username, group_name, message)
+        else:
+            rdtp_message = "{0} >>> {1}".format(from_username, message)
         self.send(user_sock, "M", 0, rdtp_message)
 
     def send(self, sock, action, status, *args):

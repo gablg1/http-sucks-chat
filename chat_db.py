@@ -195,7 +195,7 @@ class ChatDB(object):
                     }
                 })
 
-    def queue_message(self, message, from_username, username):
+    def queue_message(self, message, from_username, username, group_name = None):
         user = self.userCollection.find_one({'username': username})
         if user is None:
             raise UserKeyError(username)
@@ -206,7 +206,8 @@ class ChatDB(object):
                 "$push": {
                     "messageQ": {
                         "message": message,
-                        "from_username": from_username
+                        "from_username": from_username,
+                        "from_group_name": group_name
                     }
                 }
             }
