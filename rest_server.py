@@ -21,7 +21,7 @@ def check_authorization(f):
             args[0].username_for_session_token(session_token)
         except UserNotLoggedInError:
             return rest_errors.unauthorized()
-        
+
         return f(*args, **kwargs)
     return wrapper
 
@@ -56,8 +56,8 @@ class RESTServer(ChatServer):
 
     ###########
     ## USERS ##
-    ###########  
-      
+    ###########
+
     def handle_login(self):
         username = request.authorization.username
         password = request.authorization.password
@@ -102,7 +102,7 @@ class RESTServer(ChatServer):
             session_username = self.username_for_session_token(session_token)
             if (session_username != user_id):
                 return rest_errors.forbidden()
-            
+
             self.logout(user_id)
             self.delete_account(user_id)
         except UserKeyError:
@@ -115,7 +115,7 @@ class RESTServer(ChatServer):
         wildcard = request.args.get('wildcard')
 
         if wildcard is None:
-            wildcard = '*'
+            wildcard = '.*'
 
         try:
             users = [user['username'] for user in self.get_users(wildcard)]
@@ -134,7 +134,7 @@ class RESTServer(ChatServer):
             group_name = request.json['data']['group_name']
         except ValueError:
             return rest_errors.bad_request()
-        
+
         try:
             self.create_group(group_name)
         except GroupExists:
@@ -163,7 +163,7 @@ class RESTServer(ChatServer):
         wildcard = request.args.get('wildcard')
 
         if wildcard is None:
-            wildcard = '*'
+            wildcard = '.*'
 
         try:
             groups = [group['name'] for group in self.get_groups(wildcard)]
@@ -194,7 +194,7 @@ class RESTServer(ChatServer):
             return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user_id': user_id, 'message': message}}), 201
-    
+
     @check_authorization
     def handle_send_group(self, group_id):
         session_token = request.authorization.password
@@ -231,4 +231,4 @@ class RESTServer(ChatServer):
         return False
 
     def serve_forever(self):
-        self.app.run(port = self.port)
+        self.app.run(port = self.port, host = self.host)

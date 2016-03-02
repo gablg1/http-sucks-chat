@@ -265,6 +265,14 @@ class ChatClient(cmd.Cmd):
         """Returns list of users in some group (including possible wildcard characters).""" 
 
     @abstractmethod
+    def get_groups(self, wildcard):
+        """Returns all groups."""
+
+    @abstractmethod
+    def get_users(self, wildcard):
+        """Returns all users."""
+
+    @abstractmethod
     def send_user(self, user_id, message):
         """Send a message to the user."""
 

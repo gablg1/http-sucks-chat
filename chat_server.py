@@ -90,7 +90,10 @@ class ChatServer(object):
 
     def get_users(self, query):
         """Return all users who match some regex query."""
-        return self.chatDB.get_users(query)
+        users = self.chatDB.get_users(query)
+        print "get_users in chat_Server.py"
+        print users
+        return users
 
     def get_groups(self, query):
         """Return all groups who match some regex query."""

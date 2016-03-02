@@ -184,6 +184,28 @@ class RDTPServer(ChatServer):
             else:
                 self.send(sock, "R", 0, users)
 
+        elif action == "get_groups":
+            wildcard = args[0]
+            if wildcard is None or wildcard == '':
+                wildcard = '*'
+
+            groups = [str(group['name']) for group in self.get_groups(wildcard)]
+            if len(groups) == 0:
+                self.send(sock, "R", 0)
+            else:
+                self.send(sock, "R", 0, *groups)
+
+        elif action == "get_users":
+            wildcard = args[0]
+            if wildcard is None or wildcard == '':
+                wildcard = '*'
+
+            users = [str(user['username']) for user in self.get_users(wildcard)]
+            if len(users) == 0:
+                self.send(sock, "R", 0)
+            else:
+                self.send(sock, "R", 0, *users)
+
         #################################
         # Authentication required actions
         #################################
@@ -232,5 +254,6 @@ class RDTPServer(ChatServer):
     def send(self, sock, action, status, *args):
         try:
             rdtp_common.send(sock, action, status, *args)
-        except:
+        except Exception as error:
             print 'Failed to send message to client.'
+            print error

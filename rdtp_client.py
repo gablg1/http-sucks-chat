@@ -168,6 +168,24 @@ class RDTPClient(ChatClient):
         assert(status == 0)
         return response
 
+    def get_groups(self, wildcard):
+        """Returns all groups."""
+        if len(wildcard) == 0:
+            wildcard = '.*'
+        self.send('get_groups', wildcard)
+        status, response = self.getNextMessage()
+        assert(status == 0)
+        return response
+
+    def get_users(self, wildcard):
+        """Returns all users."""
+        if len(wildcard) == 0:
+            wildcard = '.*'
+        self.send('get_users', wildcard)
+        status, response = self.getNextMessage()
+        assert(status == 0)
+        return response
+
     def send_user(self, user_id, message):
         self.send('send_user', self.session_token, user_id, message)
         status, response = self.getNextMessage()
