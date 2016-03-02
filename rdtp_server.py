@@ -39,7 +39,7 @@ class RDTPServer(ChatServer):
 
         while 1:
             # This blocks until we are ready to read some socket
-            ready_to_read,_,_ = select.select(self.sockets,[],[])
+            ready_to_read,_,_ = select.select(self.sockets,[],[],3)
 
             for sock in ready_to_read:
                 # New client connection!
@@ -52,8 +52,19 @@ class RDTPServer(ChatServer):
                 # Old client wrote us something. It must be
                 # a message!
                 else:
-                    # Here we ignore the status
-                    action, status, args = rdtp_common.recv(sock)
+                    # if a socket died on us (by for instance closing the client)
+                    # then we need to remove it from the socket_list, otherwise
+                    # select is going to loop infinitely on it
+                    # we do this by peeking at the message; if it has length 0,
+                    # then we know the socket died!
+                    data = sock.recv(MAX_MSG_SIZE, socket.MSG_PEEK)
+
+                    if len(data) == 0:
+                        self.sockets.remove(sock)
+                        continue
+                    else:
+                        action, status, args = rdtp_common.recv(sock)
+                    
                     if action:
                         print 'Client action: %s' % (action)
                         self.handle_request(sock, action, args)
