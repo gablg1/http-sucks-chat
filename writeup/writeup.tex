@@ -215,6 +215,15 @@ This is not exactly bad, but its performance is clearly much worse than RDTP's. 
 protocol, connections between sockets are kept alive as long as the user is logged in, and
 messages can be instantaneously received.
 
+\medskip
+
+Notice, however, that due to the command line nature of this application, messages may be
+received while you are typing. While usually on a chat application this is desired, since
+there will be a view for typing and a view for getting messages, this is not ideal in RDTP
+since we are using the command line. So, we may receive a message while we are typing. It does not
+affect the correctness in any way, but it is not very elegant. By not having real-time conversations,
+REST avoids this "issue".
+
 \subsection{Difficulty of Implementation}
 
 Of course, designing our own protocol by hand is harder than using a pre-defined set of
@@ -256,6 +265,18 @@ responses or requests, as in RDTP.
 
 Moreover, some of the HTTP status codes may have unclear semantics under our Application. It is slightly
 unclear what error to return if a \verb|register| fails due to an already existing username, for instance.
+
+\subsection{Limitations}
+
+Our current implementation of RDTP uses only one byte for the length of the message. This limits us to
+simply very few characters on a message. To be safe, we are currently supporting only messages smaller than
+128 characters. To fix this issue, it would be required to change the design decision of using only one byte
+for the length. Perhaps, 4 bytes would be a more appropriate length.
+
+\medskip
+
+Finally, the RDTP server is much more prone to a failure. We did not do much exhaustive error handling for it,
+since we do most of it in the client, and then the server may crash in a situation where the REST server won't.
 
 \section{Code}
 
