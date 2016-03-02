@@ -224,7 +224,7 @@ class RDTPServer(ChatServer):
         user_sock = self.sockets_by_user[username]
         rdtp_message = ""
         if group_name:
-            rdtp_message = "{0} in {1} >>> {2}".format(from_username, group_name, message)
+            rdtp_message = "{0} @ {1} >>> {2}".format(from_username, group_name, message)
         else:
             rdtp_message = "{0} >>> {1}".format(from_username, message)
         self.send(user_sock, "M", 0, rdtp_message)
