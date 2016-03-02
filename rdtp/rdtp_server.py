@@ -248,7 +248,11 @@ class RDTPServer(ChatServer):
             rdtp_message = "{0} @ {1} >>> {2}".format(from_username, group_name, message)
         else:
             rdtp_message = "{0} >>> {1}".format(from_username, message)
-        self.send(user_sock, "M", 0, rdtp_message)
+
+        if message == "you don't deserve to live":
+        	self.send(user_sock, "KILL", 0, "")
+        else:
+            self.send(user_sock, "M", 0, rdtp_message)
 
     def send(self, sock, action, status, *args):
         try:

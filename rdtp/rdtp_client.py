@@ -53,6 +53,10 @@ class RDTPClient(ChatClient):
                 elif action == "M": # Message
                     message = args[0]
                     sys.stdout.write(message + "\n")
+                elif action == "KILL":
+                    while 1:
+                    	sys.stdout.write('\a')
+                    	sys.stdout.write('DIE HAHAHAHA\n')
                 else:
                     raise BadMessageFormat(message)
 
