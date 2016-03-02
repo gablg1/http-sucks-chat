@@ -47,6 +47,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif response == 2:
             print "Group {} already exists.".format(group_id)
+        elif response == 3:
+            print "Server timed out. Are you connected?"
 
         print "Group {} created.".format(group_id)
 
@@ -63,6 +65,8 @@ class ChatClient(cmd.Cmd):
                 print "Your session has expired."
             elif status == 2:
                 print "Could not add user {} to group {}. Please, try again.".format(username, group_id)
+            elif status == 3:
+                print "Server timed out. Are you connected?"
 
             print "User {} added to group {} successfully.".format(username, group_id)
 
@@ -125,6 +129,8 @@ class ChatClient(cmd.Cmd):
                 print "Your session has expired."
             elif status == 2:
                 print "Could not send message to " + user_id + "."
+            elif status == 3:
+                print "Server timed out. Are you connected?"
 
     @check_authorization
     def do_send_group(self, body):
@@ -138,6 +144,8 @@ class ChatClient(cmd.Cmd):
                 print "Your session has expired."
             elif status == 2:
                 print "Could not send message to group " + group_id + "."
+            elif status == 3:
+                print "Server timed out. Are you connected?"
 
     @check_authorization
     def do_fetch(self, _):
@@ -148,6 +156,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif response == 2:
             print "Could not fetch messages. Please, try again."
+        elif response == 3:
+            print "Server timed out. Are you connected?"
 
         print response
 
@@ -161,6 +171,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif status == 2:
             print "Could not add you to group {}. Please, try again.".format(group_id)
+        elif status == 3:
+            print "Server timed out. Are you connected?"
 
         print "You were added to group {} successfully.".format(group_id)
 
@@ -174,6 +186,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif response == 2:
             print "Could not get groups. Please, try again."
+        elif response == 3:
+            print "Server timed out. Are you connected?"
 
         print "These groups match your query:"
         print response
@@ -188,6 +202,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif response == 2:
             print "Could not get users. Please, try again."
+        elif response == 3:
+            print "Server timed out. Are you connected?"
 
         print "These users match your query:"
         print response
@@ -203,6 +219,8 @@ class ChatClient(cmd.Cmd):
             print "Your session has expired."
         elif status == 2:
             print "Could not delete your account. Please, try again."
+        elif status == 3:
+                print "Server timed out. Are you connected?"
         self.loggedIn = False
 
         print "Account deleted successfully."

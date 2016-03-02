@@ -2,6 +2,7 @@ import socket
 import sys
 import select
 from chat_client import ChatClient
+from functools import wraps
 import thread
 import Queue
 import sys
@@ -10,11 +11,26 @@ import rdtp_common
 
 MAX_RECV_LEN = 1024
 
+def timeout(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            response = f(*args, **kwargs)
+        except Timeout:
+            return 3
+        
+        return response
+    return wrapper
+
 class BadMessageFormat(Exception):
     def __init__(self, message):
         self.message = message
     def __str__(self):
         return "The following message was received from the server in bad format: {}.".format(message)
+
+class Timeout(Exception):
+    def __str__(self):
+        return "The server timed out."
 
 class RDTPClient(ChatClient):
     def __init__(self, host, port):
@@ -51,13 +67,13 @@ class RDTPClient(ChatClient):
                 else:
                     raise BadMessageFormat(message)
 
+    @timeout
     def getNextMessage(self):
         try:
             status, response = self.response_queue.get(block=True, timeout=3)
             return status, response
         except Queue.Empty:
-            print 'Server did not respond. Are you connected?'
-            return None, None
+            raise Timeout
 
     def close(self):
         self.socket.close()
