@@ -157,7 +157,7 @@ class RESTClient(ChatClient):
     @check_session
     def send_group(self, group_name, message):
         msg = {'data': {'message': message}}
-        response = self.session.post(self.base_url + '/groups/' + group_name, json=msg)
+        response = self.session.post(self.base_url + '/groups/' + group_name + '/messages', json=msg)
         r = response.json()
 
         if 'errors' in r:

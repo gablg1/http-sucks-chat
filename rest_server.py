@@ -52,7 +52,7 @@ class RESTServer(ChatServer):
         # Messaging routes
         self.app.add_url_rule("/users/<user_id>/messages", view_func=self.handle_send_user, methods=['POST'])
         self.app.add_url_rule("/users/<user_id>/messages", view_func=self.handle_fetch, methods=['GET'])
-        self.app.add_url_rule("/groups/<group_id>", view_func=self.handle_send_group, methods=['POST'])
+        self.app.add_url_rule("/groups/<group_id>/messages", view_func=self.handle_send_group, methods=['POST'])
 
     ###########
     ## USERS ##

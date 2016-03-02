@@ -1,4 +1,9 @@
 import select
+import socket
+
+class ClientDied(Exception):
+    def __str__(self):
+        return "The client died."
 
 ##################################
 ### Real Data Transfer Protocol
@@ -64,10 +69,15 @@ def recv_nbytes(sock, n):
     # keep on readin' until we get what we expected
     while bytes_received < n:
         ready_to_read,_,_ = select.select([sock],[],[])
-        assert(ready_to_read != [])
-        new_recv = sock.recv(n - bytes_received)
-        bytes_received += len(new_recv)
-        received += new_recv
+        data = sock.recv(1, socket.MSG_PEEK)
+
+        if len(data) == 0:
+            raise ClientDied
+        else:
+            assert(ready_to_read != [])
+            new_recv = sock.recv(n - bytes_received)
+            bytes_received += len(new_recv)
+            received += new_recv
     assert(bytes_received == len(received))
     return received
 

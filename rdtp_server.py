@@ -8,6 +8,7 @@ from chat_db import GroupExists
 from chat_db import GroupDoesNotExist
 from chat_db import UsernameExists
 import rdtp_common
+from rdtp_common import ClientDied
 
 MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
@@ -52,19 +53,12 @@ class RDTPServer(ChatServer):
                 # Old client wrote us something. It must be
                 # a message!
                 else:
-                    # if a socket died on us (by for instance closing the client)
-                    # then we need to remove it from the socket_list, otherwise
-                    # select is going to loop infinitely on it
-                    # we do this by peeking at the message; if it has length 0,
-                    # then we know the socket died!
-                    data = sock.recv(MAX_MSG_SIZE, socket.MSG_PEEK)
-
-                    if len(data) == 0:
+                    try:
+                        action, status, args = rdtp_common.recv(sock)
+                    except ClientDied:
                         self.sockets.remove(sock)
                         continue
-                    else:
-                        action, status, args = rdtp_common.recv(sock)
-                    
+
                     if action:
                         print 'Client action: %s' % (action)
                         self.handle_request(sock, action, args)

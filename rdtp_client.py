@@ -7,6 +7,7 @@ import Queue
 import sys
 
 import rdtp_common
+from rdtp_common import ClientDied
 
 MAX_RECV_LEN = 1024
 
@@ -40,7 +41,12 @@ class RDTPClient(ChatClient):
     # Right now, the client only supports two types of actions. 'C' or 'M'
     def listener(self):
         while 1: # listen forever
-            action, status, args = rdtp_common.recv(self.socket)
+            try:
+                action, status, args = rdtp_common.recv(self.socket)
+            except ClientDied:
+                print "You were disconnected."
+                exit()
+
             if action:
                 if action == "R": # Response
                     self.response_queue.put((status, args))

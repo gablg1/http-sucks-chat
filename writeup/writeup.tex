@@ -1,0 +1,266 @@
+\documentclass[10pt]{article}
+
+\usepackage{amsfonts,latexsym,amsthm,amssymb,amsmath,amscd,euscript}
+\def\arraystretch{1.2}
+
+\usepackage{bold-extra}
+\usepackage{framed}
+\usepackage{minted}
+\usepackage[geometry]{ifsym}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,citecolor=blue,urlcolor=black,linkbordercolor={1 0 0}}
+
+\textwidth=15.5cm \textheight=20.0cm
+\oddsidemargin=0.8cm
+\evensidemargin=0.8cm
+
+\allowdisplaybreaks[1]
+\newcommand\nc{\newcommand}
+\nc{\on}{\operatorname}
+\nc{\ol}{\overline}
+\title{{\textsc{CS262 - HTTP Sucks Chat}}}
+\author{Victor Domene \\ \small{victordomene@college.harvard.edu} \\
+Josh Meier \\ \small{jmeier@college.harvard.edu} \\
+Gabriel Guimaraes \\ \small{gabrielguimaraes@college.harvard.edu} \\ 
+Brian Arroyo \\ \small{brianarroyo@college.harvard.edu}}
+\date{March 2nd, 2016}
+
+\begin{document}
+
+\hypersetup{linkcolor = black, urlcolor = blue}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Overview}
+
+In this assignment, we had the task of building a chat application using two
+different protocols: REST and a hand-crafted protocol of our own. This paper
+will explain the details of implementation of RDTP (Real Data Transfer
+Protocol) and of REST, criticizing the two protocols. We have used Python (and many of its libraries), Flask
+(a simple HTTP server for routing) and MongoDB. For details on dependencies
+and some quick installation guidelines, refer to the repository linked in the
+end of this article.
+
+\section{Interface and Code Structure}
+
+The code is divided into several abstractions. First, the files \verb|client.py|
+and \verb|server.py| are used to start up servers and clients with the different
+protocols. The usage would be
+
+\medskip
+
+\begin{center}
+\verb|python {server.py,client.py} {REST,RDTP}|
+\end{center}
+
+\medskip
+
+Notice that a REST client will only work with the REST server. By default, these files
+start up the servers at \verb|localhost:9999|, but that can be easily changed.
+
+\medskip
+
+The \verb|ChatDB| class in \verb|chat_db.py| is responsable for all of the
+interactions with MongoDB. This allow us to have a nice separation, so that it
+would be quite easy to change from Mongo to any other type of database, by
+simply modifying this file. The \verb|ChatServer| class in \verb|chat_server.py|
+is an abstraction over the server, and it contains an instance of \verb|ChatDB|,
+other than some common methods to all chat servers. Similarly, \verb|ChatClient|
+in \verb|chat_client| standardizes the chat clients, which includes error handling
+and printing results to the user.
+
+\medskip
+
+Finally, at the heart of the project is \verb|RESTServer| and \verb|RESTClient|,
+as well as its \verb|RDTP| counterparts. These inherit from \verb|ChatServer|
+and \verb|ChatClient| and implement the desired functionality for each of
+the protocols.
+
+\section{RDTP - Real Data Transfer Protocol}
+
+\subsection{High-Level Implementation}
+
+The chat server we implemented in Real Data Transfer Protocol (RDTP) uses sockets to listen for client connections. The server will currently block on any currently open (TCP) sockets, waiting for any messages. When receiving a message, the server will first receive five items: a version number, a magic number, a status code, a length for the action name, and a length for the message. The next set of bytes correspond to the action; we spin loop trying to receive the number of bytes for the action string specified by the header and do the same for the message. Ignoring the status code, the server then sends the action and the message off to a dispatcher. Depending on the result of how the message is handled, the server will respond to the client with a status code. For any messages, we either try to deliver them immediately or queue them. Handling of that error code is done client-side.
+
+\medskip
+
+When a user logs in, the socket used is recorded and a unique session token is generated and stored in a Mongo database. The session token is also sent back to the user, who will include it with any future requests and will be used by the server to verify that the user is who they claim to be. The user is also flagged as being logged in; this informs us of whether we should send a user a message meant for them immediately or queue it up for later. Anytime sending a message on a socket fails, we enqueue the message to be sent later.
+
+\medskip
+    
+While the client is expected to block on server responses, a timeout is set of 3 seconds to prevent the client from hanging.
+
+\subsection{RDTP Specification}
+
+RDTP has seven parts to the protocol, the first five of which are referred to as the header:
+
+\medskip
+
+- 1 byte to present a magic number
+
+- 1 byte to specify a version number
+
+- 1 byte to indicate a status code
+
+- 1 byte to establish the length of the action to be taken
+
+- 1 byte to stipulate the length of the message
+
+- The action to be taken, of length as expected by item 4
+
+- The message, either as arguments to the action or the message to be delivered, of length as expected by item 5
+
+\medskip
+
+The status code must be 0 to indicate a non-error, and non-zero to indicate an error (the client is expected to handle status codes itself).
+
+\section{REST}
+
+\subsection{High-Level Implementation}
+
+For the implementation of \verb|RESTServer|, we relied on \verb|Flask|, a very simple HTTP server that allows us
+to define our routes very easily. Since it would be nothing but cumbersome to encode/decode HTTP requests, we
+decided that using a simple yet functional server would be enough for this part of the assignment.
+
+\medskip
+
+Notice that this implementation does not support real-time conversation. In order to get messages, a user must
+call \verb|fetch|. This is due to the nature of \verb|REST|, and we will cover this in more detail later.
+
+\medskip
+
+We also used a session token for our REST application. Sending username and password combinations over the web
+is not exactly secure, so we minimize this access by simply returning a session token on user login. We then pass in
+this token in the \verb|Authorization| header every time we want to make a request to the server.
+
+\medskip
+
+For implementing \verb|RESTClient|, we relied on a Python library called \verb|requests|. It allowed us to make
+the required HTTP requests in a much easier way (including the handling of authentication and session token bookkeeping).
+
+\medskip
+
+Finally, notice that we are using a combination of HTTP and JSON for both requests and responses.
+
+\subsection{Routes}
+
+The following REST routes are used in this application:
+
+\medskip
+
+- \verb|POST| to \verb|/login| (for the \verb|login| command)
+
+- \verb|POST| to \verb|/logout| (for the \verb|logout| command)
+
+- \verb|POST| to \verb|/groups| (for \verb|create_group| command)
+
+- \verb|POST| to \verb|/groups/<group_id>| (for \verb|add_user_to_group| command)
+
+- \verb|GET| to \verb|/users| (with a wildcard as a parameter, for \verb|get_users| command)
+
+- \verb|GET| to \verb|/groups| (with a wildcard as a parameter, for \verb|get_groups| command)
+
+- \verb|POST| to \verb|/users/<user_id>/messages| (for \verb|send| command)
+
+- \verb|POST| to \verb|/groups/<group_id>/messages| (for \verb|send_group| command)
+
+- \verb|GET| to \verb|/users/<user_id>/messages| (for \verb|fetch| command)
+
+- \verb|DELETE| to \verb|/users/<user_id>| (for \verb|delete_account| command)
+
+\medskip
+
+These match the standard for REST.
+
+\subsection{Error Handling and Responses}
+
+We have tried to follow the \href{http://jsonapi.org/}{JSON API} standard for JSON response values. Therefore, in case
+of an error, we return with the appropriate HTTP Status Code (as given \href{http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html}{here})
+and with a suitable description. For instance, if a user tried to login sending an invalid JSON to \verb|/login|, then we would return
+
+\medskip
+
+\begin{minted}{js}
+{
+  "errors": {
+    "status_code": 400,
+    "description": "Bad Request: The request cannot be fulfilled due to bad syntax"
+  }
+}
+\end{minted}
+
+\medskip
+
+Similarly, any correct response would correspond to a JSON similar to the above,
+but with a header \verb|data| instead. The \verb|RESTClient| is responsable from
+converting these error codes and responses into appropriate return values to 
+the common interface of \verb|ChatClient|.
+
+\section{Critique of REST and RDTP}
+
+Among the many differences between REST and RDTP, we will focus on the following points.
+
+\subsection{Real-Time Conversation}
+
+While RDTP allows for "real-time conversation" (i.e., users receiving messages immediately
+if they are online, without the need of calling \verb|fetch|), REST clearly does not. The
+connection between server and client in the REST case lasts only for the duration of each
+request, and it is reopen every time a new request is made. Therefore, to allow real-time
+conversation, we would have to keep polling the server for new messages every few seconds or so.
+This is not exactly bad, but its performance is clearly much worse than RDTP's. On the latter
+protocol, connections between sockets are kept alive as long as the user is logged in, and
+messages can be instantaneously received.
+
+\subsection{Difficulty of Implementation}
+
+Of course, designing our own protocol by hand is harder than using a pre-defined set of
+rules. However, the implementation of RDTP server itself may also prove challenging, since
+we need to keep the server listening to many clients and responding to them appropriately.
+Not only that, but each RDTP client must also be asynchronous, since it must receive messages
+from the server and be able to send messages to it as well. This required quite a lot of
+playing around with the \verb|select| system call and, in the case of the RDTP clients,
+a thread for listening to messages. 
+
+\medskip
+
+Notice that since we only have one socket per client, we must differentiate between messages
+from the server that are responses to our requests, and those that correspond to someone
+sending us a message. We do this by encoding the data with an "R" for request or an "M" for
+message, and letting a thread handle the responses with "M".
+
+\medskip
+
+On the other hand, implementing the HTTP Server was not only a lot easier because of \verb|Flask|,
+but it also does not keep the connections open. Therefore, building a server from scratch would not
+be as difficult.
+
+\subsection{Simplicity and Portability}
+
+REST is a widely used architecture, with a lot of resources to facilitate development. Furthermore,
+HTTP requests are things that can be understood by any browser. So, given the correct set of inputs,
+one could theoretically use the browser for using the REST application very easily. On the other hand,
+interpreting RDTP requires some specialization, which our \verb|RDTPClient| provides.
+
+\subsection{Specificity}
+
+HTTP encompasses many details that are not truly necessary for a Chat application.
+Requests are inherently longer, while RDTP, specifically hand-crafted for this purpose, can be much
+shorter. However, notice that HTTP is much more flexible: there is no limit for the size of the
+responses or requests, as in RDTP.
+
+\medskip
+
+Moreover, some of the HTTP status codes may have unclear semantics under our Application. It is slightly
+unclear what error to return if a \verb|register| fails due to an already existing username, for instance.
+
+\section{Code}
+
+All of our source code for this assignment is in the following
+\href{https://github.com/gablg1/http-sucks-chat}{GitHub Repository}.
+It contains an instructive \verb|README.md| file for dependencies and usage instructions.
+
+\end{document}
