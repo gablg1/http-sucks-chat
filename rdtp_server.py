@@ -110,10 +110,9 @@ class RDTPServer(ChatServer):
 
             try:
                 self.create_account(username, password)
+                self.send(sock, "R", 0)
             except UsernameExists:
                 self.send(sock, "R", 2)
-
-        	self.send(sock, "R", 0)
 
         elif action == "create_group":
             group_id = args[0]
