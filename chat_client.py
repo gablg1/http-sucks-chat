@@ -35,12 +35,21 @@ class ChatClient(cmd.Cmd):
         else:
             username, password = params.split()
             if not self.create_account(username, password):
-                print "That account already exists."
+                print "Username {} already exists.".format(username)
+
+            print "User {} created.".format(username)
 
     def do_create_group(self, group_id):
         """create_group [group]
         Creates a new group."""
-        self.create_group(group_id)
+        response = self.create_group(group_id)
+        if response == 1:
+            print "Your session has expired."
+        elif response == 2:
+            print "Group {} already exists.".format(group_id)
+
+        print "Group {} created.".format(group_id)
+
 
     def do_add_user_to_group(self, params):
         """add_user_to_group [username] [group]
@@ -49,7 +58,13 @@ class ChatClient(cmd.Cmd):
             print "The appropriate command format is: add_user_to_group [username] [group]"
         else:
             username, group_id = params.split()
-            self.add_user_to_group(username, group_id)
+            status = self.add_user_to_group(username, group_id)
+            if status == 1:
+                print "Your session has expired."
+            elif status == 2:
+                print "Could not add user {} to group {}. Please, try again.".format(username, group_id)
+
+            print "User {} added to group {} successfully.".format(username, group_id)
 
     def do_login(self, params):
         """login [username] [password]
@@ -63,6 +78,7 @@ class ChatClient(cmd.Cmd):
             if self.login(username, password):
                 self.loggedIn = True
                 self.username = username
+                print "Logged in."
             else:
                 print "Could not log into http-sucks-chat with that username and password."
 
@@ -71,6 +87,7 @@ class ChatClient(cmd.Cmd):
         Logout of http-sucks-chat."""
         if self.logout():
             self.loggedIn = False
+            print "Logged out."
         else:
             print "Could not log out of http-sucks-chat."
 
@@ -126,21 +143,54 @@ class ChatClient(cmd.Cmd):
     def do_fetch(self, _):
         """Fetch new messages from the server.
         You must be logged in to use this command."""
-        print self.fetch()
+        response = self.fetch()
+        if response == 1:
+            print "Your session has expired."
+        elif response == 2:
+            print "Could not fetch messages. Please, try again."
+
+        print response
 
     @check_authorization
     def do_join_group(self, group_id):
         """join_group [group]
         Join a group. Must be logged in.
         You must be logged in to use this command."""
-        self.add_user_to_group(self.username, group_id)
+        status = self.add_user_to_group(self.username, group_id)
+        if status == 1:
+            print "Your session has expired."
+        elif status == 2:
+            print "Could not add you to group {}. Please, try again.".format(group_id)
+
+        print "You were added to group {} successfully.".format(group_id)
 
     @check_authorization
-    def do_get_groups(self, wildcard='*'):
+    def do_get_groups(self, wildcard='.*'):
         """get_groups [query]
         Returns a list of groups matching your query. You can use a wildcard!
         You must be logged in to use this command."""
-        print self.get_groups(wildcard)
+        response = self.get_groups(wildcard)
+        if response == 1:
+            print "Your session has expired."
+        elif response == 2:
+            print "Could not get groups. Please, try again."
+
+        print "These groups match your query:"
+        print response
+
+    @check_authorization
+    def do_get_users(self, wildcard='.*'):
+        """get_groups [query]
+        Returns a list of groups matching your query. You can use a wildcard!
+        You must be logged in to use this command."""
+        response = self.get_users(wildcard)
+        if response == 1:
+            print "Your session has expired."
+        elif response == 2:
+            print "Could not get users. Please, try again."
+
+        print "These users match your query:"
+        print response
 
     @check_authorization
     def do_delete_account(self, _):
@@ -148,8 +198,14 @@ class ChatClient(cmd.Cmd):
         Delete your account.
         You must be logged in to use this command.
         """
-        self.delete_account()
+        status = self.delete_account()
+        if status == 1:
+            print "Your session has expired."
+        elif status == 2:
+            print "Could not delete your account. Please, try again."
         self.loggedIn = False
+
+        print "Account deleted successfully."
 
     ##################################
     ### Abstract Methods

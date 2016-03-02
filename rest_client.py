@@ -8,7 +8,7 @@ def check_session(f):
     def wrapper(*args, **kwargs):
         if args[0].session is None:
             print "No current session. Please, login to perform this action."
-            return
+            return 1
 
         return f(*args, **kwargs)
     return wrapper
@@ -32,10 +32,8 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
             return False
 
-        print "Account successfully created!"
         return True
 
     def login(self, username, password):
@@ -53,12 +51,11 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
             return False
         
         self.username = r['data']['user']['username']
         self.session.auth = ('TOK', r['data']['user']['session_token'])
-        print "Loged in successfully as {}!".format(self.username)
+
         return True
 
     @check_session
@@ -72,12 +69,11 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
             return False
- 
-        print "See you later, {}!".format(self.username)
+
         self.username = None
         self.session_token = None
+
         return True
 
     @check_session
@@ -86,9 +82,12 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            print "Your account has been deleted. :("
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+        
+        return 0
 
     @check_session
     def send_user(self, username, message):
@@ -97,9 +96,12 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            print "Your message has been sent!"
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+
+        return 0
 
     @check_session
     def fetch(self):
@@ -108,15 +110,18 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            messages = r['data']['messages']
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+    
+        messages = r['data']['messages']
 
-            if messages == []:
-                return "No new messages."
+        if messages == []:
+            return "No new messages."
 
-            ret = [msg['from_username'] + ' >>> ' + msg['message'] for msg in messages]
-            return '\n'.join(ret)
+        ret = [msg['from_username'] + ' >>> ' + msg['message'] for msg in messages]
+        return '\n'.join(ret)
 
     ############
     ## GROUPS ##
@@ -130,9 +135,12 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            print "Group successfully created!"
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+        
+        return 0
 
     @check_session
     def add_user_to_group(self, username, group_name):
@@ -142,9 +150,12 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            print "Successfully added user to the group!"
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+        
+        return 0
 
     @check_session
     def send_group(self, group_name, message):
@@ -153,9 +164,12 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            print "Your message has been sent!"
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+        
+        return 0
 
     @check_session
     def get_groups(self, wildcard):
@@ -164,7 +178,24 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            print r['errors']['description']
-        else:
-            return '\n'.join(r['data']['groups'])
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+
+        return '\n'.join(r['data']['groups'])
+    
+    @check_session
+    def get_users(self, wildcard):
+        wildcard = {'wildcard': wildcard}
+        response = self.session.get(self.base_url + '/users', params=wildcard)
+        r = response.json()
+
+        if 'errors' in r:
+            if r['errors']['status_code'] == 401:
+                return 1
+            else:
+                return 2
+                
+        return '\n'.join(r['data']['users'])
             

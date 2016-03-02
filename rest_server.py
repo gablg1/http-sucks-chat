@@ -118,7 +118,7 @@ class RESTServer(ChatServer):
             wildcard = '*'
 
         try:
-            users = self.get_users(wildcard)
+            users = [user['username'] for user in self.get_users(wildcard)]
         except:
             return rest_errors.internal_server_error()
 
