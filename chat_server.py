@@ -17,8 +17,7 @@ class ChatServer(object):
         """Kickout the current user. Implementation specific."""
 
     def create_account(self, username, password):
-        """Create an account with given username and password.
-        NOTE: You should check if a username_exists before calling this method."""
+        """Create an account with given username and password."""
         try:
             return self.chatDB.create_account(username, password)
         except UsernameExists:
@@ -47,7 +46,10 @@ class ChatServer(object):
 
     def send_message_to_group(self, session_token, message, group_name):
         """Send message a group with this group_name."""
-        return self.chatDB.send_message_to_group(session_token, message, group_name)
+        users = self.chatDB.get_users_in_group(group_name)
+
+        for username in users:
+            self.send_or_queue_message(session_token, message, username)
 
     def send_or_queue_message(self, session_token, message, username):
         """send message to a user with this username."""
@@ -92,8 +94,3 @@ class ChatServer(object):
     def get_groups(self, query):
         """Return all groups who match some regex query."""
         return self.chatDB.get_groups(query)
-
-    @abstractmethod
-    def send_user(self, message, from_username, username):
-        """Send a message from one user to another user. 
-        Must be implemented by server subclasses."""
