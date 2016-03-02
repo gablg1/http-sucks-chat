@@ -6,6 +6,7 @@ from chat_db import UserKeyError
 from chat_db import UserNotLoggedInError
 from chat_db import GroupExists
 from chat_db import GroupDoesNotExist
+from chat_db import UsernameExists
 import rdtp_common
 
 MAX_MSG_SIZE = 1024
@@ -95,18 +96,22 @@ class RDTPServer(ChatServer):
         elif action == "create_account":
             username = args[0]
             password = args[1]
-            if self.create_account(username, password):
-                self.send(sock, "R", 0)
-            else:
-            	self.send(sock, "R", 1)
+
+            try:
+                self.create_account(username, password)
+            except UsernameExists:
+                self.send(sock, "R", 2)
+
+        	self.send(sock, "R", 0)
 
         elif action == "create_group":
             group_id = args[0]
+            
             try:
                 self.create_group(group_id)
                 self.send(sock, "R", 0)
             except GroupExists:
-                self.send(sock, "R", 1)
+                self.send(sock, "R", 2)
 
         elif action == "login":
             username = args[0]

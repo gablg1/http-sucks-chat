@@ -26,9 +26,9 @@ def check_authorization(f):
     return wrapper
 
 class RESTServer(ChatServer):
-    ################
-    ## INIT: ROUTING
-    ################
+    #############
+    ## ROUTING ##
+    #############
 
     def __init__(self, host, port):
         ChatServer.__init__(self, host, port)
@@ -77,6 +77,8 @@ class RESTServer(ChatServer):
             self.logout(username)
         except UserKeyError:
             return rest_errors.internal_server_error()
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user': {'session_token': session_token}}}), 200
 
@@ -84,13 +86,15 @@ class RESTServer(ChatServer):
         try:
             username = request.json['username']
             password = request.json['password']
-        except ValueError:
+        except:
             return rest_errors.bad_request()
 
         try:
             self.create_account(username, password)
         except UsernameExists:
             return rest_errors.error(200, 'Username Taken: The username chosen already exists')
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user': {'username': username}}}), 201
 
@@ -107,6 +111,8 @@ class RESTServer(ChatServer):
             self.delete_account(user_id)
         except UserKeyError:
             return rest_errors.unauthorized()
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user': {'username': user_id}}}), 200
 
@@ -132,13 +138,15 @@ class RESTServer(ChatServer):
     def handle_create_group(self):
         try:
             group_name = request.json['data']['group_name']
-        except ValueError:
+        except:
             return rest_errors.bad_request()
 
         try:
             self.create_group(group_name)
         except GroupExists:
             return rest_errors.error(200, 'Group Name Taken: The group name chosen already exists')
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'group_id': group_name}}), 200
 
@@ -146,7 +154,7 @@ class RESTServer(ChatServer):
     def handle_add_user_to_group(self, group_id):
         try:
             username = request.json['data']['username']
-        except ValueError:
+        except:
             return rest_errors.bad_request()
 
         try:
@@ -155,6 +163,8 @@ class RESTServer(ChatServer):
             return rest_errors.not_found()
         except UsernameDoesNotExist:
             return rest_errors.not_found()
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'group_id': group_id, 'username': username}}), 201
 
@@ -189,8 +199,7 @@ class RESTServer(ChatServer):
             self.send_or_queue_message(session_token, message, user_id)
         except UserKeyError:
             return rest_errors.not_found()
-        except Exception, e:
-            print e
+        except:
             return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'user_id': user_id, 'message': message}}), 201
@@ -201,13 +210,15 @@ class RESTServer(ChatServer):
 
         try:
             message = request.json['data']['message']
-        except ValueError:
+        except:
             return rest_errors.bad_request()
 
         try:
             self.send_message_to_group(session_token, message, group_id)
         except GroupDoesNotExist:
             return rest_errors.not_found()
+        except:
+            return rest_errors.internal_server_error()
 
         return json.dumps({'data': {'group_id': group_id, 'message': message}}), 201
 

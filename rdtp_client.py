@@ -2,7 +2,6 @@ import socket
 import sys
 import select
 from chat_client import ChatClient
-from functools import wraps
 import thread
 import Queue
 import sys
@@ -11,26 +10,11 @@ import rdtp_common
 
 MAX_RECV_LEN = 1024
 
-def timeout(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            response = f(*args, **kwargs)
-        except Timeout:
-            return 3
-        
-        return response
-    return wrapper
-
 class BadMessageFormat(Exception):
     def __init__(self, message):
         self.message = message
     def __str__(self):
         return "The following message was received from the server in bad format: {}.".format(message)
-
-class Timeout(Exception):
-    def __str__(self):
-        return "The server timed out."
 
 class RDTPClient(ChatClient):
     def __init__(self, host, port):
@@ -42,7 +26,6 @@ class RDTPClient(ChatClient):
         # This is synchronized which is cool since we
         # want to use it across two different threads below
         self.response_queue = Queue.Queue()
-
 
     ##################################
     ### Connectivity
@@ -67,13 +50,12 @@ class RDTPClient(ChatClient):
                 else:
                     raise BadMessageFormat(message)
 
-    @timeout
     def getNextMessage(self):
         try:
             status, response = self.response_queue.get(block=True, timeout=3)
             return status, response
         except Queue.Empty:
-            raise Timeout
+            return 3, None
 
     def close(self):
         self.socket.close()
@@ -110,14 +92,15 @@ class RDTPClient(ChatClient):
         """Instructs server to create an account with given username and password."""
         self.send('create_account', username, password)
         status, response = self.getNextMessage()
-        if status == 1:
-            return False
-        return True
+        if status != 0:
+            return status
+
+        return 0
 
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
         return self.status_request_handler('create_group', group_id)
-
+            
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
         return self.status_request_handler('add_to_group', username, group_id)
@@ -133,12 +116,13 @@ class RDTPClient(ChatClient):
         # This logic should be moved to chat_client
         self.send('login', username, password)
         status, response = self.getNextMessage()
-        if status == 1:
-            return False
-        elif status == 0:
-            self.username = username
-            self.session_token = response[0]
-            return True
+
+        if status != 0:
+            return status
+
+        self.username = username
+        self.session_token = response[0]
+        return 0
 
     def logout(self):
         """Logout of http-sucks-chat.
@@ -147,12 +131,13 @@ class RDTPClient(ChatClient):
             return False
         self.send('logout', self.session_token)
         status, response = self.getNextMessage()
-        if status == 1:
-            return False
-        elif status == 0:
-            self.username = None
-            self.session_token = None
-            return True
+
+        if status != 0:
+            return status
+
+        self.username = None
+        self.session_token = None
+        return 0
 
     def users_online(self):
         """Returns list of users logged into http-sucks-chat."""

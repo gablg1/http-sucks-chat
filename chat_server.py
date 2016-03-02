@@ -18,14 +18,7 @@ class ChatServer(object):
 
     def create_account(self, username, password):
         """Create an account with given username and password."""
-        try:
-            return self.chatDB.create_account(username, password)
-        except UsernameExists:
-            print "caught usernameExists in chat_server.create_account"
-            return False
-
-    def create_group(self, group_name):
-        return self.chatDB.create_group(group_name)
+        return self.chatDB.create_account(username, password)
 
     def login(self, username, password):
         return self.chatDB.login(username, password, self.kickout_user)
@@ -38,12 +31,44 @@ class ChatServer(object):
         """Return usernames of users who are logged in."""
         return self.chatDB.users_online()
 
+    def is_online(self, username):
+        """Check if a user is online. 
+        Should be overriden in some server implementations if "logged in"
+        scheme is senseless."""
+        return self.chatDB.is_online(username)
+
+    def delete_account(self, username):
+        """Deletes the account corresponding to a username."""
+        return self.chatDB.delete_account(username)
+
+    def username_for_session_token(self, session_token):
+        return self.chatDB.username_for_session_token(session_token)
+
+    ###########
+    ## GROUP ##
+    ###########
+
+    def create_group(self, group_name):
+        return self.chatDB.create_group(group_name)
+
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        return self.chatDB.get_users(query)
+
     def get_users_in_group(self, group_name):
         """Return usernames of users who are in this group."""
         return self.chatDB.get_users_in_group(group_name)
 
     def add_user_to_group(self, username, group_name):
         return self.chatDB.add_user_to_group(username, group_name)
+
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        return self.chatDB.get_groups(query)
+
+    #############
+    ## MESSAGE ##
+    #############
 
     def send_message_to_group(self, session_token, message, group_name):
         """Send message a group with this group_name."""
@@ -67,12 +92,6 @@ class ChatServer(object):
             self.chatDB.queue_message(message, from_username, username, group_name)
             print '{} not online. Queuening message.'.format(username)
 
-    def is_online(self, username):
-        """Check if a user is online. 
-        Should be overriden in some server implementations if "logged in"
-        scheme is senseless."""
-        return self.chatDB.is_online(username)
-
     def get_user_queued_messages(self, username):
         """Get all messages queued for some user."""
         return self.chatDB.get_user_queued_messages(username)
@@ -80,21 +99,3 @@ class ChatServer(object):
     def clear_user_message_queue(self, username):
         """Clear all messages queued for some user."""
         return self.chatDB.clear_user_message_queue(username)
-
-    def delete_account(self, username):
-        """Deletes the account corresponding to a username."""
-        return self.chatDB.delete_account(username)
-
-    def username_for_session_token(self, session_token):
-        return self.chatDB.username_for_session_token(session_token)
-
-    def get_users(self, query):
-        """Return all users who match some regex query."""
-        users = self.chatDB.get_users(query)
-        print "get_users in chat_Server.py"
-        print users
-        return users
-
-    def get_groups(self, query):
-        """Return all groups who match some regex query."""
-        return self.chatDB.get_groups(query)

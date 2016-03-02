@@ -34,10 +34,13 @@ class ChatClient(cmd.Cmd):
             print "The appropriate command format is: register [username] [password]"
         else:
             username, password = params.split()
-            if not self.create_account(username, password):
+            status = self.create_account(username, password)
+            if status == 2:
                 print "Username {} already exists.".format(username)
-
-            print "User {} created.".format(username)
+            elif status == 3:
+                print "Server timed out. Are you connected?"
+            else:
+                print "User {} created.".format(username)
 
     def do_create_group(self, group_id):
         """create_group [group]
@@ -49,8 +52,8 @@ class ChatClient(cmd.Cmd):
             print "Group {} already exists.".format(group_id)
         elif response == 3:
             print "Server timed out. Are you connected?"
-
-        print "Group {} created.".format(group_id)
+        else:
+            print "Group {} created.".format(group_id)
 
 
     def do_add_user_to_group(self, params):
@@ -60,6 +63,7 @@ class ChatClient(cmd.Cmd):
             print "The appropriate command format is: add_user_to_group [username] [group]"
         else:
             username, group_id = params.split()
+
             status = self.add_user_to_group(username, group_id)
             if status == 1:
                 print "Your session has expired."
@@ -67,8 +71,8 @@ class ChatClient(cmd.Cmd):
                 print "Could not add user {} to group {}. Please, try again.".format(username, group_id)
             elif status == 3:
                 print "Server timed out. Are you connected?"
-
-            print "User {} added to group {} successfully.".format(username, group_id)
+            else:
+                print "User {} added to group {} successfully.".format(username, group_id)
 
     def do_login(self, params):
         """login [username] [password]
@@ -79,19 +83,27 @@ class ChatClient(cmd.Cmd):
             print "You are already logged into http-sucks-chat."
         else:
             username, password = params.split()
-            if self.login(username, password):
+            status = self.login(username, password)
+
+            if status == 0:
                 self.loggedIn = True
                 self.username = username
                 print "Logged in."
+            elif status == 3:
+                print "Server timed out. Are you connected?"
             else:
                 print "Could not log into http-sucks-chat with that username and password."
 
     def do_logout(self, _):
         """logout
         Logout of http-sucks-chat."""
-        if self.logout():
+        status = self.logout()
+
+        if status == 0:
             self.loggedIn = False
             print "Logged out."
+        elif status == 3:
+            print "Server timed out. Are you connected?"
         else:
             print "Could not log out of http-sucks-chat."
 
@@ -158,8 +170,8 @@ class ChatClient(cmd.Cmd):
             print "Could not fetch messages. Please, try again."
         elif response == 3:
             print "Server timed out. Are you connected?"
-
-        print response
+        else:
+            print response
 
     @check_authorization
     def do_join_group(self, group_id):
@@ -173,8 +185,8 @@ class ChatClient(cmd.Cmd):
             print "Could not add you to group {}. Please, try again.".format(group_id)
         elif status == 3:
             print "Server timed out. Are you connected?"
-
-        print "You were added to group {} successfully.".format(group_id)
+        else:
+            print "You were added to group {} successfully.".format(group_id)
 
     @check_authorization
     def do_get_groups(self, wildcard='.*'):
@@ -188,9 +200,9 @@ class ChatClient(cmd.Cmd):
             print "Could not get groups. Please, try again."
         elif response == 3:
             print "Server timed out. Are you connected?"
-
-        print "These groups match your query:"
-        print response
+        else:
+            print "These groups match your query:"
+            print response
 
     @check_authorization
     def do_get_users(self, wildcard='.*'):
@@ -204,9 +216,9 @@ class ChatClient(cmd.Cmd):
             print "Could not get users. Please, try again."
         elif response == 3:
             print "Server timed out. Are you connected?"
-
-        print "These users match your query:"
-        print response
+        else:
+            print "These users match your query:"
+            print response
 
     @check_authorization
     def do_delete_account(self, _):
@@ -220,10 +232,10 @@ class ChatClient(cmd.Cmd):
         elif status == 2:
             print "Could not delete your account. Please, try again."
         elif status == 3:
-                print "Server timed out. Are you connected?"
-        self.loggedIn = False
-
-        print "Account deleted successfully."
+            print "Server timed out. Are you connected?"
+        else:
+            self.loggedIn = False
+            print "Account deleted successfully."
 
     ##################################
     ### Abstract Methods

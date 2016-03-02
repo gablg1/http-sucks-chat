@@ -5,6 +5,10 @@ from random import choice
 from string import ascii_uppercase
 import re
 
+################
+## EXCEPTIONS ##
+################
+
 class GroupKeyError(Exception):
     def __init__(self, group_id):
         self.group_id = group_id
@@ -47,12 +51,20 @@ class GroupDoesNotExist(Exception):
     def __str__(self):
         return "Group {} does not exist.".format(self.group_id)
 
+################
+## DB MANAGER ##
+################
+
 class ChatDB(object):
     def __init__(self):
         client = MongoClient()
         db = client.chat_server
         self.userCollection = db.users
         self.groupCollection = db.groups
+
+    ##########
+    ## USER ##
+    ##########
 
     def create_account(self, username, password):
         """Create an account with given username and password.
@@ -73,17 +85,6 @@ class ChatDB(object):
             }
         )
         return True
-
-    def create_group(self, group_name):
-        if self.groupCollection.find_one({'name': group_name}):
-            raise GroupExists(group_name)
-
-        self.groupCollection.insert_one(
-            {
-                'name': group_name,
-                'users': []
-            }
-        )
 
     def login(self, username, password, kickout_method = None):
         user = self.userCollection.find_one({'username': username})
@@ -114,6 +115,16 @@ class ChatDB(object):
             return False
         return True
 
+    def is_online(self, username):
+        """Check if a user is online. 
+        Should be overriden in some server implementations if "logged in"
+        scheme is senseless."""
+        user = self.userCollection.find_one({'username': username})
+        if user is None:
+            raise UserKeyError(username)
+
+        return user['logged_in'] 
+
     def needs_kickout(self, username, password):
         user = self.userCollection.find_one({'username': username})
         if user['password'] == password and user['logged_in']:
@@ -142,9 +153,36 @@ class ChatDB(object):
         users = self.userCollection.find({"logged_in": True})
         return [user["username"] for user in users]
 
-    ##################################
-    ### Internal helpers
-    ##################################
+    def delete_account(self, username):
+        """Deletes the account corresponding to a username."""
+        self.userCollection.remove({"username": username})
+
+    def username_for_session_token(self, session_token):
+        user = self.userCollection.find_one({'session_token': session_token})
+        if user is None:
+            raise UserNotLoggedInError(session_token)
+        return user['username']
+
+    def get_users(self, query):
+        """Return all users who match some regex query."""
+        regex = re.compile(query)
+        users = self.userCollection.find({"username": regex})
+        return list(users)
+
+    ###########
+    ## GROUP ##
+    ###########
+
+    def create_group(self, group_name):
+        if self.groupCollection.find_one({'name': group_name}):
+            raise GroupExists(group_name)
+
+        self.groupCollection.insert_one(
+            {
+                'name': group_name,
+                'users': []
+            }
+        )
 
     def get_users_in_group(self, group_name):
         """Return usernames of users who are in this group."""
@@ -197,6 +235,16 @@ class ChatDB(object):
                     }
                 })
 
+    def get_groups(self, query):
+        """Return all groups who match some regex query."""
+        regex = re.compile(query)
+        groups = self.groupCollection.find({"name": regex})
+        return list(groups)
+
+    ##############
+    ## MESSAGES ##
+    ##############
+
     def queue_message(self, message, from_username, username, group_name = None):
         user = self.userCollection.find_one({'username': username})
         if user is None:
@@ -214,16 +262,6 @@ class ChatDB(object):
                 }
             }
         )
-
-    def is_online(self, username):
-        """Check if a user is online. 
-        Should be overriden in some server implementations if "logged in"
-        scheme is senseless."""
-        user = self.userCollection.find_one({'username': username})
-        if user is None:
-            raise UserKeyError(username)
-
-        return user['logged_in'] 
 
     def get_user_queued_messages(self, username):
         """Get all messages queued for some user."""
@@ -247,37 +285,3 @@ class ChatDB(object):
                 }
             }
         )
-
-    def get_users(self, query):
-        """Return all users who match some regex query."""
-        regex = re.compile(query)
-        users = self.userCollection.find({"username": regex})
-        return list(users)
-
-    def get_groups(self, query):
-        """Return all groups who match some regex query."""
-        regex = re.compile(query)
-        groups = self.groupCollection.find({"name": regex})
-        return list(groups)
-
-    def delete_account(self, username):
-        """Deletes the account corresponding to a username."""
-        self.userCollection.remove({"username": username})
-
-    def username_for_session_token(self, session_token):
-        user = self.userCollection.find_one({'session_token': session_token})
-        if user is None:
-            raise UserNotLoggedInError(session_token)
-        return user['username']
-
-    def get_users(self, query):
-        """Return all users who match some regex query."""
-        regex = re.compile(query)
-        users = self.userCollection.find({"username": regex})
-        return list(users)
-
-    def get_groups(self, query):
-        """Return all groups who match some regex query."""
-        regex = re.compile(query)
-        groups = self.groupCollection.find({"name": regex})
-        return list(groups)

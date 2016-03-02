@@ -32,9 +32,9 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            return False
+            return self.__handle_error(r)
 
-        return True
+        return 0
 
     def login(self, username, password):
         """Login with given username and password.
@@ -51,30 +51,33 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            return False
+            return self.__handle_error(r)
         
-        self.username = r['data']['user']['username']
-        self.session.auth = ('TOK', r['data']['user']['session_token'])
+        try:
+            self.username = r['data']['user']['username']
+            self.session.auth = ('TOK', r['data']['user']['session_token'])
+        except:
+            return 1
 
-        return True
+        return 0
 
     @check_session
     def logout(self):
         """Logout of http-sucks-chat.
         Returns boolean."""
         if self.session is None:
-            return False
+            return 1
 
         response = self.session.post(self.base_url + '/logout')
         r = response.json()
 
         if 'errors' in r:
-            return False
+            return self.__handle_error(r)
 
         self.username = None
         self.session_token = None
 
-        return True
+        return 0
 
     @check_session
     def delete_account(self):
@@ -82,10 +85,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
         
         return 0
 
@@ -96,10 +96,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
 
         return 0
 
@@ -110,22 +107,22 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
     
         messages = r['data']['messages']
 
         if messages == []:
             return "No new messages."
 
-        ret = []
-        for msg in messages:
-            if msg['from_group_name'] is None:
-                ret.append(msg['from_username'] + ' >>> ' + msg['message'])
-            else: 
-                ret.append(msg['from_username'] + ' @ ' + msg['from_group_name'] + ' >>> ' + msg['message'])
+        try:
+            ret = []
+            for msg in messages:
+                if msg['from_group_name'] is None:
+                    ret.append(msg['from_username'] + ' >>> ' + msg['message'])
+                else: 
+                    ret.append(msg['from_username'] + ' @ ' + msg['from_group_name'] + ' >>> ' + msg['message'])
+        except:
+            return 2
         
         return '\n'.join(ret)
 
@@ -141,10 +138,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
         
         return 0
 
@@ -156,10 +150,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
         
         return 0
 
@@ -170,10 +161,7 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
         
         return 0
 
@@ -184,12 +172,14 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
 
-        return '\n'.join(r['data']['groups'])
+        try:
+            groups = r['data']['groups']
+        except:
+            return 2
+
+        return '\n'.join(groups)
     
     @check_session
     def get_users(self, wildcard):
@@ -198,10 +188,31 @@ class RESTClient(ChatClient):
         r = response.json()
 
         if 'errors' in r:
-            if r['errors']['status_code'] == 401:
-                return 1
-            else:
-                return 2
+            return self.__handle_error(r)
                 
-        return '\n'.join(r['data']['users'])
+        try:
+            users = r['data']['users']
+        except:
+            return 2
+
+        return '\n'.join(users)
+
+    ############
+    ## HELPER ##
+    ############
+    def __handle_error(self, r):
+        try:
+            status_code = r['errors']['status_code']
+        except:
+            return 2
+
+        if status_code == 401:
+            return 1
+
+        # 200 here means a conflict: create_group or create_account
+        if status_code == 200:
+            return 2
+        
+        return 2
+
             
