@@ -233,9 +233,14 @@ class RDTPServer(ChatServer):
                 if len(messages) == 0:
                     self.send(sock, "R", 0)
                 else:
-                    messageString = ""
+                    ret = []
                     for message in messages:
-                        messageString += message['message'] + " >>> " + message['from_username'] + "\n"
+                        if message['from_group_name'] is None: 
+                            ret.append(message['from_username'] + ' >>> ' + message['message'])
+                        else:
+                            ret.append(message['from_username'] + ' @ ' + message['from_group_name'] + ' >>> ' + message['message'])
+
+                    messageString = '\n'.join(ret)
                     self.send(sock, "R", 0, messageString)
                     self.clear_user_message_queue(username)
             except UserNotLoggedInError:
