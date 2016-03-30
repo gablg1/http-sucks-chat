@@ -3,6 +3,10 @@ from functools import wraps
 import cmd
 
 def check_authorization(f):
+    """
+    Wrapper that checks if the user is logged in.
+    """
+
     @wraps(f)
     def wrapper(*args):
         loggedIn = args[0].loggedIn
@@ -13,7 +17,22 @@ def check_authorization(f):
     return wrapper
 
 class ChatClient(cmd.Cmd):
+    """
+    Implements the interface of the different operations performed by the
+    client.
+    """
+    
     def __init__(self, host, port):
+        """
+        Initializes a ChatClient host and port class variables, as well
+        as setup some simple configuration for the command line interface
+        and set loggedIn to false. Also initializes the command line
+        interface (with cmd.Cmd)
+
+        :param host: The host where this client should connect to
+        :param port: The port that this client should connect to
+        """
+
         self.host = host
         self.port = port
         self.loggedIn = False
@@ -28,8 +47,12 @@ class ChatClient(cmd.Cmd):
     ##################################
 
     def do_register(self, params):
-        """register [username] [password]
-        Create a new account."""
+        """
+        Create a new user account.
+
+        :param params: The parameters passed in to the command line interface,
+        which have to be broken down into username and password (separated by spaces)
+        """
 
         if len(params.split()) != 2:
             print "The appropriate command format is: register [username] [password]"
@@ -43,9 +66,13 @@ class ChatClient(cmd.Cmd):
             else:
                 print "User {} created.".format(username)
 
+    @check_authorization
     def do_create_group(self, group_id):
-        """create_group [group]
-        Creates a new group."""
+        """
+        Creates a new group. Assumes user is logged in.
+
+        :param group_id: The group to be created.
+        """
 
         response = self.create_group(group_id)
         if response == 1:
@@ -57,10 +84,14 @@ class ChatClient(cmd.Cmd):
         else:
             print "Group {} created.".format(group_id)
 
-
+    @check_authorization
     def do_add_user_to_group(self, params):
-        """add_user_to_group [username] [group]
-        Adds a user to a specified group."""
+        """
+        Adds a user to a specified group. Assumes user is logged in.
+
+        :param params: The parameters passed in to the command line interface,
+        which have to be broken down into username and group_id (separated by spaces)
+        """
 
         if len(params.split()) != 2:
             print "The appropriate command format is: add_user_to_group [username] [group]"
@@ -78,8 +109,13 @@ class ChatClient(cmd.Cmd):
                 print "User {} added to group {} successfully.".format(username, group_id)
 
     def do_login(self, params):
-        """login [username] [password]
-        Login to http-sucks-chat."""
+        """
+        Login with credentials.
+
+        :param params: The parameters passed in to the command line interface,
+        which have to be broken down into username and password (separated by spaces)
+        """
+
         if len(params.split()) != 2:
             print "The appropriate command format is: login [username] [password]."
         elif self.loggedIn:
@@ -97,9 +133,13 @@ class ChatClient(cmd.Cmd):
             else:
                 print "Could not log into http-sucks-chat with that username and password."
 
+    @check_authorization
     def do_logout(self, _):
-        """logout
-        Logout of http-sucks-chat."""
+        """
+        Logout from the current session. Assumes user is logged in.
+
+        The parameter is mandatory for cmd.Cmd, but we ignore it.
+        """
         status = self.logout()
 
         if status == 0:
@@ -115,12 +155,20 @@ class ChatClient(cmd.Cmd):
     ##################################
 
     @check_authorization
-    def do_send(self, body):
-        """Send a message to a user of your choice."""
-        if len(body.split(' ', 1)) != 2:
+    def do_send(self, params):
+        """
+        Send a message to a specific user. Assumes user is logged in.
+
+        :param params: The parameters passed in to the command line interface,
+        which have to be broken down into user_id and message. The first word
+        (separated by spaces) will be considered the user; all the rest will be
+        considered part of the message and will be sent.
+        """
+
+        if len(params.split(' ', 1)) != 2:
             print "Usage: send_user [user] [message]"
         else:
-            user_id, message = body.split(' ', 1)
+            user_id, message = params.split(' ', 1)
             status = self.send_user(user_id, message)
             if status == 1:
                 print "Your session has expired."
@@ -131,7 +179,15 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_send_group(self, body):
-        """Send a message to a group of your choice."""
+        """
+        Send a message to a specific group. Assumes user is logged in.
+
+        :param params: The parameters passed in to the command line interface,
+        which have to be broken down into group_id and message. The first word
+        (separated by spaces) will be considered the group; all the rest will be
+        considered part of the message and will be sent.
+        """
+
         if len(body.split(' ', 1)) != 2:
             print "Usage: send_group [group] [message]"
         else:
@@ -146,8 +202,12 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_fetch(self, _):
-        """Fetch new messages from the server.
-        You must be logged in to use this command."""
+        """
+        Fetch (and print) messages for currently logged in user. Assumes user is logged in.
+
+        The parameter is mandatory for cmd.Cmd, but we ignore it.
+        """
+
         response = self.fetch()
         if response == 1:
             print "Your session has expired."
@@ -160,9 +220,12 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_join_group(self, group_id):
-        """join_group [group]
-        Join a group. Must be logged in.
-        You must be logged in to use this command."""
+        """
+        Adds the current logged in user to a group.
+
+        :param group_id: The group to which current user will be added.
+        """
+
         status = self.add_user_to_group(self.username, group_id)
         if status == 1:
             print "Your session has expired."
@@ -175,9 +238,13 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_get_groups(self, wildcard='.*'):
-        """get_groups [query]
-        Returns a list of groups matching your query. You can use a wildcard!
-        You must be logged in to use this command."""
+        """
+        Prints a list of groups matching a query, using a wildcard.
+        Assumes user is logged in.
+
+        :param wildcard: The wildcard used for matching; default is *
+        """
+
         response = self.get_groups(wildcard)
         if response == 1:
             print "Your session has expired."
@@ -191,9 +258,13 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_get_users(self, wildcard='.*'):
-        """get_groups [query]
-        Returns a list of groups matching your query. You can use a wildcard!
-        You must be logged in to use this command."""
+        """
+        Prints a list of users matching a query, using a wildcard.
+        Assumes user is logged in.
+
+        :param wildcard: The wildcard used for matching; default is *
+        """
+
         response = self.get_users(wildcard)
         if response == 1:
             print "Your session has expired."
@@ -207,10 +278,13 @@ class ChatClient(cmd.Cmd):
 
     @check_authorization
     def do_delete_account(self, _):
-        """delete_account
-        Delete your account.
-        You must be logged in to use this command.
         """
+        Deletes the account for the current logged in user.
+        Assumes user is logged in.
+
+        The parameter is mandatory for cmd.Cmd, but we ignore it.
+        """
+        
         status = self.delete_account()
         if status == 1:
             print "Your session has expired."
@@ -221,62 +295,3 @@ class ChatClient(cmd.Cmd):
         else:
             self.loggedIn = False
             print "Account deleted successfully."
-
-    ##################################
-    ### Abstract Methods
-    ##################################
-
-    @abstractmethod
-    def username_exists(self, username):
-        """Check if username already exists.
-        Returns boolean."""
-
-    @abstractmethod
-    def create_account(self, username, password):
-        """Instructs server to create an account with given username and password."""
-
-    @abstractmethod
-    def create_group(self, group_id):
-        """Instructs server to create an account with some group_id."""
-
-    @abstractmethod
-    def add_user_to_group(self, username, group_id):
-        """Instructs server to add a user to a group."""
-
-    @abstractmethod
-    def login(self, username, password):
-        """Login with given username and password.
-        Returns boolean."""
-
-    @abstractmethod
-    def logout(self):
-        """Logout of http-sucks-chat.
-        Returns boolean."""
-
-    @abstractmethod
-    def users_online(self):
-        """Returns list of users logged into http-sucks-chat."""
-
-    @abstractmethod
-    def get_users_in_group(self, group):
-        """Returns list of users in some group (including possible wildcard characters).""" 
-
-    @abstractmethod
-    def get_groups(self, wildcard):
-        """Returns all groups."""
-
-    @abstractmethod
-    def get_users(self, wildcard):
-        """Returns all users."""
-
-    @abstractmethod
-    def send_user(self, user_id, message):
-        """Send a message to the user."""
-
-    @abstractmethod
-    def send_group(self, group_id, message):
-        """Send a message to the group."""
-
-    @abstractmethod
-    def fetch(self):
-        """Fetch new messages from the server."""
