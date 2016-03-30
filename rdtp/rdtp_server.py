@@ -38,7 +38,6 @@ class RDTPServer(ChatServer):
         and handles any incoming requests. Blocks on all of its currently open connections once
         it handles currently waiting responses.
 
-        Does not return
         """
         self.socket.bind((self.host, self.port))
         self.socket.listen(MAX_PENDING_CLIENTS)
@@ -76,11 +75,12 @@ class RDTPServer(ChatServer):
     def create_account(self, username, password):
         """
         create_account attempts to create an account for a client. Initalizes a slot for a socket for the user
-        Uses mongoDB's interface to create an account.
+        Uses mongoDB's interface to create an account by adding it to the database
 
-        Parameters:
-        username: a string, no length to limit except by the RDTP protocol
-        password: a string, no length to limit except by RDTP protocol
+        :param username: a string, no length to limit except by the RDTP protocol
+        :param password: a string, no length to limit except by RDTP protocol
+
+        :return On success, returns True. On Failure, returns UsernameExists error
         """
         self.sockets_by_user[username] = None
         return super(RDTPServer, self).create_account(username, password)
@@ -99,15 +99,12 @@ class RDTPServer(ChatServer):
     def handle_request(self, sock, action, args):
         """
         Dispatcher that actually calls the appropriate method for the requested client action
+        For responses, a status code of 0 is assumed to be all good for the client.
 
-        Parameters:
-        sock: the socket object belonging to the client that sent the message
-        action: a string corresponding to the action the client wishes to take
-        args: a list of strings corresponding to arguments required by the action
+        :param sock: the socket object belonging to the client that sent the message
+        :param action: a string corresponding to the action the client wishes to take
+        :param args: a list of strings corresponding to arguments required by the action
 
-        For responses, a status code of 0 is assumed to be all good.
-
-        No return value is generated.
         """
         print "Handling request. Action: {0}, args: {1}".format(action, args)
         assert(len(args) > 0)
@@ -269,13 +266,13 @@ class RDTPServer(ChatServer):
 
     def send_user(self, message, from_username, username, group_name = None):
         """
-        send a user (or a group!) a message
+        send a user (or a group!) a message. Does not return.
 
         Parameters:
-        message: The actual message. Assumed to be less than the permitted message length by RDTP
-        from_username: the sender's name
-        username: the receiver's name
-        group_name: Default none, but can specify a pre-existing group
+        :param message: The actual message. Assumed to be less than the permitted message length by RDTP
+        :param from_username: the sender's name
+        :param username: the receiver's name
+        :param group_name: Default none, but can specify a pre-existing group
         """
         user_sock = self.sockets_by_user[username]
         rdtp_message = ""
