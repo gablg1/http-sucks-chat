@@ -71,3 +71,7 @@ will mostly rely on Python's `cmd.Cmd` library.
 
 In REST, the `Requests` and `Flask` libraries are used for communication through
 HTTP. The usages are documented in `RESTServer` and `RESTClient`.
+
+## Documentation
+
+Documentation was generated using `pydoc` and exported to the `documentation/` folder of this repository. The main files are `chat.html`, `client.html`, `rdtp.html`, `rest.html`, and `server.html`. Each of these files links to others that describe the code in further detail.
