@@ -63,7 +63,7 @@ protocols. `ChatServer` uses `ChatDB` for interaction with an underlying instanc
 of MongoDB.
 
 Each protocol implements a subclass of `ChatServer` and a subclass of `ChatClient`.
-Therefore we have classes `RDTPServer`, `RESTServer, `RDTPClient` and `RESTClient`.
+Therefore we have classes `RDTPServer`, `RESTServer`, `RDTPClient` and `RESTClient`.
 They implement methods that will call the operations defined by `ChatServer` or
 `ChatClient`. The calls in `ChatServer` will depend mostly on `ChatDB`, the database
 instance which currently is implemented with `MongoDB`. The calls in `ChatClient`
