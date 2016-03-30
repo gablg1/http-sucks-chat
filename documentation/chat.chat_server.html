@@ -1,0 +1,136 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module chat.chat_server</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="chat.html"><font color="#ffffff">chat</font></a>.chat_server</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_server.py">/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_server.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="chat.chat_server.html#ChatServer">ChatServer</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ChatServer">class <strong>ChatServer</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Implements&nbsp;the&nbsp;interface&nbsp;of&nbsp;the&nbsp;different&nbsp;operations&nbsp;performed&nbsp;by&nbsp;the<br>
+server.&nbsp;Notice&nbsp;that&nbsp;the&nbsp;functions&nbsp;here&nbsp;are&nbsp;almost&nbsp;always&nbsp;simple&nbsp;wrappers<br>
+to&nbsp;functions&nbsp;in&nbsp;ChatDB.&nbsp;Those&nbsp;may&nbsp;raise&nbsp;exceptions,&nbsp;and&nbsp;should&nbsp;be&nbsp;handled<br>
+appropriately&nbsp;by&nbsp;the&nbsp;caller;&nbsp;this&nbsp;class&nbsp;does&nbsp;NOT&nbsp;handle&nbsp;them.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ChatServer-__init__"><strong>__init__</strong></a>(self, host, port)</dt><dd><tt>Initializes&nbsp;a&nbsp;<a href="#ChatServer">ChatServer</a>&nbsp;host&nbsp;and&nbsp;port&nbsp;class&nbsp;variables.<br>
+Also&nbsp;starts&nbsp;the&nbsp;ChatDB&nbsp;instance,&nbsp;which&nbsp;handles&nbsp;interactions&nbsp;<br>
+with&nbsp;an&nbsp;underlying&nbsp;database.&nbsp;<br>
+&nbsp;<br>
+:param&nbsp;host:&nbsp;The&nbsp;host&nbsp;where&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to<br>
+:param&nbsp;port:&nbsp;The&nbsp;port&nbsp;that&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-add_user_to_group"><strong>add_user_to_group</strong></a>(self, username, group_name)</dt><dd><tt>Adds&nbsp;a&nbsp;user&nbsp;to&nbsp;a&nbsp;group.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;be&nbsp;added<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;the&nbsp;user&nbsp;should&nbsp;be&nbsp;added</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-clear_user_message_queue"><strong>clear_user_message_queue</strong></a>(self, username)</dt><dd><tt>Clear&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;for&nbsp;which&nbsp;to&nbsp;clear.</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-create_account"><strong>create_account</strong></a>(self, username, password)</dt><dd><tt>Create&nbsp;an&nbsp;account&nbsp;with&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;created<br>
+:param&nbsp;password:&nbsp;The&nbsp;corresponding&nbsp;password</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-create_group"><strong>create_group</strong></a>(self, group_name)</dt></dl>
+
+<dl><dt><a name="ChatServer-delete_account"><strong>delete_account</strong></a>(self, username)</dt><dd><tt>Deletes&nbsp;the&nbsp;account&nbsp;corresponding&nbsp;to&nbsp;a&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;to&nbsp;be&nbsp;deleted</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-get_groups"><strong>get_groups</strong></a>(self, query)</dt><dd><tt>Return&nbsp;all&nbsp;groups&nbsp;that&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;regex&nbsp;query&nbsp;to&nbsp;be&nbsp;matched<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;matching&nbsp;groups</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-get_user_queued_messages"><strong>get_user_queued_messages</strong></a>(self, username)</dt><dd><tt>Get&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;for&nbsp;which&nbsp;to&nbsp;get&nbsp;queued&nbsp;messages.<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;all&nbsp;queued&nbsp;messages.</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-get_users"><strong>get_users</strong></a>(self, query)</dt><dd><tt>Return&nbsp;all&nbsp;users&nbsp;who&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;regex&nbsp;query&nbsp;to&nbsp;be&nbsp;matched<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;matching&nbsp;users</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-is_online"><strong>is_online</strong></a>(self, username)</dt><dd><tt>Check&nbsp;if&nbsp;a&nbsp;user&nbsp;is&nbsp;online.&nbsp;<br>
+&nbsp;<br>
+Should&nbsp;be&nbsp;overriden&nbsp;in&nbsp;some&nbsp;server&nbsp;implementations&nbsp;if&nbsp;"logged&nbsp;in"<br>
+scheme&nbsp;is&nbsp;senseless.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;that&nbsp;we&nbsp;want&nbsp;to&nbsp;check<br>
+&nbsp;<br>
+:return:&nbsp;True&nbsp;if&nbsp;user&nbsp;is&nbsp;online,&nbsp;False&nbsp;otherwise</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-kickout_user"><strong>kickout_user</strong></a>(self, username)</dt><dd><tt>Kickout&nbsp;the&nbsp;current&nbsp;user.&nbsp;Implementation&nbsp;specific.</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-login"><strong>login</strong></a>(self, username, password)</dt><dd><tt>Login&nbsp;to&nbsp;an&nbsp;account&nbsp;with&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;logged&nbsp;in<br>
+:param&nbsp;password:&nbsp;The&nbsp;corresponding&nbsp;password</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-logout"><strong>logout</strong></a>(self, username)</dt><dd><tt>Logout&nbsp;off&nbsp;an&nbsp;account&nbsp;given&nbsp;a&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;logged&nbsp;off</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-send_message_to_group"><strong>send_message_to_group</strong></a>(self, session_token, message, group_name)</dt><dd><tt>Send&nbsp;message&nbsp;to&nbsp;a&nbsp;group&nbsp;with&nbsp;this&nbsp;group_name.&nbsp;This&nbsp;uses&nbsp;send_or_queue_message<br>
+in&nbsp;a&nbsp;loop.<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session_token&nbsp;of&nbsp;the&nbsp;sender.<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;message&nbsp;will&nbsp;be&nbsp;sent.</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-send_or_queue_message"><strong>send_or_queue_message</strong></a>(self, session_token, message, username, group_name<font color="#909090">=None</font>)</dt><dd><tt>Send&nbsp;message&nbsp;to&nbsp;a&nbsp;user&nbsp;(or&nbsp;queue&nbsp;it,&nbsp;if&nbsp;user&nbsp;is&nbsp;not&nbsp;online).<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session_token&nbsp;of&nbsp;the&nbsp;sender.<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.<br>
+:param&nbsp;username:&nbsp;The&nbsp;user&nbsp;to&nbsp;which&nbsp;the&nbsp;message&nbsp;is&nbsp;sent.<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;where&nbsp;this&nbsp;message&nbsp;was&nbsp;sent;&nbsp;default&nbsp;is&nbsp;None</tt></dd></dl>
+
+<dl><dt><a name="ChatServer-username_for_session_token"><strong>username_for_session_token</strong></a>(self, session_token)</dt><dd><tt>Fetches&nbsp;a&nbsp;username,&nbsp;given&nbsp;a&nbsp;session&nbsp;token.<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session&nbsp;token&nbsp;to&nbsp;be&nbsp;queried<br>
+&nbsp;<br>
+:return:&nbsp;The&nbsp;username&nbsp;matching&nbsp;the&nbsp;session_token.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

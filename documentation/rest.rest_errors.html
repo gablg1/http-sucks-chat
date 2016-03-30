@@ -1,0 +1,50 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module rest.rest_errors</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="rest.html"><font color="#ffffff">rest</font></a>.rest_errors</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/rest/rest_errors.py">/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/rest/rest_errors.py</a></font></td></tr></table>
+    <p><tt>Defines&nbsp;some&nbsp;of&nbsp;the&nbsp;commonly&nbsp;used&nbsp;errors&nbsp;returned&nbsp;by&nbsp;the&nbsp;REST<br>
+protocol.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-bad_request"><strong>bad_request</strong></a>()</dt><dd><tt>Returns&nbsp;the&nbsp;Bad&nbsp;Request&nbsp;error&nbsp;message.&nbsp;Typically,&nbsp;this&nbsp;happens&nbsp;because&nbsp;the<br>
+parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;a&nbsp;HTTP&nbsp;request&nbsp;cannot&nbsp;be&nbsp;parsed&nbsp;(either&nbsp;because<br>
+the&nbsp;format&nbsp;is&nbsp;incorrect,&nbsp;or&nbsp;because&nbsp;the&nbsp;required&nbsp;parameters&nbsp;are&nbsp;lacking).</tt></dd></dl>
+ <dl><dt><a name="-error"><strong>error</strong></a>(status_code, description)</dt><dd><tt>Returns&nbsp;a&nbsp;general&nbsp;error&nbsp;message,&nbsp;given&nbsp;a&nbsp;status&nbsp;code&nbsp;and&nbsp;a&nbsp;description.<br>
+&nbsp;<br>
+:param&nbsp;status_code:&nbsp;The&nbsp;HTTP&nbsp;status&nbsp;code,&nbsp;e.g.,&nbsp;404<br>
+:param&nbsp;description:&nbsp;The&nbsp;description&nbsp;corresponding&nbsp;to&nbsp;that&nbsp;error,&nbsp;e.g.,&nbsp;Not&nbsp;Found<br>
+&nbsp;<br>
+:return:&nbsp;A&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;status_code&nbsp;and&nbsp;description&nbsp;(following&nbsp;the&nbsp;rules<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defined&nbsp;by&nbsp;JSON&nbsp;API&nbsp;[<a href="http://jsonapi.org/">http://jsonapi.org/</a>])&nbsp;and&nbsp;the&nbsp;status_code</tt></dd></dl>
+ <dl><dt><a name="-forbidden"><strong>forbidden</strong></a>()</dt><dd><tt>Returns&nbsp;the&nbsp;Forbidden&nbsp;error&nbsp;message.&nbsp;This&nbsp;should&nbsp;be&nbsp;returned&nbsp;if&nbsp;a&nbsp;user<br>
+tries&nbsp;to&nbsp;do&nbsp;something&nbsp;they&nbsp;do&nbsp;not&nbsp;have&nbsp;permissions&nbsp;to;&nbsp;e.g.,&nbsp;deleting&nbsp;a<br>
+user&nbsp;account&nbsp;that&nbsp;is&nbsp;not&nbsp;their&nbsp;own.</tt></dd></dl>
+ <dl><dt><a name="-internal_server_error"><strong>internal_server_error</strong></a>()</dt></dl>
+ <dl><dt><a name="-not_found"><strong>not_found</strong></a>()</dt><dd><tt>Returns&nbsp;the&nbsp;Not&nbsp;Found&nbsp;error&nbsp;message.&nbsp;Typically,&nbsp;this&nbsp;is&nbsp;issued&nbsp;when&nbsp;any<br>
+resource&nbsp;was&nbsp;not&nbsp;found&nbsp;by&nbsp;the&nbsp;server.&nbsp;This&nbsp;could&nbsp;be,&nbsp;for&nbsp;instance,&nbsp;if&nbsp;the<br>
+user&nbsp;attempts&nbsp;to&nbsp;send&nbsp;a&nbsp;message&nbsp;to&nbsp;a&nbsp;user&nbsp;that&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+ <dl><dt><a name="-unauthorized"><strong>unauthorized</strong></a>()</dt><dd><tt>Returns&nbsp;the&nbsp;Unauthorized&nbsp;error&nbsp;message.&nbsp;Typically,&nbsp;this&nbsp;happens&nbsp;because&nbsp;<br>
+authentication&nbsp;failed.</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,256 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module rest.rest_server</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="rest.html"><font color="#ffffff">rest</font></a>.rest_server</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/rest/rest_server.py">/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/rest/rest_server.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="bson.html">bson</a><br>
+</td><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="bson.json_util.html">bson.json_util</a><br>
+</td><td width="25%" valign=top><a href="rest.rest_errors.html">rest.rest_errors</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="chat.chat_server.html#ChatServer">chat.chat_server.ChatServer</a>(<a href="__builtin__.html#object">__builtin__.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rest.rest_server.html#RESTServer">RESTServer</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="RESTServer">class <strong>RESTServer</strong></a>(<a href="chat.chat_server.html#ChatServer">chat.chat_server.ChatServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Implements&nbsp;a&nbsp;subclass&nbsp;of&nbsp;<a href="chat.chat_server.html#ChatServer">ChatServer</a>,&nbsp;that&nbsp;will&nbsp;use&nbsp;REST&nbsp;as&nbsp;its<br>
+communication&nbsp;protocol.<br>
+&nbsp;<br>
+This&nbsp;class&nbsp;uses&nbsp;a&nbsp;simple&nbsp;Flask&nbsp;server&nbsp;as&nbsp;an&nbsp;HTTP&nbsp;server.&nbsp;<br>
+The&nbsp;routing,&nbsp;characteristic&nbsp;of&nbsp;REST&nbsp;applications,&nbsp;is&nbsp;done&nbsp;through&nbsp;<br>
+Flask.&nbsp;Documentation&nbsp;for&nbsp;Flask&nbsp;can&nbsp;be&nbsp;found&nbsp;here:&nbsp;<br>
+[<a href="http://flask.pocoo.org/docs/0.10/">http://flask.pocoo.org/docs/0.10/</a>]<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="rest.rest_server.html#RESTServer">RESTServer</a></dd>
+<dd><a href="chat.chat_server.html#ChatServer">chat.chat_server.ChatServer</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="RESTServer-__init__"><strong>__init__</strong></a>(self, host, port)</dt><dd><tt>Initializes&nbsp;a&nbsp;<a href="chat.chat_server.html#ChatServer">ChatServer</a>&nbsp;on&nbsp;the&nbsp;given&nbsp;host&nbsp;and&nbsp;port,&nbsp;using<br>
+Flask.&nbsp;Also&nbsp;initializes&nbsp;all&nbsp;the&nbsp;possible&nbsp;routes&nbsp;that&nbsp;this&nbsp;server<br>
+will&nbsp;accept,&nbsp;calling&nbsp;the&nbsp;appropriate&nbsp;handlers.<br>
+&nbsp;<br>
+:param&nbsp;host:&nbsp;The&nbsp;host&nbsp;where&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to<br>
+:param&nbsp;port:&nbsp;The&nbsp;port&nbsp;that&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_add_user_to_group"><strong>handle_add_user_to_group</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;an&nbsp;add_user_to_group&nbsp;operation.&nbsp;This&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;<br>
+to&nbsp;get&nbsp;the&nbsp;group_id&nbsp;that&nbsp;is&nbsp;passed&nbsp;in&nbsp;the&nbsp;HTTP&nbsp;request.&nbsp;Assumes<br>
+the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;group_id&nbsp;and<br>
+the&nbsp;username&nbsp;(and&nbsp;code&nbsp;200).&nbsp;On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;<br>
+(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_create_group"><strong>handle_create_group</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;create_group&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;<br>
+but&nbsp;this&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;get&nbsp;the&nbsp;group_name&nbsp;that&nbsp;is<br>
+passed&nbsp;in&nbsp;the&nbsp;HTTP&nbsp;request.&nbsp;<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;group_name&nbsp;(and&nbsp;code&nbsp;200).<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_create_user"><strong>handle_create_user</strong></a>(self)</dt><dd><tt>Handles&nbsp;a&nbsp;register&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;but<br>
+this&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;get&nbsp;the&nbsp;username&nbsp;and&nbsp;password&nbsp;that&nbsp;are<br>
+passed&nbsp;in&nbsp;the&nbsp;HTTP&nbsp;request.&nbsp;<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;username&nbsp;(and&nbsp;code&nbsp;200).<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_delete_user"><strong>handle_delete_user</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;delete&nbsp;account&nbsp;operation.&nbsp;This&nbsp;method&nbsp;uses&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;<br>
+to&nbsp;get&nbsp;the&nbsp;session_token&nbsp;passed&nbsp;in&nbsp;the&nbsp;Authentication&nbsp;headers.&nbsp;This&nbsp;checks<br>
+that&nbsp;the&nbsp;session_token&nbsp;matches&nbsp;the&nbsp;passed&nbsp;in&nbsp;:param&nbsp;user_id&nbsp;(see&nbsp;below).<br>
+Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;user_id:&nbsp;The&nbsp;user_id&nbsp;that&nbsp;must&nbsp;be&nbsp;deleted<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;username&nbsp;(and&nbsp;code&nbsp;200).<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_fetch"><strong>handle_fetch</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;fetch&nbsp;operation.&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;user_id:&nbsp;The&nbsp;user_id&nbsp;that&nbsp;required&nbsp;this&nbsp;fetch.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;a&nbsp;list&nbsp;of&nbsp;messages&nbsp;(and&nbsp;code&nbsp;200)<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_get_groups"><strong>handle_get_groups</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;get_groups&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;but<br>
+this&nbsp;method&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;get&nbsp;the&nbsp;wildcard&nbsp;passed&nbsp;in&nbsp;<br>
+as&nbsp;a&nbsp;query&nbsp;in&nbsp;the&nbsp;HTTP&nbsp;request.&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;list&nbsp;of&nbsp;matching&nbsp;groups&nbsp;(and&nbsp;code&nbsp;200)<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_get_users"><strong>handle_get_users</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;get_users&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;but<br>
+this&nbsp;method&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;get&nbsp;the&nbsp;wildcard&nbsp;passed&nbsp;in&nbsp;<br>
+as&nbsp;a&nbsp;query&nbsp;in&nbsp;the&nbsp;HTTP&nbsp;request.&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;list&nbsp;of&nbsp;matching&nbsp;users&nbsp;(and&nbsp;code&nbsp;200)<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_login"><strong>handle_login</strong></a>(self)</dt><dd><tt>Handles&nbsp;a&nbsp;login&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;but<br>
+this&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;try&nbsp;to&nbsp;login&nbsp;with&nbsp;the&nbsp;username&nbsp;and<br>
+password&nbsp;that&nbsp;are&nbsp;passed&nbsp;in&nbsp;through&nbsp;Authentication&nbsp;headers.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;username&nbsp;and&nbsp;session_token&nbsp;(and&nbsp;code&nbsp;200).<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_logout"><strong>handle_logout</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;logout&nbsp;operation.&nbsp;There&nbsp;are&nbsp;no&nbsp;explicit&nbsp;parameters,&nbsp;but<br>
+this&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;to&nbsp;get&nbsp;the&nbsp;session_token.&nbsp;<br>
+Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;previous&nbsp;session_token&nbsp;(and&nbsp;code&nbsp;200).<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_send_group"><strong>handle_send_group</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;send_group&nbsp;operation.&nbsp;This&nbsp;method&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;<br>
+to&nbsp;get&nbsp;the&nbsp;session_token&nbsp;that&nbsp;is&nbsp;passed&nbsp;in&nbsp;the&nbsp;Authentication&nbsp;header,<br>
+as&nbsp;well&nbsp;as&nbsp;the&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;group_id:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;the&nbsp;message&nbsp;will&nbsp;be&nbsp;sent.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;group_id&nbsp;and&nbsp;the&nbsp;message&nbsp;(and&nbsp;code&nbsp;200)<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-handle_send_user"><strong>handle_send_user</strong></a>(*args, **kwargs)</dt><dd><tt>Handles&nbsp;a&nbsp;send_user&nbsp;operation.&nbsp;This&nbsp;method&nbsp;uses&nbsp;the&nbsp;Flask&nbsp;request&nbsp;<br>
+to&nbsp;get&nbsp;the&nbsp;session_token&nbsp;that&nbsp;is&nbsp;passed&nbsp;in&nbsp;the&nbsp;Authentication&nbsp;header,<br>
+as&nbsp;well&nbsp;as&nbsp;the&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;user_id:&nbsp;The&nbsp;user&nbsp;to&nbsp;whom&nbsp;the&nbsp;message&nbsp;will&nbsp;be&nbsp;sent.<br>
+&nbsp;<br>
+:return:&nbsp;On&nbsp;success,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;user_id&nbsp;and&nbsp;the&nbsp;message&nbsp;(and&nbsp;code&nbsp;200)<br>
+On&nbsp;failure,&nbsp;JSON&nbsp;containing&nbsp;the&nbsp;error&nbsp;code&nbsp;(as&nbsp;defined&nbsp;in&nbsp;rest_errors.py).</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-is_online"><strong>is_online</strong></a>(*args, **kwargs)</dt><dd><tt>Returns&nbsp;whether&nbsp;a&nbsp;user&nbsp;is&nbsp;online.<br>
+&nbsp;<br>
+:return:&nbsp;False,&nbsp;since&nbsp;REST&nbsp;does&nbsp;not&nbsp;keep&nbsp;users&nbsp;connected.</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-serve_forever"><strong>serve_forever</strong></a>(self)</dt><dd><tt>Main&nbsp;routine&nbsp;for&nbsp;this&nbsp;class.&nbsp;This&nbsp;simply&nbsp;starts&nbsp;up&nbsp;the<br>
+Flask&nbsp;server&nbsp;on&nbsp;the&nbsp;port&nbsp;and&nbsp;host&nbsp;(that&nbsp;are&nbsp;held&nbsp;as&nbsp;class&nbsp;variables).</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="chat.chat_server.html#ChatServer">chat.chat_server.ChatServer</a>:<br>
+<dl><dt><a name="RESTServer-add_user_to_group"><strong>add_user_to_group</strong></a>(self, username, group_name)</dt><dd><tt>Adds&nbsp;a&nbsp;user&nbsp;to&nbsp;a&nbsp;group.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;be&nbsp;added<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;the&nbsp;user&nbsp;should&nbsp;be&nbsp;added</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-clear_user_message_queue"><strong>clear_user_message_queue</strong></a>(self, username)</dt><dd><tt>Clear&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;for&nbsp;which&nbsp;to&nbsp;clear.</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-create_account"><strong>create_account</strong></a>(self, username, password)</dt><dd><tt>Create&nbsp;an&nbsp;account&nbsp;with&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;created<br>
+:param&nbsp;password:&nbsp;The&nbsp;corresponding&nbsp;password</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-create_group"><strong>create_group</strong></a>(self, group_name)</dt></dl>
+
+<dl><dt><a name="RESTServer-delete_account"><strong>delete_account</strong></a>(self, username)</dt><dd><tt>Deletes&nbsp;the&nbsp;account&nbsp;corresponding&nbsp;to&nbsp;a&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;to&nbsp;be&nbsp;deleted</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-get_groups"><strong>get_groups</strong></a>(self, query)</dt><dd><tt>Return&nbsp;all&nbsp;groups&nbsp;that&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;regex&nbsp;query&nbsp;to&nbsp;be&nbsp;matched<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;matching&nbsp;groups</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-get_user_queued_messages"><strong>get_user_queued_messages</strong></a>(self, username)</dt><dd><tt>Get&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;Username&nbsp;for&nbsp;which&nbsp;to&nbsp;get&nbsp;queued&nbsp;messages.<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;all&nbsp;queued&nbsp;messages.</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-get_users"><strong>get_users</strong></a>(self, query)</dt><dd><tt>Return&nbsp;all&nbsp;users&nbsp;who&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;regex&nbsp;query&nbsp;to&nbsp;be&nbsp;matched<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;matching&nbsp;users</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-kickout_user"><strong>kickout_user</strong></a>(self, username)</dt><dd><tt>Kickout&nbsp;the&nbsp;current&nbsp;user.&nbsp;Implementation&nbsp;specific.</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-login"><strong>login</strong></a>(self, username, password)</dt><dd><tt>Login&nbsp;to&nbsp;an&nbsp;account&nbsp;with&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;logged&nbsp;in<br>
+:param&nbsp;password:&nbsp;The&nbsp;corresponding&nbsp;password</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-logout"><strong>logout</strong></a>(self, username)</dt><dd><tt>Logout&nbsp;off&nbsp;an&nbsp;account&nbsp;given&nbsp;a&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;be&nbsp;logged&nbsp;off</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-send_message_to_group"><strong>send_message_to_group</strong></a>(self, session_token, message, group_name)</dt><dd><tt>Send&nbsp;message&nbsp;to&nbsp;a&nbsp;group&nbsp;with&nbsp;this&nbsp;group_name.&nbsp;This&nbsp;uses&nbsp;send_or_queue_message<br>
+in&nbsp;a&nbsp;loop.<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session_token&nbsp;of&nbsp;the&nbsp;sender.<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;message&nbsp;will&nbsp;be&nbsp;sent.</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-send_or_queue_message"><strong>send_or_queue_message</strong></a>(self, session_token, message, username, group_name<font color="#909090">=None</font>)</dt><dd><tt>Send&nbsp;message&nbsp;to&nbsp;a&nbsp;user&nbsp;(or&nbsp;queue&nbsp;it,&nbsp;if&nbsp;user&nbsp;is&nbsp;not&nbsp;online).<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session_token&nbsp;of&nbsp;the&nbsp;sender.<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;to&nbsp;be&nbsp;sent.<br>
+:param&nbsp;username:&nbsp;The&nbsp;user&nbsp;to&nbsp;which&nbsp;the&nbsp;message&nbsp;is&nbsp;sent.<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;group&nbsp;where&nbsp;this&nbsp;message&nbsp;was&nbsp;sent;&nbsp;default&nbsp;is&nbsp;None</tt></dd></dl>
+
+<dl><dt><a name="RESTServer-username_for_session_token"><strong>username_for_session_token</strong></a>(self, session_token)</dt><dd><tt>Fetches&nbsp;a&nbsp;username,&nbsp;given&nbsp;a&nbsp;session&nbsp;token.<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session&nbsp;token&nbsp;to&nbsp;be&nbsp;queried<br>
+&nbsp;<br>
+:return:&nbsp;The&nbsp;username&nbsp;matching&nbsp;the&nbsp;session_token.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="chat.chat_server.html#ChatServer">chat.chat_server.ChatServer</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-check_authorization"><strong>check_authorization</strong></a>(f)</dt><dd><tt>Wrapper&nbsp;that&nbsp;checks&nbsp;the&nbsp;passed-in&nbsp;session&nbsp;token.</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

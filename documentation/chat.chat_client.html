@@ -1,0 +1,218 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module chat.chat_client</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="chat.html"><font color="#ffffff">chat</font></a>.chat_client</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_client.py">/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_client.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="cmd.html">cmd</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="cmd.html#Cmd">cmd.Cmd</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="chat.chat_client.html#ChatClient">ChatClient</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ChatClient">class <strong>ChatClient</strong></a>(<a href="cmd.html#Cmd">cmd.Cmd</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Implements&nbsp;the&nbsp;interface&nbsp;of&nbsp;the&nbsp;different&nbsp;operations&nbsp;performed&nbsp;by&nbsp;the<br>
+client.<br>
+&nbsp;<br>
+Dependencies:&nbsp;This&nbsp;module&nbsp;inherits&nbsp;from&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>,&nbsp;which&nbsp;provides&nbsp;a&nbsp;simple<br>
+yet&nbsp;useful&nbsp;interface&nbsp;for&nbsp;the&nbsp;command&nbsp;line.&nbsp;The&nbsp;methods&nbsp;implemented&nbsp;in&nbsp;this<br>
+class&nbsp;will&nbsp;be&nbsp;called&nbsp;automatically&nbsp;by&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>&nbsp;in&nbsp;the&nbsp;method&nbsp;cmd_loop(),&nbsp;<br>
+which&nbsp;should&nbsp;be&nbsp;called&nbsp;to&nbsp;start&nbsp;this&nbsp;client.&nbsp;The&nbsp;documentation&nbsp;for&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a><br>
+can&nbsp;be&nbsp;found&nbsp;here:&nbsp;[https://docs.python.org/2/library/cmd.html]<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ChatClient-__init__"><strong>__init__</strong></a>(self, host, port)</dt><dd><tt>Initializes&nbsp;a&nbsp;<a href="#ChatClient">ChatClient</a>&nbsp;host&nbsp;and&nbsp;port&nbsp;class&nbsp;variables,&nbsp;as&nbsp;well<br>
+as&nbsp;setup&nbsp;some&nbsp;simple&nbsp;configuration&nbsp;for&nbsp;the&nbsp;command&nbsp;line&nbsp;interface<br>
+and&nbsp;set&nbsp;loggedIn&nbsp;to&nbsp;false.&nbsp;Also&nbsp;initializes&nbsp;the&nbsp;command&nbsp;line<br>
+interface&nbsp;(with&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>)<br>
+&nbsp;<br>
+:param&nbsp;host:&nbsp;The&nbsp;host&nbsp;where&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to<br>
+:param&nbsp;port:&nbsp;The&nbsp;port&nbsp;that&nbsp;this&nbsp;client&nbsp;should&nbsp;connect&nbsp;to</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_add_user_to_group"><strong>do_add_user_to_group</strong></a>(*args)</dt><dd><tt>Adds&nbsp;a&nbsp;user&nbsp;to&nbsp;a&nbsp;specified&nbsp;group.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;The&nbsp;parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;the&nbsp;command&nbsp;line&nbsp;interface,<br>
+which&nbsp;have&nbsp;to&nbsp;be&nbsp;broken&nbsp;down&nbsp;into&nbsp;username&nbsp;and&nbsp;group_id&nbsp;(separated&nbsp;by&nbsp;spaces)</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_create_group"><strong>do_create_group</strong></a>(*args)</dt><dd><tt>Creates&nbsp;a&nbsp;new&nbsp;group.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;group_id:&nbsp;The&nbsp;group&nbsp;to&nbsp;be&nbsp;created.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_delete_account"><strong>do_delete_account</strong></a>(*args)</dt><dd><tt>Deletes&nbsp;the&nbsp;account&nbsp;for&nbsp;the&nbsp;current&nbsp;logged&nbsp;in&nbsp;user.<br>
+Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+The&nbsp;parameter&nbsp;is&nbsp;mandatory&nbsp;for&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>,&nbsp;but&nbsp;we&nbsp;ignore&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_fetch"><strong>do_fetch</strong></a>(*args)</dt><dd><tt>Fetch&nbsp;(and&nbsp;print)&nbsp;messages&nbsp;for&nbsp;currently&nbsp;logged&nbsp;in&nbsp;user.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+The&nbsp;parameter&nbsp;is&nbsp;mandatory&nbsp;for&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>,&nbsp;but&nbsp;we&nbsp;ignore&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_get_groups"><strong>do_get_groups</strong></a>(*args)</dt><dd><tt>Prints&nbsp;a&nbsp;list&nbsp;of&nbsp;groups&nbsp;matching&nbsp;a&nbsp;query,&nbsp;using&nbsp;a&nbsp;wildcard.<br>
+Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;wildcard:&nbsp;The&nbsp;wildcard&nbsp;used&nbsp;for&nbsp;matching;&nbsp;default&nbsp;is&nbsp;*</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_get_users"><strong>do_get_users</strong></a>(*args)</dt><dd><tt>Prints&nbsp;a&nbsp;list&nbsp;of&nbsp;users&nbsp;matching&nbsp;a&nbsp;query,&nbsp;using&nbsp;a&nbsp;wildcard.<br>
+Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;wildcard:&nbsp;The&nbsp;wildcard&nbsp;used&nbsp;for&nbsp;matching;&nbsp;default&nbsp;is&nbsp;*</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_join_group"><strong>do_join_group</strong></a>(*args)</dt><dd><tt>Adds&nbsp;the&nbsp;current&nbsp;logged&nbsp;in&nbsp;user&nbsp;to&nbsp;a&nbsp;group.<br>
+&nbsp;<br>
+:param&nbsp;group_id:&nbsp;The&nbsp;group&nbsp;to&nbsp;which&nbsp;current&nbsp;user&nbsp;will&nbsp;be&nbsp;added.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_login"><strong>do_login</strong></a>(self, params)</dt><dd><tt>Login&nbsp;with&nbsp;credentials.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;The&nbsp;parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;the&nbsp;command&nbsp;line&nbsp;interface,<br>
+which&nbsp;have&nbsp;to&nbsp;be&nbsp;broken&nbsp;down&nbsp;into&nbsp;username&nbsp;and&nbsp;password&nbsp;(separated&nbsp;by&nbsp;spaces)</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_logout"><strong>do_logout</strong></a>(*args)</dt><dd><tt>Logout&nbsp;from&nbsp;the&nbsp;current&nbsp;session.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+The&nbsp;parameter&nbsp;is&nbsp;mandatory&nbsp;for&nbsp;cmd.<a href="cmd.html#Cmd">Cmd</a>,&nbsp;but&nbsp;we&nbsp;ignore&nbsp;it.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_register"><strong>do_register</strong></a>(self, params)</dt><dd><tt>Create&nbsp;a&nbsp;new&nbsp;user&nbsp;account.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;The&nbsp;parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;the&nbsp;command&nbsp;line&nbsp;interface,<br>
+which&nbsp;have&nbsp;to&nbsp;be&nbsp;broken&nbsp;down&nbsp;into&nbsp;username&nbsp;and&nbsp;password&nbsp;(separated&nbsp;by&nbsp;spaces)</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_send"><strong>do_send</strong></a>(*args)</dt><dd><tt>Send&nbsp;a&nbsp;message&nbsp;to&nbsp;a&nbsp;specific&nbsp;user.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;The&nbsp;parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;the&nbsp;command&nbsp;line&nbsp;interface,<br>
+which&nbsp;have&nbsp;to&nbsp;be&nbsp;broken&nbsp;down&nbsp;into&nbsp;user_id&nbsp;and&nbsp;message.&nbsp;The&nbsp;first&nbsp;word<br>
+(separated&nbsp;by&nbsp;spaces)&nbsp;will&nbsp;be&nbsp;considered&nbsp;the&nbsp;user;&nbsp;all&nbsp;the&nbsp;rest&nbsp;will&nbsp;be<br>
+considered&nbsp;part&nbsp;of&nbsp;the&nbsp;message&nbsp;and&nbsp;will&nbsp;be&nbsp;sent.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_send_group"><strong>do_send_group</strong></a>(*args)</dt><dd><tt>Send&nbsp;a&nbsp;message&nbsp;to&nbsp;a&nbsp;specific&nbsp;group.&nbsp;Assumes&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:param&nbsp;params:&nbsp;The&nbsp;parameters&nbsp;passed&nbsp;in&nbsp;to&nbsp;the&nbsp;command&nbsp;line&nbsp;interface,<br>
+which&nbsp;have&nbsp;to&nbsp;be&nbsp;broken&nbsp;down&nbsp;into&nbsp;group_id&nbsp;and&nbsp;message.&nbsp;The&nbsp;first&nbsp;word<br>
+(separated&nbsp;by&nbsp;spaces)&nbsp;will&nbsp;be&nbsp;considered&nbsp;the&nbsp;group;&nbsp;all&nbsp;the&nbsp;rest&nbsp;will&nbsp;be<br>
+considered&nbsp;part&nbsp;of&nbsp;the&nbsp;message&nbsp;and&nbsp;will&nbsp;be&nbsp;sent.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="cmd.html#Cmd">cmd.Cmd</a>:<br>
+<dl><dt><a name="ChatClient-cmdloop"><strong>cmdloop</strong></a>(self, intro<font color="#909090">=None</font>)</dt><dd><tt>Repeatedly&nbsp;issue&nbsp;a&nbsp;prompt,&nbsp;accept&nbsp;input,&nbsp;parse&nbsp;an&nbsp;initial&nbsp;prefix<br>
+off&nbsp;the&nbsp;received&nbsp;input,&nbsp;and&nbsp;dispatch&nbsp;to&nbsp;action&nbsp;methods,&nbsp;passing&nbsp;them<br>
+the&nbsp;remainder&nbsp;of&nbsp;the&nbsp;line&nbsp;as&nbsp;argument.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-columnize"><strong>columnize</strong></a>(self, list, displaywidth<font color="#909090">=80</font>)</dt><dd><tt>Display&nbsp;a&nbsp;list&nbsp;of&nbsp;strings&nbsp;as&nbsp;a&nbsp;compact&nbsp;set&nbsp;of&nbsp;columns.<br>
+&nbsp;<br>
+Each&nbsp;column&nbsp;is&nbsp;only&nbsp;as&nbsp;wide&nbsp;as&nbsp;necessary.<br>
+Columns&nbsp;are&nbsp;separated&nbsp;by&nbsp;two&nbsp;spaces&nbsp;(one&nbsp;was&nbsp;not&nbsp;legible&nbsp;enough).</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-complete"><strong>complete</strong></a>(self, text, state)</dt><dd><tt>Return&nbsp;the&nbsp;next&nbsp;possible&nbsp;completion&nbsp;for&nbsp;'text'.<br>
+&nbsp;<br>
+If&nbsp;a&nbsp;command&nbsp;has&nbsp;not&nbsp;been&nbsp;entered,&nbsp;then&nbsp;complete&nbsp;against&nbsp;command&nbsp;list.<br>
+Otherwise&nbsp;try&nbsp;to&nbsp;call&nbsp;complete_&lt;command&gt;&nbsp;to&nbsp;get&nbsp;list&nbsp;of&nbsp;completions.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-complete_help"><strong>complete_help</strong></a>(self, *args)</dt></dl>
+
+<dl><dt><a name="ChatClient-completedefault"><strong>completedefault</strong></a>(self, *ignored)</dt><dd><tt>Method&nbsp;called&nbsp;to&nbsp;complete&nbsp;an&nbsp;input&nbsp;line&nbsp;when&nbsp;no&nbsp;command-specific<br>
+complete_*()&nbsp;method&nbsp;is&nbsp;available.<br>
+&nbsp;<br>
+By&nbsp;default,&nbsp;it&nbsp;returns&nbsp;an&nbsp;empty&nbsp;list.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-completenames"><strong>completenames</strong></a>(self, text, *ignored)</dt></dl>
+
+<dl><dt><a name="ChatClient-default"><strong>default</strong></a>(self, line)</dt><dd><tt>Called&nbsp;on&nbsp;an&nbsp;input&nbsp;line&nbsp;when&nbsp;the&nbsp;command&nbsp;prefix&nbsp;is&nbsp;not&nbsp;recognized.<br>
+&nbsp;<br>
+If&nbsp;this&nbsp;method&nbsp;is&nbsp;not&nbsp;overridden,&nbsp;it&nbsp;prints&nbsp;an&nbsp;error&nbsp;message&nbsp;and<br>
+returns.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-do_help"><strong>do_help</strong></a>(self, arg)</dt><dd><tt>List&nbsp;available&nbsp;commands&nbsp;with&nbsp;"help"&nbsp;or&nbsp;detailed&nbsp;help&nbsp;with&nbsp;"help&nbsp;cmd".</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-emptyline"><strong>emptyline</strong></a>(self)</dt><dd><tt>Called&nbsp;when&nbsp;an&nbsp;empty&nbsp;line&nbsp;is&nbsp;entered&nbsp;in&nbsp;response&nbsp;to&nbsp;the&nbsp;prompt.<br>
+&nbsp;<br>
+If&nbsp;this&nbsp;method&nbsp;is&nbsp;not&nbsp;overridden,&nbsp;it&nbsp;repeats&nbsp;the&nbsp;last&nbsp;nonempty<br>
+command&nbsp;entered.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-get_names"><strong>get_names</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="ChatClient-onecmd"><strong>onecmd</strong></a>(self, line)</dt><dd><tt>Interpret&nbsp;the&nbsp;argument&nbsp;as&nbsp;though&nbsp;it&nbsp;had&nbsp;been&nbsp;typed&nbsp;in&nbsp;response<br>
+to&nbsp;the&nbsp;prompt.<br>
+&nbsp;<br>
+This&nbsp;may&nbsp;be&nbsp;overridden,&nbsp;but&nbsp;should&nbsp;not&nbsp;normally&nbsp;need&nbsp;to&nbsp;be;<br>
+see&nbsp;the&nbsp;<a href="#ChatClient-precmd">precmd</a>()&nbsp;and&nbsp;<a href="#ChatClient-postcmd">postcmd</a>()&nbsp;methods&nbsp;for&nbsp;useful&nbsp;execution&nbsp;hooks.<br>
+The&nbsp;return&nbsp;value&nbsp;is&nbsp;a&nbsp;flag&nbsp;indicating&nbsp;whether&nbsp;interpretation&nbsp;of<br>
+commands&nbsp;by&nbsp;the&nbsp;interpreter&nbsp;should&nbsp;stop.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-parseline"><strong>parseline</strong></a>(self, line)</dt><dd><tt>Parse&nbsp;the&nbsp;line&nbsp;into&nbsp;a&nbsp;command&nbsp;name&nbsp;and&nbsp;a&nbsp;string&nbsp;containing<br>
+the&nbsp;arguments.&nbsp;&nbsp;Returns&nbsp;a&nbsp;tuple&nbsp;containing&nbsp;(command,&nbsp;args,&nbsp;line).<br>
+'command'&nbsp;and&nbsp;'args'&nbsp;may&nbsp;be&nbsp;None&nbsp;if&nbsp;the&nbsp;line&nbsp;couldn't&nbsp;be&nbsp;parsed.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-postcmd"><strong>postcmd</strong></a>(self, stop, line)</dt><dd><tt>Hook&nbsp;method&nbsp;executed&nbsp;just&nbsp;after&nbsp;a&nbsp;command&nbsp;dispatch&nbsp;is&nbsp;finished.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-postloop"><strong>postloop</strong></a>(self)</dt><dd><tt>Hook&nbsp;method&nbsp;executed&nbsp;once&nbsp;when&nbsp;the&nbsp;<a href="#ChatClient-cmdloop">cmdloop</a>()&nbsp;method&nbsp;is&nbsp;about&nbsp;to<br>
+return.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-precmd"><strong>precmd</strong></a>(self, line)</dt><dd><tt>Hook&nbsp;method&nbsp;executed&nbsp;just&nbsp;before&nbsp;the&nbsp;command&nbsp;line&nbsp;is<br>
+interpreted,&nbsp;but&nbsp;after&nbsp;the&nbsp;input&nbsp;prompt&nbsp;is&nbsp;generated&nbsp;and&nbsp;issued.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-preloop"><strong>preloop</strong></a>(self)</dt><dd><tt>Hook&nbsp;method&nbsp;executed&nbsp;once&nbsp;when&nbsp;the&nbsp;<a href="#ChatClient-cmdloop">cmdloop</a>()&nbsp;method&nbsp;is&nbsp;called.</tt></dd></dl>
+
+<dl><dt><a name="ChatClient-print_topics"><strong>print_topics</strong></a>(self, header, cmds, cmdlen, maxcol)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="cmd.html#Cmd">cmd.Cmd</a>:<br>
+<dl><dt><strong>doc_header</strong> = 'Documented commands (type help &lt;topic&gt;):'</dl>
+
+<dl><dt><strong>doc_leader</strong> = ''</dl>
+
+<dl><dt><strong>identchars</strong> = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'</dl>
+
+<dl><dt><strong>intro</strong> = None</dl>
+
+<dl><dt><strong>lastcmd</strong> = ''</dl>
+
+<dl><dt><strong>misc_header</strong> = 'Miscellaneous help topics:'</dl>
+
+<dl><dt><strong>nohelp</strong> = '*** No help on %s'</dl>
+
+<dl><dt><strong>prompt</strong> = '(Cmd) '</dl>
+
+<dl><dt><strong>ruler</strong> = '='</dl>
+
+<dl><dt><strong>undoc_header</strong> = 'Undocumented commands:'</dl>
+
+<dl><dt><strong>use_rawinput</strong> = 1</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-check_authorization"><strong>check_authorization</strong></a>(f)</dt><dd><tt>Wrapper&nbsp;that&nbsp;checks&nbsp;if&nbsp;the&nbsp;user&nbsp;is&nbsp;logged&nbsp;in.</tt></dd></dl>
+</td></tr></table>
+</body></html>

@@ -1,0 +1,613 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module chat.chat_db</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="chat.html"><font color="#ffffff">chat</font></a>.chat_db</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_db.py">/Users/Josh/Dropbox (Personal)/Harvard College/Sophomore/Courses/cs262/rdtp-chat/chat/chat_db.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="select.html">select</a><br>
+</td><td width="25%" valign=top><a href="socket.html">socket</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="chat.chat_db.html#ChatDB">ChatDB</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="exceptions.html#Exception">exceptions.Exception</a>(<a href="exceptions.html#BaseException">exceptions.BaseException</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="chat.chat_db.html#GroupDoesNotExist">GroupDoesNotExist</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#GroupExists">GroupExists</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#GroupKeyError">GroupKeyError</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#UserKeyError">UserKeyError</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#UserNotLoggedInError">UserNotLoggedInError</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#UsernameDoesNotExist">UsernameDoesNotExist</a>
+</font></dt><dt><font face="helvetica, arial"><a href="chat.chat_db.html#UsernameExists">UsernameExists</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ChatDB">class <strong>ChatDB</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Handles&nbsp;all&nbsp;database&nbsp;related&nbsp;actions&nbsp;for&nbsp;the&nbsp;application.<br>
+Anything&nbsp;that&nbsp;involves&nbsp;persistance&nbsp;across&nbsp;application&nbsp;launches&nbsp;is<br>
+incorporated&nbsp;into&nbsp;this&nbsp;class.<br>
+&nbsp;<br>
+Server&nbsp;subclasses&nbsp;will&nbsp;call&nbsp;into&nbsp;<a href="#ChatDB">ChatDB</a>&nbsp;in&nbsp;order&nbsp;to&nbsp;complete&nbsp;their&nbsp;actions.<br>
+Therefore,&nbsp;the&nbsp;application&nbsp;workflow&nbsp;is:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client&nbsp;-&gt;&nbsp;server&nbsp;-&gt;&nbsp;chat_db&nbsp;-&gt;&nbsp;server&nbsp;-&gt;&nbsp;client<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ChatDB-__init__"><strong>__init__</strong></a>(self)</dt><dd><tt>Initializes&nbsp;a&nbsp;<a href="#ChatDB">ChatDB</a>&nbsp;on&nbsp;the&nbsp;given&nbsp;host&nbsp;and&nbsp;port.<br>
+Sets&nbsp;up&nbsp;the&nbsp;underlying&nbsp;MongoClient&nbsp;that&nbsp;is&nbsp;used<br>
+for&nbsp;all&nbsp;database-related&nbsp;tasks.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-add_user_to_group"><strong>add_user_to_group</strong></a>(self, username, group_name)</dt><dd><tt>Add&nbsp;a&nbsp;user&nbsp;to&nbsp;some&nbsp;group.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;user&nbsp;to&nbsp;add&nbsp;to&nbsp;this&nbsp;group.<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;group&nbsp;to&nbsp;which&nbsp;to&nbsp;add&nbsp;this&nbsp;user.<br>
+:raises:&nbsp;<a href="#GroupDoesNotExist">GroupDoesNotExist</a>&nbsp;if&nbsp;the&nbsp;group&nbsp;does&nbsp;not&nbsp;exist.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#UsernameDoesNotExist">UsernameDoesNotExist</a>&nbsp;if&nbsp;the&nbsp;username&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-clear_user_message_queue"><strong>clear_user_message_queue</strong></a>(self, username)</dt><dd><tt>Clear&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;user&nbsp;whose&nbsp;messages&nbsp;should&nbsp;be&nbsp;cleared.<br>
+:raises:&nbsp;<a href="#UserKeyError">UserKeyError</a>&nbsp;if&nbsp;the&nbsp;user&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-create_account"><strong>create_account</strong></a>(self, username, password)</dt><dd><tt>Create&nbsp;an&nbsp;account&nbsp;with&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+NOTE:&nbsp;You&nbsp;should&nbsp;check&nbsp;if&nbsp;a&nbsp;username_exists&nbsp;before&nbsp;calling&nbsp;this&nbsp;method.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;for&nbsp;the&nbsp;new&nbsp;account.<br>
+:param&nbsp;password:&nbsp;The&nbsp;password&nbsp;for&nbsp;the&nbsp;new&nbsp;account.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-create_group"><strong>create_group</strong></a>(self, group_name)</dt><dd><tt>Create&nbsp;a&nbsp;group&nbsp;with&nbsp;some&nbsp;group&nbsp;name.<br>
+&nbsp;<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;group&nbsp;to&nbsp;create.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-delete_account"><strong>delete_account</strong></a>(self, username)</dt><dd><tt>Deletes&nbsp;the&nbsp;account&nbsp;corresponding&nbsp;to&nbsp;a&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;account&nbsp;to&nbsp;delete.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-get_groups"><strong>get_groups</strong></a>(self, query)</dt><dd><tt>Returns&nbsp;all&nbsp;groups&nbsp;that&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;query&nbsp;to&nbsp;lookup.<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;groups&nbsp;that&nbsp;match&nbsp;the&nbsp;provided&nbsp;regex&nbsp;query.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-get_user_queued_messages"><strong>get_user_queued_messages</strong></a>(self, username)</dt><dd><tt>Get&nbsp;all&nbsp;messages&nbsp;queued&nbsp;for&nbsp;some&nbsp;user.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;lookup.<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;messages&nbsp;in&nbsp;the&nbsp;message&nbsp;queue&nbsp;of&nbsp;this&nbsp;user.<br>
+:raises:&nbsp;<a href="#UserKeyError">UserKeyError</a>&nbsp;if&nbsp;the&nbsp;user&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-get_users"><strong>get_users</strong></a>(self, query)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;all&nbsp;users&nbsp;who&nbsp;match&nbsp;some&nbsp;regex&nbsp;query.<br>
+&nbsp;<br>
+:param&nbsp;query:&nbsp;The&nbsp;regex&nbsp;query&nbsp;to&nbsp;evaluate.<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;users&nbsp;who&nbsp;are&nbsp;logged&nbsp;in.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-get_users_in_group"><strong>get_users_in_group</strong></a>(self, group_name)</dt><dd><tt>Return&nbsp;the&nbsp;usernames&nbsp;of&nbsp;users&nbsp;who&nbsp;are&nbsp;in&nbsp;some&nbsp;group.<br>
+&nbsp;<br>
+:param&nbsp;group_name:&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;group&nbsp;to&nbsp;lookup.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-is_online"><strong>is_online</strong></a>(self, username)</dt><dd><tt>Check&nbsp;if&nbsp;a&nbsp;user&nbsp;is&nbsp;online.<br>
+Should&nbsp;be&nbsp;overriden&nbsp;in&nbsp;some&nbsp;server&nbsp;implementations&nbsp;if&nbsp;"logged&nbsp;in"<br>
+scheme&nbsp;is&nbsp;senseless.<br>
+&nbsp;<br>
+Requires&nbsp;the&nbsp;username&nbsp;to&nbsp;already&nbsp;exist.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;check&nbsp;if&nbsp;is&nbsp;online.<br>
+:return:&nbsp;True&nbsp;is&nbsp;user&nbsp;is&nbsp;online.&nbsp;False&nbsp;if&nbsp;user&nbsp;is&nbsp;not&nbsp;online.<br>
+:raises:&nbsp;<a href="#UserKeyError">UserKeyError</a>&nbsp;if&nbsp;no&nbsp;user&nbsp;exists&nbsp;with&nbsp;this&nbsp;username.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-login"><strong>login</strong></a>(self, username, password, kickout_method<font color="#909090">=None</font>)</dt><dd><tt>Login&nbsp;to&nbsp;some&nbsp;account,&nbsp;with&nbsp;a&nbsp;given&nbsp;username&nbsp;and&nbsp;password.<br>
+A&nbsp;function,&nbsp;kickout_method,&nbsp;can&nbsp;be&nbsp;provided.&nbsp;If&nbsp;provided,<br>
+the&nbsp;function&nbsp;is&nbsp;called&nbsp;on&nbsp;this&nbsp;username,&nbsp;to&nbsp;kickout&nbsp;an<br>
+already&nbsp;logged&nbsp;in&nbsp;user.&nbsp;kickout_method&nbsp;exists&nbsp;as&nbsp;this<br>
+logic&nbsp;is&nbsp;required&nbsp;for&nbsp;any&nbsp;chat&nbsp;application&nbsp;that&nbsp;cannot&nbsp;have<br>
+multiple&nbsp;people&nbsp;using&nbsp;the&nbsp;same&nbsp;account&nbsp;at&nbsp;the&nbsp;same&nbsp;time.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;for&nbsp;logging&nbsp;in.<br>
+:param&nbsp;password:&nbsp;The&nbsp;password&nbsp;for&nbsp;logging&nbsp;in.<br>
+:param&nbsp;kickout_method:&nbsp;Defaults&nbsp;to&nbsp;None.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;kickout_method&nbsp;to&nbsp;be&nbsp;applied&nbsp;to&nbsp;username&nbsp;if&nbsp;a&nbsp;user&nbsp;is&nbsp;already&nbsp;logged&nbsp;in&nbsp;on&nbsp;this&nbsp;account.<br>
+:return:&nbsp;tuple&nbsp;of&nbsp;(False,&nbsp;'')&nbsp;on&nbsp;failure,&nbsp;tuple&nbsp;of&nbsp;(True,&nbsp;session_token)&nbsp;on&nbsp;success.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-logout"><strong>logout</strong></a>(self, username)</dt><dd><tt>Tell&nbsp;the&nbsp;underlying&nbsp;database&nbsp;(MongoDB)&nbsp;that&nbsp;a&nbsp;user&nbsp;has&nbsp;been&nbsp;logged&nbsp;out.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;logout.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-needs_kickout"><strong>needs_kickout</strong></a>(self, username, password)</dt><dd><tt>Determine&nbsp;whether&nbsp;a&nbsp;user&nbsp;needs&nbsp;to&nbsp;be&nbsp;kicked&nbsp;out.<br>
+If&nbsp;the&nbsp;username&nbsp;and&nbsp;password&nbsp;match,&nbsp;and&nbsp;the&nbsp;user&nbsp;is&nbsp;logged_in,&nbsp;will&nbsp;return&nbsp;True.<br>
+Otherwise,&nbsp;returns&nbsp;False.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;check.<br>
+:param&nbsp;password:&nbsp;The&nbsp;password&nbsp;to&nbsp;check.<br>
+:return:&nbsp;True&nbsp;if&nbsp;the&nbsp;username&nbsp;and&nbsp;password&nbsp;match,&nbsp;and&nbsp;the&nbsp;user&nbsp;is&nbsp;logged_in.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;False&nbsp;otherwise.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-queue_message"><strong>queue_message</strong></a>(self, message, from_username, username, group_name<font color="#909090">=None</font>)</dt><dd><tt>Add&nbsp;a&nbsp;message&nbsp;to&nbsp;the&nbsp;queue&nbsp;of&nbsp;some&nbsp;user,&nbsp;for&nbsp;delivery&nbsp;later.<br>
+&nbsp;<br>
+:param&nbsp;message:&nbsp;The&nbsp;message&nbsp;string&nbsp;to&nbsp;deliver.<br>
+:param&nbsp;from_username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;user&nbsp;who&nbsp;is&nbsp;sending&nbsp;this&nbsp;message.<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;user&nbsp;to&nbsp;which&nbsp;this&nbsp;message&nbsp;should&nbsp;be&nbsp;delivered.<br>
+:param&nbsp;group_name:&nbsp;If&nbsp;this&nbsp;message&nbsp;is&nbsp;sent&nbsp;as&nbsp;part&nbsp;of&nbsp;a&nbsp;group&nbsp;message,&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;group&nbsp;from&nbsp;which&nbsp;it&nbsp;is&nbsp;sent&nbsp;(optional).<br>
+:raises:&nbsp;<a href="#UserKeyError">UserKeyError</a>&nbsp;if&nbsp;the&nbsp;user&nbsp;does&nbsp;not&nbsp;exist.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-user_exists"><strong>user_exists</strong></a>(self, username)</dt><dd><tt>Check&nbsp;if&nbsp;a&nbsp;user&nbsp;already&nbsp;exists&nbsp;with&nbsp;some&nbsp;username.<br>
+&nbsp;<br>
+:param&nbsp;username:&nbsp;The&nbsp;username&nbsp;to&nbsp;check&nbsp;for&nbsp;existance.<br>
+:return:&nbsp;True&nbsp;if&nbsp;user&nbsp;exists.&nbsp;False&nbsp;if&nbsp;no&nbsp;user&nbsp;exists&nbsp;with&nbsp;this&nbsp;username.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-username_for_session_token"><strong>username_for_session_token</strong></a>(self, session_token)</dt><dd><tt>Get&nbsp;username&nbsp;associated&nbsp;with&nbsp;some&nbsp;session&nbsp;token.<br>
+Requires&nbsp;that&nbsp;a&nbsp;user&nbsp;be&nbsp;logged&nbsp;in&nbsp;with&nbsp;this&nbsp;session_token&nbsp;to&nbsp;complete.<br>
+&nbsp;<br>
+:param&nbsp;session_token:&nbsp;The&nbsp;session_token&nbsp;to&nbsp;lookup.<br>
+:return:&nbsp;The&nbsp;username&nbsp;of&nbsp;the&nbsp;user&nbsp;logged&nbsp;in&nbsp;with&nbsp;this&nbsp;session_token.<br>
+:raises:&nbsp;<a href="#UserNotLoggedInError">UserNotLoggedInError</a>&nbsp;if&nbsp;there&nbsp;is&nbsp;no&nbsp;user&nbsp;logged&nbsp;in&nbsp;with&nbsp;this&nbsp;session_token.</tt></dd></dl>
+
+<dl><dt><a name="ChatDB-users_online"><strong>users_online</strong></a>(self)</dt><dd><tt>Returns&nbsp;list&nbsp;of&nbsp;usernames&nbsp;of&nbsp;users&nbsp;who&nbsp;are&nbsp;logged&nbsp;in.<br>
+&nbsp;<br>
+:return:&nbsp;List&nbsp;of&nbsp;usernames&nbsp;of&nbsp;users&nbsp;who&nbsp;are&nbsp;logged&nbsp;in.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GroupDoesNotExist">class <strong>GroupDoesNotExist</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;when&nbsp;a&nbsp;group&nbsp;needs&nbsp;to&nbsp;exist&nbsp;for&nbsp;some&nbsp;action,&nbsp;but&nbsp;does&nbsp;not&nbsp;already&nbsp;exist.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#GroupDoesNotExist">GroupDoesNotExist</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="GroupDoesNotExist-__init__"><strong>__init__</strong></a>(self, group_id)</dt></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#GroupDoesNotExist-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="GroupDoesNotExist-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupDoesNotExist-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupDoesNotExist-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GroupExists">class <strong>GroupExists</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;when&nbsp;a&nbsp;group&nbsp;is&nbsp;trying&nbsp;to&nbsp;be&nbsp;created,&nbsp;but&nbsp;already&nbsp;exists.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#GroupExists">GroupExists</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="GroupExists-__init__"><strong>__init__</strong></a>(self, group_id)</dt></dl>
+
+<dl><dt><a name="GroupExists-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#GroupExists-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="GroupExists-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupExists-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupExists-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="GroupExists-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupExists-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GroupKeyError">class <strong>GroupKeyError</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;during&nbsp;attempted&nbsp;use&nbsp;of&nbsp;non-existent&nbsp;groups.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#GroupKeyError">GroupKeyError</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="GroupKeyError-__init__"><strong>__init__</strong></a>(self, group_id)</dt></dl>
+
+<dl><dt><a name="GroupKeyError-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#GroupKeyError-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="GroupKeyError-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupKeyError-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#GroupKeyError-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="GroupKeyError-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="GroupKeyError-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UserKeyError">class <strong>UserKeyError</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;during&nbsp;attempted&nbsp;use&nbsp;of&nbsp;non-existent&nbsp;users.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#UserKeyError">UserKeyError</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="UserKeyError-__init__"><strong>__init__</strong></a>(self, user_id)</dt></dl>
+
+<dl><dt><a name="UserKeyError-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#UserKeyError-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="UserKeyError-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UserKeyError-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserKeyError-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="UserKeyError-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UserKeyError-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UserNotLoggedInError">class <strong>UserNotLoggedInError</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;when&nbsp;a&nbsp;user&nbsp;needs&nbsp;to&nbsp;be&nbsp;logged&nbsp;in&nbsp;for&nbsp;some&nbsp;action,&nbsp;but&nbsp;is&nbsp;not&nbsp;logged&nbsp;in.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#UserNotLoggedInError">UserNotLoggedInError</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="UserNotLoggedInError-__init__"><strong>__init__</strong></a>(self, session_token)</dt></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#UserNotLoggedInError-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="UserNotLoggedInError-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UserNotLoggedInError-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UserNotLoggedInError-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UsernameDoesNotExist">class <strong>UsernameDoesNotExist</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;when&nbsp;a&nbsp;user&nbsp;is&nbsp;trying&nbsp;to&nbsp;be&nbsp;used,&nbsp;but&nbsp;does&nbsp;not&nbsp;exist.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#UsernameDoesNotExist">UsernameDoesNotExist</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="UsernameDoesNotExist-__init__"><strong>__init__</strong></a>(self, username)</dt></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#UsernameDoesNotExist-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="UsernameDoesNotExist-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameDoesNotExist-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UsernameDoesNotExist-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="UsernameExists">class <strong>UsernameExists</strong></a>(<a href="exceptions.html#Exception">exceptions.Exception</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="exceptions.html#Exception">Exception</a>&nbsp;subclass,&nbsp;raised&nbsp;when&nbsp;a&nbsp;user&nbsp;is&nbsp;trying&nbsp;to&nbsp;be&nbsp;created,&nbsp;but&nbsp;already&nbsp;exists.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="chat.chat_db.html#UsernameExists">UsernameExists</a></dd>
+<dd><a href="exceptions.html#Exception">exceptions.Exception</a></dd>
+<dd><a href="exceptions.html#BaseException">exceptions.BaseException</a></dd>
+<dd><a href="__builtin__.html#object">__builtin__.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="UsernameExists-__init__"><strong>__init__</strong></a>(self, username)</dt></dl>
+
+<dl><dt><a name="UsernameExists-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="exceptions.html#Exception">exceptions.Exception</a>:<br>
+<dl><dt><strong>__new__</strong> = &lt;built-in method __new__ of type object&gt;<dd><tt>T.<a href="#UsernameExists-__new__">__new__</a>(S,&nbsp;...)&nbsp;-&gt;&nbsp;a&nbsp;new&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;with&nbsp;type&nbsp;S,&nbsp;a&nbsp;subtype&nbsp;of&nbsp;T</tt></dl>
+
+<hr>
+Methods inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><a name="UsernameExists-__delattr__"><strong>__delattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__delattr__">__delattr__</a>('name')&nbsp;&lt;==&gt;&nbsp;del&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__getattribute__"><strong>__getattribute__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__getattribute__">__getattribute__</a>('name')&nbsp;&lt;==&gt;&nbsp;x.name</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__getitem__"><strong>__getitem__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__getitem__">__getitem__</a>(y)&nbsp;&lt;==&gt;&nbsp;x[y]</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__getslice__"><strong>__getslice__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__getslice__">__getslice__</a>(i,&nbsp;j)&nbsp;&lt;==&gt;&nbsp;x[i:j]<br>
+&nbsp;<br>
+Use&nbsp;of&nbsp;negative&nbsp;indices&nbsp;is&nbsp;not&nbsp;supported.</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__reduce__"><strong>__reduce__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UsernameExists-__repr__"><strong>__repr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__repr__">__repr__</a>()&nbsp;&lt;==&gt;&nbsp;repr(x)</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__setattr__"><strong>__setattr__</strong></a>(...)</dt><dd><tt>x.<a href="#UsernameExists-__setattr__">__setattr__</a>('name',&nbsp;value)&nbsp;&lt;==&gt;&nbsp;x.name&nbsp;=&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="UsernameExists-__setstate__"><strong>__setstate__</strong></a>(...)</dt></dl>
+
+<dl><dt><a name="UsernameExists-__unicode__"><strong>__unicode__</strong></a>(...)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="exceptions.html#BaseException">exceptions.BaseException</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+</dl>
+<dl><dt><strong>args</strong></dt>
+</dl>
+<dl><dt><strong>message</strong></dt>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ascii_uppercase</strong> = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'</td></tr></table>
+</body></html>
