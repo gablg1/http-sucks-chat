@@ -14,6 +14,9 @@ from chat.chat_db import GroupDoesNotExist
 from chat.chat_db import UsernameExists
 
 def check_authorization(f):
+    """
+    Wrapper that checks the passed-in session token.
+    """
     @wraps(f)
     def wrapper(*args, **kwargs):
         session_token = request.authorization.password
@@ -27,11 +30,21 @@ def check_authorization(f):
     return wrapper
 
 class RESTServer(ChatServer):
-    #############
-    ## ROUTING ##
-    #############
+    """
+    Implements a subclass of ChatServer, that will use REST as its
+    communication protocol.
+    """
 
     def __init__(self, host, port):
+        """
+        Initializes a ChatServer on the given host and port, using
+        Flask. Also initializes all the possible routes that this server
+        will accept, calling the appropriate handlers.
+
+        :param host: The host where this client should connect to
+        :param port: The port that this client should connect to
+        """
+
         ChatServer.__init__(self, host, port)
         self.app = Flask("HTTPServer")
 
@@ -60,6 +73,15 @@ class RESTServer(ChatServer):
     ###########
 
     def handle_login(self):
+        """
+        Handles a login operation. There are no explicit parameters, but
+        this uses the Flask request to try to login with the username and
+        password that are passed in through Authentication headers.
+
+        :return: On success, JSON containing the username and session_token (and code 200).
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         username = request.authorization.username
         password = request.authorization.password
 
@@ -71,6 +93,15 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_logout(self):
+        """
+        Handles a logout operation. There are no explicit parameters, but
+        this uses the Flask request to get the session_token. 
+        Assumes that the user is logged in.
+
+        :return: On success, JSON containing the previous session_token (and code 200).
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         session_token = request.authorization.password
 
         try:
@@ -84,6 +115,15 @@ class RESTServer(ChatServer):
         return json.dumps({'data': {'user': {'session_token': session_token}}}), 200
 
     def handle_create_user(self):
+        """
+        Handles a register operation. There are no explicit parameters, but
+        this uses the Flask request to get the username and password that are
+        passed in the HTTP request. 
+
+        :return: On success, JSON containing the username (and code 200).
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         try:
             username = request.json['username']
             password = request.json['password']
@@ -101,6 +141,18 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_delete_user(self, user_id):
+        """
+        Handles a delete account operation. This method uses uses the Flask request 
+        to get the session_token passed in the Authentication headers. This checks
+        that the session_token matches the passed in :param user_id (see below).
+        Assumes that the user is logged in.
+
+        :param user_id: The user_id that must be deleted
+
+        :return: On success, JSON containing the username (and code 200).
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         session_token = request.authorization.password
 
         try:
@@ -119,6 +171,15 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_get_users(self):
+        """
+        Handles a get_users operation. There are no explicit parameters, but
+        this method uses the Flask request to get the wildcard passed in 
+        as a query in the HTTP request. Assumes that the user is logged in.
+
+        :return: On success, JSON containing the list of matching users (and code 200)
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         wildcard = request.args.get('wildcard')
 
         if wildcard is None:
@@ -137,6 +198,15 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_create_group(self):
+        """
+        Handles a create_group operation. There are no explicit parameters, 
+        but this uses the Flask request to get the group_name that is
+        passed in the HTTP request. 
+
+        :return: On success, JSON containing the group_name (and code 200).
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         try:
             group_name = request.json['data']['group_name']
         except:
@@ -153,6 +223,16 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_add_user_to_group(self, group_id):
+        """
+        Handles an add_user_to_group operation. This uses the Flask request 
+        to get the group_id that is passed in the HTTP request. Assumes
+        the user is logged in.
+
+        :return: On success, JSON containing the group_id and
+        the username (and code 200). On failure, JSON containing the error code 
+        (as defined in rest_errors.py).
+        """
+
         try:
             username = request.json['data']['username']
         except:
@@ -171,6 +251,15 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_get_groups(self):
+        """
+        Handles a get_groups operation. There are no explicit parameters, but
+        this method uses the Flask request to get the wildcard passed in 
+        as a query in the HTTP request. Assumes that the user is logged in.
+
+        :return: On success, JSON containing the list of matching groups (and code 200)
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         wildcard = request.args.get('wildcard')
 
         if wildcard is None:
@@ -189,6 +278,17 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_send_user(self, user_id):
+        """
+        Handles a send_user operation. This method uses the Flask request 
+        to get the session_token that is passed in the Authentication header,
+        as well as the message to be sent. Assumes that the user is logged in.
+
+        :param user_id: The user to whom the message will be sent.
+
+        :return: On success, JSON containing the user_id and the message (and code 200)
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         session_token = request.authorization.password
 
         try:
@@ -207,6 +307,17 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_send_group(self, group_id):
+        """
+        Handles a send_group operation. This method uses the Flask request 
+        to get the session_token that is passed in the Authentication header,
+        as well as the message to be sent. Assumes that the user is logged in.
+
+        :param group_id: The group to which the message will be sent.
+
+        :return: On success, JSON containing the group_id and the message (and code 200)
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         session_token = request.authorization.password
 
         try:
@@ -225,6 +336,15 @@ class RESTServer(ChatServer):
 
     @check_authorization
     def handle_fetch(self, user_id):
+        """
+        Handles a fetch operation. Assumes that the user is logged in.
+
+        :param user_id: The user_id that required this fetch.
+
+        :return: On success, JSON containing a list of messages (and code 200)
+        On failure, JSON containing the error code (as defined in rest_errors.py).
+        """
+
         try:
             messages = self.get_user_queued_messages(user_id)
             self.clear_user_message_queue(user_id)
@@ -240,7 +360,18 @@ class RESTServer(ChatServer):
     ##########
     @check_authorization
     def is_online(self, user_id):
+        """
+        Returns whether a user is online.
+
+        :return: False, since REST does not keep users connected.
+        """
+
         return False
 
     def serve_forever(self):
+        """ 
+        Main routine for this class. This simply starts up the
+        Flask server on the port and host (that are held as class variables).
+        """
+        
         self.app.run(port = self.port, host = self.host)
