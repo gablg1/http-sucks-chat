@@ -5,20 +5,37 @@ from rdtp.rdtp_client import RDTPClient
 from rest.rest_client import RESTClient
 
 def usage():
-	print "Usage: python client.py <REST|RDTP>"
-	exit()
+    """
+    Simple usage function that is printed when the command line arguments
+    are not valid.
+    """
+    print "Usage: python client.py <REST|RDTP>"
+    exit()
 
-HOST, PORT = "localhost", 9999
+def main():
+    """
+    Main routine of the program. By default, uses localhost and port 9999.
+    This can be changed in this function. This checks the command line
+    arguments, and starts up the appropriate chat_client according to
+    user input. 
 
-if len(sys.argv) == 1:
-	usage()
+    Assumes that there is a single command line argument, which is simply 
+    REST or RDTP.
+    """
+    HOST, PORT = "localhost", 9999
 
-if sys.argv[1].upper() == 'REST':
-	chat_client = RESTClient(HOST, PORT)
-elif sys.argv[1].upper() == 'RDTP':
-    chat_client = RDTPClient(HOST, PORT)
-    chat_client.connect()
-else:
-	usage()
+    if len(sys.argv) == 1:
+        usage()
 
-chat_client.cmdloop()
+    if sys.argv[1].upper() == 'REST':
+        chat_client = RESTClient(HOST, PORT)
+    elif sys.argv[1].upper() == 'RDTP':
+        chat_client = RDTPClient(HOST, PORT)
+        chat_client.connect()
+    else:
+        usage()
+
+    chat_client.cmdloop()
+
+if __name__ == "__main__":
+    main()
