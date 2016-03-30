@@ -10,14 +10,16 @@ import re
 class ChatServer(object):
     """
     Implements the interface of the different operations performed by the
-    server.
+    server. Notice that the functions here are almost always simple wrappers
+    to functions in ChatDB. Those may raise exceptions, and should be handled
+    appropriately by the caller; this class does NOT handle them.
     """
     
     def __init__(self, host, port):
         """
         Initializes a ChatServer host and port class variables.
         Also starts the ChatDB instance, which handles interactions 
-        with an underlying database.
+        with an underlying database. 
 
         :param host: The host where this client should connect to
         :param port: The port that this client should connect to
