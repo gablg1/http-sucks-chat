@@ -30,6 +30,7 @@ class ChatClient(cmd.Cmd):
     def do_register(self, params):
         """register [username] [password]
         Create a new account."""
+
         if len(params.split()) != 2:
             print "The appropriate command format is: register [username] [password]"
         else:
@@ -45,6 +46,7 @@ class ChatClient(cmd.Cmd):
     def do_create_group(self, group_id):
         """create_group [group]
         Creates a new group."""
+
         response = self.create_group(group_id)
         if response == 1:
             print "Your session has expired."
@@ -59,6 +61,7 @@ class ChatClient(cmd.Cmd):
     def do_add_user_to_group(self, params):
         """add_user_to_group [username] [group]
         Adds a user to a specified group."""
+
         if len(params.split()) != 2:
             print "The appropriate command format is: add_user_to_group [username] [group]"
         else:

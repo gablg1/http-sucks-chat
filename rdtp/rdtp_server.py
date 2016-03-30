@@ -83,7 +83,7 @@ class RDTPServer(ChatServer):
         :return On success, returns True. On Failure, returns UsernameExists error
         """
         self.sockets_by_user[username] = None
-        return super(RDTPServer, self).create_account(username, password)
+        super(RDTPServer, self).create_account(username, password)
 
     def kickout_user(self, username):
         """Kickout the current user. Used when a client logs in from a different place"""
