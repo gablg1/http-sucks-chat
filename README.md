@@ -61,3 +61,13 @@ protocols. However, the interfaces of `ChatServer` and `ChatClient`
 provide some abstraction for the server and client, which is shared between
 protocols. `ChatServer` uses `ChatDB` for interaction with an underlying instance
 of MongoDB.
+
+Each protocol implements a subclass of ChatServer and a subclass of ChatClient.
+Therefore we have classes RDTPServer, RESTServer, RDTPClient and RESTClient.
+They implement methods that will call the operations defined by ChatServer or
+ChatClient. The calls in ChatServer will depend mostly on ChatDB, the database
+instance which currently is implemented with Mongo. The calls in ChatClient
+will mostly rely on Python's cmd.Cmd library.
+
+In REST, the Requests and Flask libraries are used for communication through
+HTTP. The usages are documented in RESTServer.
