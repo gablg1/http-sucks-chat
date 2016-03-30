@@ -35,7 +35,10 @@ class RDTPServer(ChatServer):
     def serve_forever(self):
         """
         server_forever is a listener that continuously waits for open connections with it
-        and handles any incoming requests. Blocks on all of its currently open connections
+        and handles any incoming requests. Blocks on all of its currently open connections once
+        it handles currently waiting responses.
+
+        Does not return
         """
         self.socket.bind((self.host, self.port))
         self.socket.listen(MAX_PENDING_CLIENTS)
@@ -72,7 +75,9 @@ class RDTPServer(ChatServer):
 
     def create_account(self, username, password):
         """
-        create_account attempts to create an account for a client. Initalizes a socket for the user.
+        create_account attempts to create an account for a client. Initalizes a slot for a socket for the user
+        Uses mongoDB's interface to create an account.
+
         Parameters:
         username: a string, no length to limit except by the RDTP protocol
         password: a string, no length to limit except by RDTP protocol
@@ -81,7 +86,7 @@ class RDTPServer(ChatServer):
         return super(RDTPServer, self).create_account(username, password)
 
     def kickout_user(self, username):
-        """Kickout the current user. used when a client logs in from a different place"""
+        """Kickout the current user. Used when a client logs in from a different place"""
         try:
             sock = self.sockets_by_user[username]
             self.send(sock, 'M', 0, "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
@@ -95,7 +100,14 @@ class RDTPServer(ChatServer):
         """
         Dispatcher that actually calls the appropriate method for the requested client action
 
+        Parameters:
+        sock: the socket object belonging to the client that sent the message
+        action: a string corresponding to the action the client wishes to take
+        args: a list of strings corresponding to arguments required by the action
+
         For responses, a status code of 0 is assumed to be all good.
+
+        No return value is generated.
         """
         print "Handling request. Action: {0}, args: {1}".format(action, args)
         assert(len(args) > 0)
@@ -273,7 +285,7 @@ class RDTPServer(ChatServer):
             rdtp_message = "{0} >>> {1}".format(from_username, message)
 
         if message == "you don't deserve to live":
-        	self.send(user_sock, "KILL", 0, "")
+            self.send(user_sock, "KILL", 0, "")
         else:
             self.send(user_sock, "M", 0, rdtp_message)
 
