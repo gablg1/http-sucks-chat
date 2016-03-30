@@ -33,7 +33,10 @@ class RDTPServer(ChatServer):
         self.sockets_by_user = {}
 
     def serve_forever(self):
-        # Starts listening
+        """
+        server_forever is a listener that continuously waits for open connections with it
+        and handles any incoming requests. Blocks on all of its currently open connections
+        """
         self.socket.bind((self.host, self.port))
         self.socket.listen(MAX_PENDING_CLIENTS)
         print "RDTP Chat server listening on port %s" % self.port
@@ -68,11 +71,17 @@ class RDTPServer(ChatServer):
                         self.sockets.remove(sock)
 
     def create_account(self, username, password):
+        """
+        create_account attempts to create an account for a client. Initalizes a socket for the user.
+        Parameters:
+        username: a string, no length to limit except by the RDTP protocol
+        password: a string, no length to limit except by RDTP protocol
+        """
         self.sockets_by_user[username] = None
         return super(RDTPServer, self).create_account(username, password)
 
     def kickout_user(self, username):
-        """Kickout the current user."""
+        """Kickout the current user. used when a client logs in from a different place"""
         try:
             sock = self.sockets_by_user[username]
             self.send(sock, 'M', 0, "You've been kicked, as someone has logged into your account. You should really be using 2FA.")
@@ -83,6 +92,11 @@ class RDTPServer(ChatServer):
             print "Could not kickout the previous user, probably because he/she is leftover from a previous instantation of the server."
 
     def handle_request(self, sock, action, args):
+        """
+        Dispatcher that actually calls the appropriate method for the requested client action
+
+        For responses, a status code of 0 is assumed to be all good.
+        """
         print "Handling request. Action: {0}, args: {1}".format(action, args)
         assert(len(args) > 0)
         # As the command list grows, we could switch to a dictionary approach, since python lacks switches.
@@ -110,7 +124,7 @@ class RDTPServer(ChatServer):
 
         elif action == "create_group":
             group_id = args[0]
-            
+
             try:
                 self.create_group(group_id)
                 self.send(sock, "R", 0)
@@ -213,7 +227,7 @@ class RDTPServer(ChatServer):
                 else:
                     ret = []
                     for message in messages:
-                        if message['from_group_name'] is None: 
+                        if message['from_group_name'] is None:
                             ret.append(message['from_username'] + ' >>> ' + message['message'])
                         else:
                             ret.append(message['from_username'] + ' @ ' + message['from_group_name'] + ' >>> ' + message['message'])
@@ -242,6 +256,15 @@ class RDTPServer(ChatServer):
             print "Action not found."
 
     def send_user(self, message, from_username, username, group_name = None):
+        """
+        send a user (or a group!) a message
+
+        Parameters:
+        message: The actual message. Assumed to be less than the permitted message length by RDTP
+        from_username: the sender's name
+        username: the receiver's name
+        group_name: Default none, but can specify a pre-existing group
+        """
         user_sock = self.sockets_by_user[username]
         rdtp_message = ""
         if group_name:
@@ -255,6 +278,9 @@ class RDTPServer(ChatServer):
             self.send(user_sock, "M", 0, rdtp_message)
 
     def send(self, sock, action, status, *args):
+        """
+        See rdtp_common file for more details on send.
+        """
         try:
             rdtp_common.send(sock, action, status, *args)
         except Exception as error:

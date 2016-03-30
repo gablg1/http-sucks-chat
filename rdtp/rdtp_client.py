@@ -40,6 +40,11 @@ class RDTPClient(ChatClient):
 
     # Right now, the client only supports two types of actions. 'C' or 'M'
     def listener(self):
+        """
+        Listens forever for new messages from users delivered through the server
+        and server responses. New messages are directly printed to stdout, server
+        responses are queue'd up to be handled later
+        """
         while 1: # listen forever
             try:
                 action, status, args = rdtp_common.recv(self.socket)
@@ -61,6 +66,13 @@ class RDTPClient(ChatClient):
                     raise BadMessageFormat(message)
 
     def getNextMessage(self):
+        """
+        Gets the next message on the response queue. Usually called directly
+        after sending a message to the server.
+
+        Has a three second timeout, and assumes that after that timeout the server
+        will not respond.
+        """
         try:
             status, response = self.response_queue.get(block=True, timeout=3)
             return status, response
@@ -75,6 +87,9 @@ class RDTPClient(ChatClient):
     ##################################
 
     def send(self, action_name, *args):
+        """
+        See the rdtp_common file for more information on how send works
+        """
         rdtp_common.send(self.socket, action_name, 0, *args)
 
     # request is of type () ->
@@ -95,6 +110,10 @@ class RDTPClient(ChatClient):
 
     def username_exists(self, username):
         """Check if username already exists.
+
+        Parameters:
+        username: a string expected to be at most the length permitted by the RDTP protocol
+
         Returns boolean."""
         return self.status_request_handler('username_exists', username)
 
@@ -110,7 +129,7 @@ class RDTPClient(ChatClient):
     def create_group(self, group_id):
         """Instructs server to create an account with some group_id."""
         return self.status_request_handler('create_group', group_id)
-            
+
     def add_user_to_group(self, username, group_id):
         """Instructs server to add a user to a group."""
         return self.status_request_handler('add_to_group', username, group_id)
