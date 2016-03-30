@@ -20,6 +20,11 @@ class RESTClient(ChatClient):
     """
     Implements a subclass of ChatClient, that will use REST as its
     communication protocol.
+
+    This class uses the Requests library to make HTTP Requests to servers.
+    We use the methods get(), post(), delete() and the Session functionality
+    from that library. The documentation for Requests can be found here:
+    [http://requests.readthedocs.org/en/master/]
     """
 
     def __init__(self, host, port):
@@ -62,7 +67,8 @@ class RESTClient(ChatClient):
 
     def login(self, username, password):
         """
-        Login with given username and password.
+        Login with given username and password. This also sets up a
+        Requests session with the appropriate session token.
         
         :param username: The username to create
         :param password: The corresponding password

@@ -1,13 +1,12 @@
 import socket
 import sys
 import select
-from chat.chat_client import ChatClient
 import thread
 import Queue
-import sys
 
 import rdtp_common
 from rdtp_common import ClientDied
+from chat.chat_client import ChatClient
 
 MAX_RECV_LEN = 1024
 
@@ -18,6 +17,16 @@ class BadMessageFormat(Exception):
         return "The following message was received from the server in bad format: {}.".format(message)
 
 class RDTPClient(ChatClient):
+    """
+    Implements a ChatServer using the RDTP protocol.
+
+    This class uses the Python-included socket, select and thread libraries.
+    These are standard ways to do networking, and are considerably 
+    low-level.
+
+    It also uses Queue in order to queue the messages received in the sockets.
+    """
+
     def __init__(self, host, port):
         ChatClient.__init__(self, host, port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

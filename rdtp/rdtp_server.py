@@ -14,6 +14,14 @@ MAX_MSG_SIZE = 1024
 MAX_PENDING_CLIENTS = 10
 
 class RDTPServer(ChatServer):
+    """
+    Implements a ChatServer using the RDTP protocol.
+
+    This class uses the Python-included socket and select libraries.
+    These are standard ways to do networking, and are considerably 
+    low-level.
+    """
+    
     def __init__(self, host, port):
         ChatServer.__init__(self, host, port)
 
@@ -34,11 +42,11 @@ class RDTPServer(ChatServer):
 
     def serve_forever(self):
         """
-        server_forever is a listener that continuously waits for open connections with it
+        serve_forever is a listener that continuously waits for open connections with it
         and handles any incoming requests. Blocks on all of its currently open connections once
         it handles currently waiting responses.
-
         """
+
         self.socket.bind((self.host, self.port))
         self.socket.listen(MAX_PENDING_CLIENTS)
         print "RDTP Chat server listening on port %s" % self.port

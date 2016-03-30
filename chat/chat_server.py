@@ -1,11 +1,5 @@
-from abc import abstractmethod
 from chat_db import ChatDB
 from chat_db import UsernameExists
-import socket
-import select
-from random import choice
-from string import ascii_uppercase
-import re
 
 class ChatServer(object):
     """

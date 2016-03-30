@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from functools import wraps
 import cmd
 
@@ -20,6 +19,12 @@ class ChatClient(cmd.Cmd):
     """
     Implements the interface of the different operations performed by the
     client.
+
+    Dependencies: This module inherits from cmd.Cmd, which provides a simple
+    yet useful interface for the command line. The methods implemented in this
+    class will be called automatically by cmd.Cmd in the method cmd_loop(), 
+    which should be called to start this client. The documentation for cmd.Cmd
+    can be found here: [https://docs.python.org/2/library/cmd.html]
     """
     
     def __init__(self, host, port):

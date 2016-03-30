@@ -33,6 +33,11 @@ class RESTServer(ChatServer):
     """
     Implements a subclass of ChatServer, that will use REST as its
     communication protocol.
+
+    This class uses a simple Flask server as an HTTP server. 
+    The routing, characteristic of REST applications, is done through 
+    Flask. Documentation for Flask can be found here: 
+    [http://flask.pocoo.org/docs/0.10/]
     """
 
     def __init__(self, host, port):
